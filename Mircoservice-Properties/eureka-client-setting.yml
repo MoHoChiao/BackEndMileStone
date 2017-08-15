@@ -1,0 +1,9 @@
+eureka:
+  client:
+    serviceUrl:                                                 # http://localhost:8761/eureka/,表示用戶或微服務要與Eureka Server溝通的地址,默認即為左顯示,若有多個Eureka Server地址可以用逗號隔開
+      defaultZone: http://leoliu:mypass@localhost:8761/eureka/  # 若Eureka Server有設定基本認證時,需加上"帳號:密碼"的格式
+  instance:
+    prefer-ip-address: true                                     # 是否把自己的ip註冊到Eureka Server上,若為false表示會註冊此微服務所在電腦的hostname到Eureka Server上
+    metadata-map:                                               # 可以自己定義此instance的metadata,使用key/value的型式
+      my-metadata1: test metadata 1
+      my-metadata2: test metadata 2

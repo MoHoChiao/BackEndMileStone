@@ -1,0 +1,98 @@
+trinity:
+    apps:
+        -
+            name: 'Resource Setter'
+            cls: 'Resource Setter'
+            img: 'FlexWebUI 128.png'
+            alt: 'Resource Setter'
+            model: 'RC'
+            desc: 
+                - 'appCardContent.User_Group_Access_Design'
+                - 'appCardContent.Job_Frequency_Design'
+                - 'appCardContent.DB_Connection_Define'
+                - 'appCardContent.JCS_Agent_Define'
+                - 'appCardContent.Alias_Domain_Define'
+        -
+            name: 'Metadata Define'
+            cls: 'Metadata Define'
+            img: 'DisUI 128.png'
+            alt: 'Metadata Define'
+            model: 'MD'
+            desc: 
+                - 'appCardContent.Database_Mgnt'
+                - 'appCardContent.File_Mgnt'
+                - 'appCardContent.SAP_Mgnt'
+                - 'appCardContent.Notes_Mgnt'
+                - 'appCardContent.Meta_Table_Column_Mgnt'
+        -
+            name: 'JF Designer'
+            cls: 'JF Designer'
+            img: 'JFDesigner 128.png'
+            alt: 'JF Designer'
+            model: 'JF'
+            desc: 
+                - 'appCardContent.Entity_Category_Job_Define'
+                - 'appCardContent.Job_Step_Design'
+                - 'appCardContent.Flow_Map_Design'
+                - 'appCardContent.Job_Schedule_Assign'
+                - 'appCardContent.Import_Export_Operation'
+        -
+            name: 'Task Console'
+            cls: 'Task Console'
+            img: 'TaskConsole 128.png'
+            alt: 'Task Console'
+            model: 'Task'
+            desc: 
+                - 'appCardContent.Job_Flow_Task_Execution'
+                - 'appCardContent.Job_Flow_Task_Monitor'
+                - 'appCardContent.JCS_Server_Agent_Monitor'
+                - 'appCardContent.Resource_Monitor'
+                - 'appCardContent.Task_Log_Viewer'
+        -
+            name: 'Metaman'
+            cls: 'Metaman'
+            img: 'MetaMan Logo 128.png'
+            alt: 'Metaman'
+            model: 'MM'
+            desc: 
+                - 'appCardContent.Tech_Meta_Design'
+                - 'appCardContent.Business_Meta_Design'
+                - 'appCardContent.App_Meta_Design'
+                - 'appCardContent.ER_Lineage_Model_Design'
+                - 'appCardContent.Data_Profile'
+        -
+            name: 'Operation Logger'
+            cls: 'Operation Log'
+            img: 'OperationLog 128.png'
+            alt: 'Operation Log'
+            model: 'Operation'
+            desc: 
+                - 'appCardContent.Resource_Op_Log'
+                - 'appCardContent.Metadata_Op_Log'
+                - 'appCardContent.Job_Flow_Op_Log'
+                - 'appCardContent.Task_Op_Log'
+                - 'appCardContent.Login_Logout_Log'
+        -
+            name: 'Remote Updater'
+            cls: Remote Updater'
+            img: 'Updater Logo 128.png'
+            alt: 'Remote Updater'
+            model: 'UP'
+            desc: 
+                - 'appCardContent.Remote_Data_Fetch'
+                - 'appCardContent.Remote_Data_Push'
+                - 'appCardContent.Remote_Data_Commit'
+                - 'appCardContent.Remote_Data_Deploy'
+                - 'appCardContent.Remote_Data_Build'
+        -
+            name: 'Web Task Console'
+            cls: Web Task Console'
+            img: 'WebTaskConsole 128.png'
+            alt: 'Web Task Console'
+            model: 'WebTask'
+            desc: 
+                - 'appCardContent.Web_Job_Flow_Task_Execution'
+                - 'appCardContent.Web_Job_Flow_Task_Monitor'
+                - 'appCardContent.Web_JCS_Server_Agent_Monitor'
+                - 'appCardContent.Web_Running_Error_Viewer'
+                - 'appCardContent.Web_Task_Log_Viewer'

@@ -1,0 +1,16 @@
+spring:                                 # Spring JPA相關設定
+  jpa:
+    generate-ddl: false
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  datasource:                           # 指定資料庫來源
+    platform: h2                        # 指定資料庫類型
+    schema: classpath:schema.sql        # 指定h2資料庫的建表schema
+    data: classpath:data.sql            # 指定h2資料庫的資料schema
+logging:                                # 配置log，使hibernate jpa印出所執行的SQL
+  level:
+    root: INFO
+    org.hibernate: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.type.descriptor.sql.BasicExtractor: TRACE
