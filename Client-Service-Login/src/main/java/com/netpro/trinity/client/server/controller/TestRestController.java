@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ import com.netpro.trinity.client.server.config.TrinityAppsConfig.App;
 import com.netpro.trinity.client.server.entity.User;
 import com.netpro.trinity.client.server.feign.UserFeignClient;
 
+@CrossOrigin
 @RestController		//宣告一個Restful Web Service的Resource
 public class TestRestController {
   private static final Logger LOGGER = LoggerFactory.getLogger(TestRestController.class); //引入log4j

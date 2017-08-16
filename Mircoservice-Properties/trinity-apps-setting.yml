@@ -3,7 +3,7 @@ trinity:
         -
             name: 'Resource Setter'
             cls: 'Resource Setter'
-            img: 'FlexWebUI 128.png'
+            img: '/src/assets/images/FlexWebUI 128.png'
             alt: 'Resource Setter'
             model: 'RC'
             desc: 
@@ -15,7 +15,7 @@ trinity:
         -
             name: 'Metadata Define'
             cls: 'Metadata Define'
-            img: 'DisUI 128.png'
+            img: '/src/assets/images/DisUI 128.png'
             alt: 'Metadata Define'
             model: 'MD'
             desc: 
@@ -27,7 +27,7 @@ trinity:
         -
             name: 'JF Designer'
             cls: 'JF Designer'
-            img: 'JFDesigner 128.png'
+            img: '/src/assets/images/JFDesigner 128.png'
             alt: 'JF Designer'
             model: 'JF'
             desc: 
@@ -39,7 +39,7 @@ trinity:
         -
             name: 'Task Console'
             cls: 'Task Console'
-            img: 'TaskConsole 128.png'
+            img: '/src/assets/images/TaskConsole 128.png'
             alt: 'Task Console'
             model: 'Task'
             desc: 
@@ -51,7 +51,7 @@ trinity:
         -
             name: 'Metaman'
             cls: 'Metaman'
-            img: 'MetaMan Logo 128.png'
+            img: '/src/assets/images/MetaMan Logo 128.png'
             alt: 'Metaman'
             model: 'MM'
             desc: 
@@ -63,7 +63,7 @@ trinity:
         -
             name: 'Operation Logger'
             cls: 'Operation Log'
-            img: 'OperationLog 128.png'
+            img: '/src/assets/images/OperationLog 128.png'
             alt: 'Operation Log'
             model: 'Operation'
             desc: 
@@ -75,19 +75,19 @@ trinity:
         -
             name: 'Remote Updater'
             cls: Remote Updater'
-            img: 'Updater Logo 128.png'
+            img: '/src/assets/images/ResManagement 128.png'
             alt: 'Remote Updater'
             model: 'UP'
             desc: 
                 - 'appCardContent.Remote_Data_Fetch'
                 - 'appCardContent.Remote_Data_Push'
-                - 'appCardContent.Remote_Data_Commit'
+                - 'appCardContent.Remote_Data_Pull'
                 - 'appCardContent.Remote_Data_Deploy'
                 - 'appCardContent.Remote_Data_Build'
         -
             name: 'Web Task Console'
             cls: Web Task Console'
-            img: 'WebTaskConsole 128.png'
+            img: '/src/assets/images/WebTaskConsole 128.png'
             alt: 'Web Task Console'
             model: 'WebTask'
             desc: 
