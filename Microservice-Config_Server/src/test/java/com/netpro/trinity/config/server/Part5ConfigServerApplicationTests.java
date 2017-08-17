@@ -1,4 +1,4 @@
-package com.netpro.trinity.dis;
+package com.netpro.trinity.config.server;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,7 +7,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class Part2EurekaServerApplicationTests {
+public class Part5ConfigServerApplicationTests {
 
 	@Test
 	public void contextLoads() {
