@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Maps;
-import com.netpro.trinity.client.server.config.TrinityAppsConfig;
-import com.netpro.trinity.client.server.config.TrinityAppsConfig.App;
 import com.netpro.trinity.client.server.entity.User;
 import com.netpro.trinity.client.server.feign.UserFeignClient;
 
@@ -107,13 +105,5 @@ public class TestRestController {
     ServiceInstance serviceInstance = this.loadBalancerClient.choose("user-provider");
     // 顯示這個呼叫,當前選擇的是provider的那一個instance
     TestRestController.LOGGER.info("{}:{}:{}", serviceInstance.getServiceId(), serviceInstance.getHost(), serviceInstance.getPort());
-  }
-  
-  @Autowired	//自動注入LoadBalancerClient物件
-  private TrinityAppsConfig appsConfig;
-  
-  @GetMapping("/get-model")
-  public List<App> getModel() {
-    return this.appsConfig.getApps();
   }
 }
