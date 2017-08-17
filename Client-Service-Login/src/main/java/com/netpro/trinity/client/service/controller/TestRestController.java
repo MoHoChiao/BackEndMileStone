@@ -1,4 +1,4 @@
-package com.netpro.trinity.client.server.controller;
+package com.netpro.trinity.client.service.controller;
 
 import java.util.List;
 import java.util.Map;
@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Maps;
-import com.netpro.trinity.client.server.entity.User;
-import com.netpro.trinity.client.server.feign.UserFeignClient;
+import com.netpro.trinity.client.service.entity.User;
+import com.netpro.trinity.client.service.feign.UserFeignClient;
 
 @CrossOrigin
 @RestController		//宣告一個Restful Web Service的Resource

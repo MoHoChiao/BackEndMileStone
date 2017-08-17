@@ -1,4 +1,4 @@
-package com.netpro.trinity.main;
+package com.netpro.trinity.config.reader;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

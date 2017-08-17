@@ -1,4 +1,4 @@
-package com.netpro.trinity.client.server;
+package com.netpro.trinity.client.service;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

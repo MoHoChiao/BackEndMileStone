@@ -1,4 +1,4 @@
-package com.netpro.trinity.client.server.entity;
+package com.netpro.trinity.client.service.entity;
 
 import java.math.BigDecimal;
 //宣告一個POJO

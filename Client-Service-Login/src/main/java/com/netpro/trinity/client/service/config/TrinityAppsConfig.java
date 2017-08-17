@@ -1,4 +1,4 @@
-package com.netpro.trinity.client.server.config;
+package com.netpro.trinity.client.service.config;
 
 import java.util.ArrayList;
 import java.util.List;

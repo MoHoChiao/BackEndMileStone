@@ -1,4 +1,4 @@
-package com.netpro.trinity.client.server.feign;
+package com.netpro.trinity.client.service.feign;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.netpro.trinity.client.server.entity.User;
+import com.netpro.trinity.client.service.entity.User;
 
 import config.FeignLogConfiguration;
 import feign.hystrix.FallbackFactory;
