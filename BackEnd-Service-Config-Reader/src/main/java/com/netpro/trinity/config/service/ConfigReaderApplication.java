@@ -1,4 +1,4 @@
-package com.netpro.trinity.config.reader;
+package com.netpro.trinity.config.service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

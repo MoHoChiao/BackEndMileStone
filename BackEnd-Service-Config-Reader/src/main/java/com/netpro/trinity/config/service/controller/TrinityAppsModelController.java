@@ -1,4 +1,4 @@
-package com.netpro.trinity.config.reader.controller;
+package com.netpro.trinity.config.service.controller;
 
 import java.util.List;
 
@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.config.reader.config.entity.TrinityAppsConfig;
-import com.netpro.trinity.config.reader.config.entity.TrinityAppsConfig.App;
+import com.netpro.trinity.config.service.config.entity.TrinityAppsConfig;
+import com.netpro.trinity.config.service.config.entity.TrinityAppsConfig.App;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/trinity-apps-setting")

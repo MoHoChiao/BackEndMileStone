@@ -1,4 +1,4 @@
-package com.netpro.trinity.config.reader.config.entity;
+package com.netpro.trinity.config.service.config.entity;
 
 import java.util.ArrayList;
 import java.util.List;
