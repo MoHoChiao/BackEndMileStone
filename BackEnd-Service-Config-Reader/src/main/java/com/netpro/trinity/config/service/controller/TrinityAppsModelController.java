@@ -18,7 +18,7 @@ public class TrinityAppsModelController {
 	private TrinityAppsConfig appsConfig;
 	  
 	@GetMapping("/find-apps-model")
-	public List<App> getModel() {
+	public List<App> findAppsModel() {
 		System.out.println("getModel");
 		return this.appsConfig.getApps();
 	}
