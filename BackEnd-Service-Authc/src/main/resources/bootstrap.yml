@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    config:
+      name: eureka-client-setting,datasource-setting,trinity-setting
+      uri: http://localhost:8888/     # 這種直接指定IP的方式並不優雅,當你有兩台以上Config Server時,也不會做到load balanced,下面方法較優
+      #discovery:
+        #enabled: true                # 如果把各台Config Server也已經註冊到Eureka Server,開啟它就可以自動到某台Config Server捉取property了
+        #service-id: configserver     # 指定Config Server在Eureka Server中的服務ID
+      profile: default                # 本地檔案,無GIT,用default沒差 
+management:
+  security:
+    enabled: false                    # 把安全性關掉,才可以使用遠端的property來更新本地的property
