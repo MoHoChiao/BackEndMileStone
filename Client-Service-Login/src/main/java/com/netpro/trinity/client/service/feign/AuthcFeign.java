@@ -18,7 +18,7 @@ import feign.hystrix.FallbackFactory;
  */
 @FeignClient(name = "back-service-authc", configuration = FeignLogConfiguration.class, fallbackFactory = AuthcFallbackFactory.class)
 public interface AuthcFeign {
-  @RequestMapping(value = "/authc-lib/find-login", method = RequestMethod.POST)
+  @RequestMapping(value = "/authc-lib/find-access-token", method = RequestMethod.POST)
   public LoginInfo findLogin(LoginInfo info);
 }
 
