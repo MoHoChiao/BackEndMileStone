@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.authc.service.authc_lib.AuthcLib;
-import com.netpro.trinity.entity.LoginInfo;
+import com.netpro.trinity.service.entity.LoginInfo;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/authc-lib")

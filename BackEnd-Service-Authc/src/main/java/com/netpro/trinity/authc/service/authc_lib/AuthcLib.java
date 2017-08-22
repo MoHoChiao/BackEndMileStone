@@ -23,9 +23,9 @@ import com.netpro.ac.dao.DaoFactory;
 import com.netpro.ac.dao.JdbcDaoFactoryImpl;
 import com.netpro.ac.util.CommonUtils;
 import com.netpro.ac.util.TrinityWebV2Utils;
-import com.netpro.trinity.entity.LoginInfo;
-import com.netpro.trinity.status.TrinityServiceMsg;
-import com.netpro.trinity.status.TrinityServiceStatus;
+import com.netpro.trinity.service.entity.LoginInfo;
+import com.netpro.trinity.service.status.TrinityServiceStatus;
+import com.netpro.trinity.service.status.TrinityServiceStatusMsg;
 
 @Service
 public class AuthcLib {
@@ -39,12 +39,12 @@ public class AuthcLib {
 	public LoginInfo authcLogin(HttpServletResponse response, String ip, String ac, String psw) {
 		LoginInfo ret_info = new LoginInfo();
 		if(null == ac || ac.trim().equals("")) {
-			ret_info.setMsg(TrinityServiceMsg.LOGIN_ERROR+" "+TrinityServiceMsg.ACCOUNT_EMPTY);
+			ret_info.setMsg(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.ACCOUNT_EMPTY);
 			ret_info.setStatus(TrinityServiceStatus.EMPTY);
 			return ret_info;
 		}
 		if(null == psw || psw.trim().equals("")) {
-			ret_info.setMsg(TrinityServiceMsg.LOGIN_ERROR+" "+TrinityServiceMsg.PSW_EMPTY);
+			ret_info.setMsg(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.PSW_EMPTY);
 			ret_info.setStatus(TrinityServiceStatus.EMPTY);
 			return ret_info;
 		}
@@ -72,7 +72,7 @@ public class AuthcLib {
 						TrinityWebV2Utils.issueResetToken(response, e.getResetCredentialsToken(), service.getResetTokenMaxAgeInSeconds());
 						String cookieStr = response.getHeader("Set-Cookie").replace(";HttpOnly", "");
 						ret_info.setTokenstr(cookieStr);
-						ret_info.setMsg(TrinityServiceMsg.RESET_PSW);
+						ret_info.setMsg(TrinityServiceStatusMsg.RESET_PSW);
 						ret_info.setStatus(TrinityServiceStatus.CHANGE_CREDENTIALS);
 					}else {
 						StringBuilder msg = new StringBuilder();
@@ -80,7 +80,7 @@ public class AuthcLib {
 							msg.append(error.getMessage()).append('\n');
 						}
 						String errMsg = msg.toString().trim();
-						ret_info.setMsg(TrinityServiceMsg.LOGIN_ERROR+" "+errMsg);
+						ret_info.setMsg(TrinityServiceStatusMsg.LOGIN_ERROR+" "+errMsg);
 						ret_info.setStatus(TrinityServiceStatus.ERROR);
 					}
 					return ret_info;
@@ -88,7 +88,7 @@ public class AuthcLib {
 			}
 			
 			if(null == principal) {
-				ret_info.setMsg(TrinityServiceMsg.LOGIN_ERROR+" "+TrinityServiceMsg.ACCOUNT_CHECK);
+				ret_info.setMsg(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.ACCOUNT_CHECK);
 				ret_info.setStatus(TrinityServiceStatus.ERROR);
 				return ret_info;
 			}else {
@@ -108,13 +108,13 @@ public class AuthcLib {
 				TrinityWebV2Utils.issueHttpOnlyCookies(response, trinityPrinc, expireSeconds, true);
 				String cookieStr = response.getHeader("Set-Cookie").replace(";HttpOnly", "");
 				ret_info.setUserinfo(userInfo);
-				ret_info.setMsg(TrinityServiceMsg.LOGIN_SUCCESS);
+				ret_info.setMsg(TrinityServiceStatusMsg.LOGIN_SUCCESS);
 				ret_info.setTokenstr(cookieStr);
 				return ret_info;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			ret_info.setMsg(TrinityServiceMsg.LOGIN_ERROR+" "+e.getMessage());
+			ret_info.setMsg(TrinityServiceStatusMsg.LOGIN_ERROR+" "+e.getMessage());
 			ret_info.setStatus(TrinityServiceStatus.ERROR);
 			return ret_info;
 		} finally {
