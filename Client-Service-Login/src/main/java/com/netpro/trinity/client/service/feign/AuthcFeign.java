@@ -3,11 +3,14 @@ package com.netpro.trinity.client.service.feign;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.netpro.trinity.client.service.entity.LoginInfo;
+import com.netpro.trinity.entity.LoginInfo;
+import com.netpro.trinity.status.TrinityServiceStatus;
 
 import config.FeignLogConfiguration;
 import feign.hystrix.FallbackFactory;
@@ -19,7 +22,7 @@ import feign.hystrix.FallbackFactory;
 @FeignClient(name = "back-service-authc", configuration = FeignLogConfiguration.class, fallbackFactory = AuthcFallbackFactory.class)
 public interface AuthcFeign {
   @RequestMapping(value = "/authc-lib/find-access-token", method = RequestMethod.POST)
-  public LoginInfo findLogin(LoginInfo info);
+  public ResponseEntity<LoginInfo> findAccessToken(LoginInfo info);
 }
 
 /**
@@ -36,15 +39,12 @@ class AuthcFallbackFactory implements FallbackFactory<AuthcFeign> {
     return new AuthcFeign() {
 
     	@Override
-    	public LoginInfo findLogin(LoginInfo info) {
+    	public ResponseEntity<LoginInfo> findAccessToken(LoginInfo info) {
     		AuthcFallbackFactory.LOGGER.error("fallback; reason was:", cause);
-    		info.setFlag("Error");
-    		info.setInfo("Service: back-service-authc \n"+
-    					"Path: /authc-lib/find-login \n"+
-    					"Trigger Source: AuthcFeign.class \n"+
-    					"Method: findLogin \n"+
-    					cause);
-    		return info;
+    		
+    		info.setStatus(TrinityServiceStatus.ERROR);
+    		info.setMsg(cause.getMessage());
+    		return new ResponseEntity<LoginInfo>(info, HttpStatus.INTERNAL_SERVER_ERROR);
     	}
     };
   }
