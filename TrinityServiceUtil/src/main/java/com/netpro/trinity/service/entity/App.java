@@ -2,7 +2,7 @@ package com.netpro.trinity.service.entity;
 
 import java.util.List;
 //宣告一個POJO
-public class App extends TrinityServiceEntity{
+public class App {
 	private String name;
     private String cls;
     private String img;
