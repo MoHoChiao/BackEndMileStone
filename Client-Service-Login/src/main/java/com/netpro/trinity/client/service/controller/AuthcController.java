@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.client.service.feign.AuthcFeign;
-import com.netpro.trinity.service.entity.LoginInfo;
+import com.netpro.trinity.service.util.entity.dto.LoginInfo;
 
 @CrossOrigin
 @RestController		//宣告一個Restful Web Service的Resource
@@ -25,16 +25,5 @@ public class AuthcController {
 	public ResponseEntity<?> getLogin(HttpServletRequest request, @RequestBody LoginInfo info) {
 		info.setRemoteip(request.getRemoteAddr());
 		return this.authc.findAccessToken(info);
-		
-//		if(info.getStatus().equals(TrinityServiceStatus.SUCCESS))
-//			return ResponseEntity.ok(info);
-//		else if(info.getStatus().equals(TrinityServiceStatus.ERROR)) {
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(info);
-//		}else if(info.getStatus().equals(TrinityServiceStatus.EMPTY)) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(info);
-//		}else if(info.getStatus().equals(TrinityServiceStatus.CHANGE_CREDENTIALS)) {
-//			return ResponseEntity.status(HttpStatus.).body(info);
-//		}
-//		return info;
 	}
 }

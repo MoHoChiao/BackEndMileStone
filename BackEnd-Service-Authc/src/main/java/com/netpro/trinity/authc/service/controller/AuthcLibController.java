@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.authc.service.authc_lib.AuthcLib;
-import com.netpro.trinity.service.entity.LoginInfo;
-import com.netpro.trinity.service.entity.TrinityServiceError;
+import com.netpro.trinity.service.util.entity.dto.LoginInfo;
+import com.netpro.trinity.service.util.exception.AuthcException;
+import com.netpro.trinity.service.util.exception.FieldEmptyException;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/authc-lib")
@@ -29,13 +30,17 @@ public class AuthcLibController {
 		try {
 			return ResponseEntity.ok(authcLib.authcLogin(response, info.getRemoteip(), info.getAccount(), info.getPsw()));
 		} catch (SQLException e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new TrinityServiceError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new TrinityServiceError(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
-		} catch (IllegalAccessException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new TrinityServiceError(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+			System.out.println(e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		} catch (FieldEmptyException e) {
+			System.out.println(e.getMessage());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		} catch (AuthcException e) {
+			System.out.println(e.getMessage());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new TrinityServiceError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+			System.out.println(e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 }

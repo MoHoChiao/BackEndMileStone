@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.netpro.trinity.service.entity.App;
+import com.netpro.trinity.service.util.entity.dto.App;
 
 import config.FeignLogConfiguration;
 import feign.hystrix.FallbackFactory;
