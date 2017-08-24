@@ -24,8 +24,6 @@ import com.netpro.ac.dao.JdbcDaoFactoryImpl;
 import com.netpro.ac.util.CommonUtils;
 import com.netpro.ac.util.TrinityWebV2Utils;
 import com.netpro.trinity.service.util.entity.dto.Return_LoginInfo;
-import com.netpro.trinity.service.util.exception.AuthcException;
-import com.netpro.trinity.service.util.exception.FieldEmptyException;
 import com.netpro.trinity.service.util.status.TrinityServiceStatus;
 import com.netpro.trinity.service.util.status.TrinityServiceStatusMsg;
 
@@ -38,19 +36,19 @@ public class AuthcLib {
 	@Autowired	//自動注入DataSource物件
 	private DataSource dataSource;
 	
-	public Return_LoginInfo authcLogin(HttpServletResponse response, String ip, String ac, String psw) throws SQLException, FieldEmptyException, AuthcException, Exception {
+	public Return_LoginInfo authcLogin(HttpServletResponse response, String ip, String ac, String psw) throws SQLException, IllegalArgumentException, IllegalAccessException, Exception {
 		Return_LoginInfo info = new Return_LoginInfo();
 		if(null == ac || ac.trim().equals("")) {
-			throw new FieldEmptyException(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.ACCOUNT_EMPTY);
+			throw new IllegalArgumentException(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.ACCOUNT_EMPTY);
 		}
 		if(null == psw || psw.trim().equals("")) {
-			throw new FieldEmptyException(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.PSW_EMPTY);
+			throw new IllegalArgumentException(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.PSW_EMPTY);
 		}
 		
 		Connection con = null;
 		try {
 			con = dataSource.getConnection();
-
+			
 			Principal principal = null;
 			long expireSeconds = -1;
 			if(con != null) {
@@ -72,7 +70,7 @@ public class AuthcLib {
 							msg.append(error.getMessage()).append('\n');
 						}
 						String errMsg = msg.toString().trim();
-						throw new AuthcException(errMsg);
+						throw new IllegalAccessException(errMsg);
 					}
 					
 					TrinityWebV2Utils.issueResetToken(response, e.getResetCredentialsToken(), service.getResetTokenMaxAgeInSeconds());
@@ -101,7 +99,7 @@ public class AuthcLib {
 			}
 			
 			if(null == principal) {
-				throw new AuthcException(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.ACCOUNT_CHECK);
+				throw new IllegalAccessException(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.ACCOUNT_CHECK);
 //				ret_info.setMsg(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.ACCOUNT_CHECK);
 //				ret_info.setStatus(TrinityServiceStatus.ERROR);
 //				return ret_info;

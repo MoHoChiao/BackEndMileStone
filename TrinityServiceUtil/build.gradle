@@ -20,19 +20,3 @@ sourceCompatibility = 1.8
 repositories {
 	mavenCentral()
 }
-
-
-ext {
-	springCloudVersion = 'Dalston.SR3'
-}
-
-dependencies {
-	compile('org.springframework.cloud:spring-cloud-starter-hystrix')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-}
-
-dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-	}
-}

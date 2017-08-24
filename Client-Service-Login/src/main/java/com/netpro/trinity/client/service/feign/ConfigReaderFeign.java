@@ -10,16 +10,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.netpro.trinity.error.config.SkipTrinityBadRequestsConfiguration;
 import com.netpro.trinity.service.util.entity.dto.App;
 
-import config.FeignLogConfiguration;
 import feign.hystrix.FallbackFactory;
 /*
  * name:一個任意的客戶端服務名稱,即Eureka服務註冊列表中的服務
  * configuration:可設定Feign Client的配置類別,這個配置主要是控制logging的層級
  * fallbackFactory:這裡是Feign結合Hystrix的fall back function之配置
  */
-@FeignClient(name = "back-service-config-reader", configuration = FeignLogConfiguration.class, fallbackFactory = ConfigReaderFallbackFactory.class)
+@FeignClient(name = "back-service-config-reader", configuration = SkipTrinityBadRequestsConfiguration.class, fallbackFactory = ConfigReaderFallbackFactory.class)
 public interface ConfigReaderFeign {
   @RequestMapping(value = "/trinity-apps-setting/find-apps-model", method = RequestMethod.GET)
   public List<App> findAppsModel();

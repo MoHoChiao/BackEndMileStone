@@ -5,9 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
-import org.springframework.context.annotation.Bean;
-
-import com.netpro.trinity.client.service.feign.TrinityErrorDecoder;
 
 /*
  * Spring Boot啟動的核心,它會開啟所有的自動配置以及載入相關的annotation(@Bean,@Entity...)進入Spring IOC Container
@@ -30,10 +27,7 @@ import com.netpro.trinity.client.service.feign.TrinityErrorDecoder;
  */
 @EnableHystrix
 public class ClientServiceLogin {
-	@Bean
-	public TrinityErrorDecoder myErrorDecoder() {
-	  return new TrinityErrorDecoder();
-	}
+
 	public static void main(String[] args) {
 		SpringApplication.run(ClientServiceLogin.class, args);
 	}

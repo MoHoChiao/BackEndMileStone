@@ -4,6 +4,8 @@ import java.sql.SQLException;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.authc.service.authc_lib.AuthcLib;
 import com.netpro.trinity.service.util.entity.dto.LoginInfo;
-import com.netpro.trinity.service.util.exception.AuthcException;
-import com.netpro.trinity.service.util.exception.FieldEmptyException;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/authc-lib")
 public class AuthcLibController {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AuthcLibController.class);
 	
 	@Autowired	//自動注入AuthcLib物件
 	private AuthcLib authcLib;
@@ -30,16 +32,16 @@ public class AuthcLibController {
 		try {
 			return ResponseEntity.ok(authcLib.authcLogin(response, info.getRemoteip(), info.getAccount(), info.getPsw()));
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			AuthcLibController.LOGGER.error("SQLException; reason was:", e.getCause());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		} catch (FieldEmptyException e) {
-			System.out.println(e.getMessage());
+		} catch (IllegalArgumentException e) {
+			AuthcLibController.LOGGER.error("IllegalArgumentException; reason was:", e.getCause());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-		} catch (AuthcException e) {
-			System.out.println(e.getMessage());
+		} catch (IllegalAccessException e) {
+			AuthcLibController.LOGGER.error("IllegalAccessException; reason was:", e.getCause());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			AuthcLibController.LOGGER.error("Exception; reason was:", e.getCause());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}

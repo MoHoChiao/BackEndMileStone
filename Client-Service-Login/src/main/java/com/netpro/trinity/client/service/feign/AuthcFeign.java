@@ -3,23 +3,22 @@ package com.netpro.trinity.client.service.feign;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.netflix.feign.FeignClient;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.netpro.trinity.error.config.SkipTrinityBadRequestsConfiguration;
+import com.netpro.trinity.error.factory.FallbackResponseFactory;
 import com.netpro.trinity.service.util.entity.dto.LoginInfo;
 
-import config.FeignLogConfiguration;
-import feign.FeignException;
 import feign.hystrix.FallbackFactory;
 /*
  * name:一個任意的客戶端服務名稱,即Eureka服務註冊列表中的服務
  * configuration:可設定Feign Client的配置類別,這個配置主要是控制logging的層級
  * fallbackFactory:這裡是Feign結合Hystrix的fall back function之配置
  */
-@FeignClient(name = "back-service-authc", configuration = FeignLogConfiguration.class, fallbackFactory = AuthcFallbackFactory.class)
+@FeignClient(name = "back-service-authc", configuration = SkipTrinityBadRequestsConfiguration.class, fallbackFactory = AuthcFallbackFactory.class)
 public interface AuthcFeign {
   @RequestMapping(value = "/authc-lib/find-access-token", method = RequestMethod.POST)
   public ResponseEntity<?> findAccessToken(LoginInfo info);
@@ -40,12 +39,9 @@ class AuthcFallbackFactory implements FallbackFactory<AuthcFeign> {
 
     	@Override
     	public ResponseEntity<?> findAccessToken(LoginInfo info) {
-    		AuthcFallbackFactory.LOGGER.error("fallback; reason was:", cause);
+    		AuthcFallbackFactory.LOGGER.error("findAccessToken fallback; reason was:", cause);
     		
-    		FeignException fex = (FeignException)cause;
-    		HttpStatus httpcode = HttpStatus.valueOf(fex.status());
-    		System.out.println(fex.getMessage());
-    		return ResponseEntity.status(httpcode).body("{\"response\":\"Hello World!\"}");
+    		return FallbackResponseFactory.getFallbackResponse(cause);
     	}
     };
   }

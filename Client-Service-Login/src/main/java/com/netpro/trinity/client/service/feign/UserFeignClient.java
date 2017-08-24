@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.netpro.trinity.client.service.entity.User;
+import com.netpro.trinity.error.config.SkipTrinityBadRequestsConfiguration;
 
-import config.FeignLogConfiguration;
 import feign.hystrix.FallbackFactory;
 /*
  * name:一個任意的客戶端服務名稱,即Eureka服務註冊列表中的服務
  * configuration:可設定Feign Client的配置類別,這個配置主要是控制logging的層級
  * fallbackFactory:這裡是Feign結合Hystrix的fall back function之配置
  */
-@FeignClient(name = "backend-service-login", configuration = FeignLogConfiguration.class, fallbackFactory = FeignClientFallbackFactory.class)
+@FeignClient(name = "backend-service-login", configuration = SkipTrinityBadRequestsConfiguration.class, fallbackFactory = FeignClientFallbackFactory.class)
 public interface UserFeignClient {
   @RequestMapping(value = "/findById/{id}", method = RequestMethod.GET)	//簡單的Spring MVC的東西,等價於@GetMapping(value = "/findById/{id}")
   public User findById(@PathVariable("id") Long id);
