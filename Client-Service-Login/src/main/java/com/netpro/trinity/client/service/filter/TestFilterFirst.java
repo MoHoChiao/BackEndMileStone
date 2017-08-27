@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,7 +17,7 @@ import org.springframework.core.annotation.Order;
 
 @Order(1)
 //重点
-@WebFilter(filterName = "testFilter1", urlPatterns = "/authc/gen-access-token")
+@WebFilter(filterName = "testFilter1", urlPatterns = "/*")
 public class TestFilterFirst implements Filter {
 	private static final boolean CONDITION = false;
 	
@@ -28,16 +29,23 @@ public class TestFilterFirst implements Filter {
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
 			throws IOException, ServletException {
-		 HttpServletRequest httpRequest = asHttp(servletRequest);
-	     HttpServletResponse httpResponse = asHttp(servletResponse);
-	     System.out.println(httpRequest.getAttribute("account"));
-	     System.out.println(httpRequest.getAttribute("psw"));
-		return;
-//		if(CONDITION==true)  
-//			filterChain.doFilter(servletRequest,servletResponse);  
-//        else{  
-//            ((HttpServletResponse)servletResponse).setStatus(HttpServletResponse.SC_BAD_REQUEST);  
-//        }  
+		HttpServletRequest httpRequest = asHttp(servletRequest);
+		HttpServletResponse httpResponse = asHttp(servletResponse);
+		
+		String path = httpRequest.getRequestURI();
+		if (path.startsWith("/authc/") || path.startsWith("/trinity-apps")) {
+			filterChain.doFilter(servletRequest,servletResponse);
+		} else {
+			Cookie [] cookies = httpRequest.getCookies();
+			if(cookies != null) {
+				for (Cookie cookie : cookies) {
+					System.out.println(cookie.getName()+":"+cookie.getValue());
+				}
+			}else {
+				System.out.println("You do not have cookie!!!!");
+				((HttpServletResponse)servletResponse).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			}
+		}
 	}
 
 	@Override
