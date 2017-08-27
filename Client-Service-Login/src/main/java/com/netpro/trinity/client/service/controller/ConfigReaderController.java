@@ -23,4 +23,9 @@ public class ConfigReaderController {
 	public List<App> getAppsModel() {
 		return this.configReader.findAppsModel();
 	}
+	
+	@GetMapping("/test")
+	public void test() {
+		System.out.println("This is my test");
+	}
 }

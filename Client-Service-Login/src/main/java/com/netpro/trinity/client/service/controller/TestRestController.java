@@ -106,9 +106,4 @@ public class TestRestController {
     // 顯示這個呼叫,當前選擇的是provider的那一個instance
     TestRestController.LOGGER.info("{}:{}:{}", serviceInstance.getServiceId(), serviceInstance.getHost(), serviceInstance.getPort());
   }
-  
-  @GetMapping("/test")
-  public void test() {
-    System.out.println("This is my test");
-  }
 }

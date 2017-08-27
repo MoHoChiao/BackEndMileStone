@@ -18,7 +18,7 @@ import org.springframework.core.annotation.Order;
 @Order(1)
 //重点
 @WebFilter(filterName = "testFilter1", urlPatterns = "/*")
-public class TestFilterFirst implements Filter {
+public class authFilterFirst implements Filter {
 	private static final boolean CONDITION = false;
 	
 	@Override
@@ -31,15 +31,20 @@ public class TestFilterFirst implements Filter {
 			throws IOException, ServletException {
 		HttpServletRequest httpRequest = asHttp(servletRequest);
 		HttpServletResponse httpResponse = asHttp(servletResponse);
-		
 		String path = httpRequest.getRequestURI();
 		if (path.startsWith("/authc/") || path.startsWith("/trinity-apps")) {
+			Cookie [] cookies = httpRequest.getCookies();
+			if(cookies != null) {
+				for (Cookie cookie : cookies) {
+					System.out.println("111111111111111111111111:"+cookie.getName()+":"+cookie.getValue());
+				}
+			}
 			filterChain.doFilter(servletRequest,servletResponse);
 		} else {
 			Cookie [] cookies = httpRequest.getCookies();
 			if(cookies != null) {
 				for (Cookie cookie : cookies) {
-					System.out.println(cookie.getName()+":"+cookie.getValue());
+					System.out.println("2222222222222222222222222:"+cookie.getName()+":"+cookie.getValue());
 				}
 			}else {
 				System.out.println("You do not have cookie!!!!");

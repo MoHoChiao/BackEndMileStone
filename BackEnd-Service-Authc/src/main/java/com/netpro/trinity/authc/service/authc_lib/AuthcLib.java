@@ -79,30 +79,11 @@ public class AuthcLib {
 					info.setMsg(TrinityServiceStatusMsg.RESET_PSW);
 					info.setStatus(TrinityServiceStatus.CHANGE_CREDENTIALS);
 					return info;
-//					if(e.getErrorCode() == ErrorCodes.EAC00010) {
-//						TrinityWebV2Utils.issueResetToken(response, e.getResetCredentialsToken(), service.getResetTokenMaxAgeInSeconds());
-//						String cookieStr = response.getHeader("Set-Cookie").replace(";HttpOnly", "");
-//						ret_info.setTokenstr(cookieStr);
-//						ret_info.setMsg(TrinityServiceStatusMsg.RESET_PSW);
-//						ret_info.setStatus(TrinityServiceStatus.CHANGE_CREDENTIALS);
-//					}else {
-//						StringBuilder msg = new StringBuilder();
-//						for(ErrorCodes error : CommonUtils.collectErrorCodes(e)) {
-//							msg.append(error.getMessage()).append('\n');
-//						}
-//						String errMsg = msg.toString().trim();
-//						ret_info.setMsg(TrinityServiceStatusMsg.LOGIN_ERROR+" "+errMsg);
-//						ret_info.setStatus(TrinityServiceStatus.ERROR);
-//					}
-//					return ret_info;
 				}
 			}
 			
 			if(null == principal) {
 				throw new IllegalAccessException(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.ACCOUNT_CHECK);
-//				ret_info.setMsg(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.ACCOUNT_CHECK);
-//				ret_info.setStatus(TrinityServiceStatus.ERROR);
-//				return ret_info;
 			}else {
 				TrinityPrincipal trinityPrinc = (TrinityPrincipal) principal;
 				String userInfo = trinityPrinc.getName();
