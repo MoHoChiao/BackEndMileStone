@@ -54,7 +54,7 @@ public class AuthcLibController {
 	}
 	
 	@GetMapping("/find-authc")
-	public ResponseEntity<?> authcFail(HttpServletRequest request) {
+	public ResponseEntity<?> findAuthc(HttpServletRequest request) {
 		return ResponseEntity.ok(authcLib.findAuthc(request));
 	}
 }

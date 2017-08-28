@@ -22,6 +22,12 @@ import feign.hystrix.FallbackFactory;
 public interface AuthcFeign {
   @RequestMapping(value = "/authc-lib/gen-authc", method = RequestMethod.POST)
   public ResponseEntity<?> genAuthc(LoginInfo info);
+  
+  @RequestMapping(value = "/authc-lib/remove-authc", method = RequestMethod.GET)
+  public ResponseEntity<?> removeAuthc();
+  
+  @RequestMapping(value = "/authc-lib/find-authc", method = RequestMethod.GET)
+  public ResponseEntity<?> findAuthc();
 }
 
 /**
@@ -39,10 +45,24 @@ class AuthcFallbackFactory implements FallbackFactory<AuthcFeign> {
 
     	@Override
     	public ResponseEntity<?> genAuthc(LoginInfo info) {
-    		AuthcFallbackFactory.LOGGER.error("genToken fallback; reason was:", cause);
+    		AuthcFallbackFactory.LOGGER.error("genAuthc fallback; reason was:", cause);
     		
     		return FallbackResponseFactory.getFallbackResponse(cause);
     	}
+
+		@Override
+		public ResponseEntity<?> removeAuthc() {
+			AuthcFallbackFactory.LOGGER.error("removeAuthc fallback; reason was:", cause);
+    		
+    		return FallbackResponseFactory.getFallbackResponse(cause);
+		}
+
+		@Override
+		public ResponseEntity<?> findAuthc() {
+			AuthcFallbackFactory.LOGGER.error("findAuthc fallback; reason was:", cause);
+    		
+    		return FallbackResponseFactory.getFallbackResponse(cause);
+		}
     };
   }
 }
