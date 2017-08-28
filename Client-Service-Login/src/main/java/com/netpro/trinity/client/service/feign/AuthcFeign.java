@@ -20,8 +20,8 @@ import feign.hystrix.FallbackFactory;
  */
 @FeignClient(name = "back-service-authc", configuration = SkipTrinityBadRequestsConfiguration.class, fallbackFactory = AuthcFallbackFactory.class)
 public interface AuthcFeign {
-  @RequestMapping(value = "/authc-lib/find-access-token", method = RequestMethod.POST)
-  public ResponseEntity<?> findAccessToken(LoginInfo info);
+  @RequestMapping(value = "/authc-lib/gen-authc", method = RequestMethod.POST)
+  public ResponseEntity<?> genAuthc(LoginInfo info);
 }
 
 /**
@@ -38,8 +38,8 @@ class AuthcFallbackFactory implements FallbackFactory<AuthcFeign> {
     return new AuthcFeign() {
 
     	@Override
-    	public ResponseEntity<?> findAccessToken(LoginInfo info) {
-    		AuthcFallbackFactory.LOGGER.error("findAccessToken fallback; reason was:", cause);
+    	public ResponseEntity<?> genAuthc(LoginInfo info) {
+    		AuthcFallbackFactory.LOGGER.error("genToken fallback; reason was:", cause);
     		
     		return FallbackResponseFactory.getFallbackResponse(cause);
     	}

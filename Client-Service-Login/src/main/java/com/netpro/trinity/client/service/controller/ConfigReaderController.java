@@ -1,8 +1,14 @@
 package com.netpro.trinity.client.service.controller;
 
+import static java.lang.String.format;
+
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,10 +28,5 @@ public class ConfigReaderController {
 	@GetMapping("/get-apps-model")
 	public List<App> getAppsModel() {
 		return this.configReader.findAppsModel();
-	}
-	
-	@GetMapping("/test")
-	public void test() {
-		System.out.println("This is my test");
 	}
 }

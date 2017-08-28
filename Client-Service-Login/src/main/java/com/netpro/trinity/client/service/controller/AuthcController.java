@@ -25,11 +25,11 @@ public class AuthcController {
 	@Autowired	//自動注入AuthcFeign物件
 	private AuthcFeign authc;
 	
-	@PostMapping("/gen-access-token")
-	public ResponseEntity<?> getLogin(HttpServletRequest request, @RequestBody LoginInfo info) {
+	@PostMapping("/gen-token")
+	public ResponseEntity<?> genToken(HttpServletRequest request, @RequestBody LoginInfo info) {
 		info.setRemoteip(request.getRemoteAddr());
 		try {
-			return this.authc.findAccessToken(info);
+			return this.authc.genAuthc(info);
 		}catch (TrinityBadResponseWrapper e) {
 			AuthcController.LOGGER.error("TrinityBadResponseWrapper; reason was:\n"+e.getBody());
 			return ResponseEntity.status(e.getStatus()).body(e.getBody());

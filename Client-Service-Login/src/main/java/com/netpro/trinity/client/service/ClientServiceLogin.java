@@ -30,7 +30,6 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 /*
  * for filter
  */
-@ServletComponentScan
 public class ClientServiceLogin {
 
 	public static void main(String[] args) {

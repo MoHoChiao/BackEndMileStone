@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
@@ -22,6 +23,7 @@ import com.netpro.ac.UsernamePasswordCredentials;
 import com.netpro.ac.dao.DaoFactory;
 import com.netpro.ac.dao.JdbcDaoFactoryImpl;
 import com.netpro.ac.util.CommonUtils;
+import com.netpro.ac.util.CookieUtils;
 import com.netpro.ac.util.TrinityWebV2Utils;
 import com.netpro.trinity.service.util.entity.dto.Return_LoginInfo;
 import com.netpro.trinity.service.util.status.TrinityServiceStatus;
@@ -36,7 +38,7 @@ public class AuthcLib {
 	@Autowired	//自動注入DataSource物件
 	private DataSource dataSource;
 	
-	public Return_LoginInfo authcLogin(HttpServletResponse response, String ip, String ac, String psw) throws SQLException, IllegalArgumentException, IllegalAccessException, Exception {
+	public Return_LoginInfo genAuthc(HttpServletResponse response, String ip, String ac, String psw) throws SQLException, IllegalArgumentException, IllegalAccessException, Exception {
 		Return_LoginInfo info = new Return_LoginInfo();
 		if(null == ac || ac.trim().equals("")) {
 			throw new IllegalArgumentException(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.ACCOUNT_EMPTY);
@@ -74,7 +76,7 @@ public class AuthcLib {
 					}
 					
 					TrinityWebV2Utils.issueResetToken(response, e.getResetCredentialsToken(), service.getResetTokenMaxAgeInSeconds());
-					String cookieStr = response.getHeader("Set-Cookie").replace(";HttpOnly", "");
+					String cookieStr = response.getHeader("Set-Cookie");
 					info.setToken(cookieStr);
 					info.setMsg(TrinityServiceStatusMsg.RESET_PSW);
 					info.setStatus(TrinityServiceStatus.CHANGE_CREDENTIALS);
@@ -101,7 +103,7 @@ public class AuthcLib {
 				}
 				
 				TrinityWebV2Utils.issueHttpOnlyCookies(response, trinityPrinc, expireSeconds, true);
-				String cookieStr = response.getHeader("Set-Cookie").replace(";HttpOnly", "");
+				String cookieStr = response.getHeader("Set-Cookie");
 				info.setUserinfo(userInfo);
 				info.setToken(cookieStr);
 				return info;
@@ -111,6 +113,29 @@ public class AuthcLib {
 				try {
 					con.close();
 				} catch (SQLException e) {}
+		}
+	}
+	
+	public String removeAuthc(HttpServletResponse response) {
+		try {
+			TrinityWebV2Utils.revokeHttpOnlyCookies(response);
+			return "Logout Success.";
+		}catch(Exception e) {
+			return "Logout Fail.";
+		}
+	}
+	
+	public String findAuthc(HttpServletRequest request) {
+		try {
+			String accessToken = CookieUtils.getCookieValue(request, TrinityWebV2Utils.CNAME_ACCESS_TOKEN);
+			Principal principal = TrinityWebV2Utils.doValidateAccessTokenAndReturnPrincipal(accessToken);
+			if(!"".equals(principal.getName()) && principal instanceof TrinityPrincipal) {
+				return "Validate Success.";
+			}else {
+				return "Validate Fail.";
+			}
+		}catch(Exception e) {
+			return "Validate Fail.";
 		}
 	}
 }
