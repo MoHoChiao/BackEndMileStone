@@ -34,6 +34,8 @@ dependencies {
 	compile('org.springframework.cloud:spring-cloud-starter-ribbon')
 	compile('org.springframework.cloud:spring-cloud-starter-hystrix')
 	compile('org.springframework.boot:spring-boot-starter-actuator')
+	compile('org.springframework.boot:spring-boot-starter-jdbc')
+	compile files('lib/authc-all.jar','lib/postgresql-9.2-1003-jdbc4.jar','lib/jose4j-0.5.5.jar')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 

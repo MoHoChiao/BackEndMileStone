@@ -1,11 +1,16 @@
 package com.netpro.trinity.client.service;
 
+import org.apache.tomcat.jdbc.pool.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
+import org.springframework.context.annotation.Bean;
 
 /*
  * Spring Boot啟動的核心,它會開啟所有的自動配置以及載入相關的annotation(@Bean,@Entity...)進入Spring IOC Container
@@ -31,7 +36,42 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
  * for filter
  */
 public class ClientServiceLogin {
+	private static final Logger LOG = LoggerFactory.getLogger(ClientServiceLogin.class);
 
+	@Value("${spring.datasource.driver-class-name}")
+	private String dbDriverClassName;
+
+	@Value("${spring.datasource.url}")
+	private String dbUrl;
+
+	@Value("${spring.datasource.username}")
+	private String dbUsername;
+
+	@Value("${spring.datasource.password}")
+	private String dbPassword;
+	
+	@Value("${spring.datasource.tomcat.max-active}")
+	private Integer max_active;
+	
+	@Value("${spring.datasource.tomcat.initial-size}")
+	private Integer initial_size;
+	
+	@Value("${spring.datasource.tomcat.max-wait}")
+	private Integer max_wait;
+
+	@Bean
+	public DataSource dataSource() {
+		DataSource dataSource = new DataSource();
+		dataSource.setDriverClassName(dbDriverClassName);
+		dataSource.setUrl(dbUrl);
+		dataSource.setUsername(dbUsername);
+		dataSource.setPassword(dbPassword);
+		dataSource.setMaxActive(max_active);
+		dataSource.setInitialSize(initial_size);
+		dataSource.setMaxWait(max_wait);
+		LOG.info("back-service-authc dataSource url: " + dataSource.getUrl());
+		return dataSource;
+	}
 	public static void main(String[] args) {
 		SpringApplication.run(ClientServiceLogin.class, args);
 	}

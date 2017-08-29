@@ -1,13 +1,12 @@
 package com.netpro.trinity.error.config;
 
-import static java.lang.String.format;
-
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 
 import com.netpro.trinity.error.exception.TrinityBadResponseWrapper;
+import com.netpro.trinity.service.util.status.ExceptionMsgFormat;
 
 import feign.Util;
 import feign.codec.ErrorDecoder;
@@ -28,10 +27,7 @@ public class SkipTrinityBadRequestsConfiguration {
                 HttpHeaders httpHeaders = new HttpHeaders();
                 response.headers().forEach((k, v) -> httpHeaders.add("feign-" + k, StringUtils.join(v,",")));
             	
-            	String message = format("status %s reading %s", response.status(), methodKey);
-            	if (response.body() != null) {
-                    message += "; content:\n" + body;
-                }
+                String message = ExceptionMsgFormat.get(response.status(), methodKey, body);
             	
                 return new TrinityBadResponseWrapper(response.status(), httpHeaders, message);
             }else {

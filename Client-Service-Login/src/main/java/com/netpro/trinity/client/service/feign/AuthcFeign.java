@@ -42,26 +42,27 @@ class AuthcFallbackFactory implements FallbackFactory<AuthcFeign> {
   @Override
   public AuthcFeign create(Throwable cause) {
     return new AuthcFeign() {
-
+    	String methodKey = "";
+    	
     	@Override
     	public ResponseEntity<?> genAuthc(LoginInfo info) {
     		AuthcFallbackFactory.LOGGER.error("genAuthc fallback; reason was:", cause);
-    		
-    		return FallbackResponseFactory.getFallbackResponse(cause);
+    		methodKey = "AuthcFeign#genAuthc(LoginInfo)";
+    		return FallbackResponseFactory.getFallbackResponse(cause, methodKey);
     	}
 
 		@Override
 		public ResponseEntity<?> removeAuthc() {
 			AuthcFallbackFactory.LOGGER.error("removeAuthc fallback; reason was:", cause);
-    		
-    		return FallbackResponseFactory.getFallbackResponse(cause);
+			methodKey = "AuthcFeign#removeAuthc()";
+    		return FallbackResponseFactory.getFallbackResponse(cause, methodKey);
 		}
 
 		@Override
 		public ResponseEntity<?> findAuthc() {
 			AuthcFallbackFactory.LOGGER.error("findAuthc fallback; reason was:", cause);
-    		
-    		return FallbackResponseFactory.getFallbackResponse(cause);
+			methodKey = "AuthcFeign#findAuthc()";
+    		return FallbackResponseFactory.getFallbackResponse(cause, methodKey);
 		}
     };
   }

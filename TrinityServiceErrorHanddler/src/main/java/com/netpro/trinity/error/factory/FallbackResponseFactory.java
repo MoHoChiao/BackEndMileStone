@@ -1,16 +1,15 @@
 package com.netpro.trinity.error.factory;
 
-import static java.lang.String.format;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.netflix.hystrix.exception.HystrixTimeoutException;
+import com.netpro.trinity.service.util.status.ExceptionMsgFormat;
 
 import feign.FeignException;
 
 public class FallbackResponseFactory {
-	public static ResponseEntity<?> getFallbackResponse(Throwable cause) {		
+	public static ResponseEntity<?> getFallbackResponse(Throwable cause, String methodKey) {		
 		HttpStatus httpcode = null;
 		String message = null;
 		if(cause instanceof FeignException) {
@@ -19,12 +18,10 @@ public class FallbackResponseFactory {
     		message = feign_ex.getMessage();
 		}else if (cause instanceof HystrixTimeoutException){
     		httpcode = HttpStatus.INTERNAL_SERVER_ERROR;
-			message = format("status %s HystrixTimeoutException caused by backend service not found", 500);
-			message += "; content:\n" + cause.getMessage();
+    		message = ExceptionMsgFormat.get(500, methodKey + " HystrixTimeoutException", cause.getMessage());
 		}else {
 			httpcode = HttpStatus.INTERNAL_SERVER_ERROR;
-			message = format("status %s Maybe %s", 500, "RutimeException");
-			message += "; content:\n" + cause.getMessage();
+			message = ExceptionMsgFormat.get(500, methodKey + " RutimeException", cause.getMessage());
 		}
 		return ResponseEntity.status(httpcode).body(message);
 	}
