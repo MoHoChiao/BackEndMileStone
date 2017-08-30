@@ -5,7 +5,7 @@ trinity-model:
             img: '/src/assets/images/FlexWebUI 128.png'
             alt: 'Resource Setter'
             model: 'RC'
-            url: 'FlexWebUI'
+            url: 'http://localhost:8080/FlexWebUI'
             target: '_blank'
             authorization: 'G'
             desc: 
