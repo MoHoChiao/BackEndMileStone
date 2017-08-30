@@ -58,6 +58,6 @@ public class AuthcLibController {
 	
 	@GetMapping("/find-authc")
 	public ResponseEntity<?> findAuthc(HttpServletRequest request) {
-		return ResponseEntity.status(HttpStatus.OK).body(authcLib.findAuthc(request));
+		return ResponseEntity.ok(authcLib.findAuthc(request));
 	}
 }

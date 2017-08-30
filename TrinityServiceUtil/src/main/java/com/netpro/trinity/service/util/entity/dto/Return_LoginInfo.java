@@ -3,9 +3,9 @@ package com.netpro.trinity.service.util.entity.dto;
 //宣告一個POJO
 public class Return_LoginInfo{
 	private String userinfo;
-	private String token;
 	private String status;
 	private String msg;
+	private String usertype;
 	
 	public String getUserinfo() {
 		return userinfo;
@@ -25,10 +25,10 @@ public class Return_LoginInfo{
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	public String getToken() {
-		return token;
+	public String getUsertype() {
+		return usertype;
 	}
-	public void setToken(String token) {
-		this.token = token;
+	public void setUsertype(String usertype) {
+		this.usertype = usertype;
 	}
 }

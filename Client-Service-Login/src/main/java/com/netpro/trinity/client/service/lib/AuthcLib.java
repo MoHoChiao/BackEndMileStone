@@ -76,8 +76,7 @@ public class AuthcLib {
 					}
 					
 					TrinityWebV2Utils.issueResetToken(response, e.getResetCredentialsToken(), service.getResetTokenMaxAgeInSeconds());
-					String cookieStr = response.getHeader("Set-Cookie");
-					info.setToken(cookieStr);
+					info.setUsertype("");
 					info.setMsg(TrinityServiceStatusMsg.RESET_PSW);
 					info.setStatus(TrinityServiceStatus.CHANGE_CREDENTIALS);
 					return info;
@@ -103,9 +102,8 @@ public class AuthcLib {
 				}
 				
 				TrinityWebV2Utils.issueHttpOnlyCookies(response, trinityPrinc, expireSeconds, true);
-				String cookieStr = response.getHeader("Set-Cookie");
 				info.setUserinfo(userInfo);
-				info.setToken(cookieStr);
+				info.setUsertype(trinityPrinc.isPowerUser() ? "R" : "G");
 				return info;
 			}
 		} finally {
@@ -119,23 +117,40 @@ public class AuthcLib {
 	public String removeAuthc(HttpServletResponse response) {
 		try {
 			TrinityWebV2Utils.revokeHttpOnlyCookies(response);
-			return "Logout Success.";
+			return TrinityServiceStatusMsg.LOGOUT_SUCCESS;
 		}catch(Exception e) {
-			return "Logout Fail.";
+			return TrinityServiceStatusMsg.LOGOUT_ERROR;
 		}
 	}
 	
-	public String findAuthc(HttpServletRequest request) {
+	public Return_LoginInfo findAuthc(HttpServletRequest request) {
+		Return_LoginInfo info = new Return_LoginInfo();
+		info.setMsg(TrinityServiceStatusMsg.VALIDATE_ERROR);
+		info.setStatus(TrinityServiceStatus.ERROR);
+		info.setUserinfo("");
+		info.setUsertype("");
 		try {
 			String accessToken = CookieUtils.getCookieValue(request, TrinityWebV2Utils.CNAME_ACCESS_TOKEN);
 			Principal principal = TrinityWebV2Utils.doValidateAccessTokenAndReturnPrincipal(accessToken);
 			if(!"".equals(principal.getName()) && principal instanceof TrinityPrincipal) {
-				return "Validate Success.";
+				TrinityPrincipal trinityPrinc = (TrinityPrincipal) principal;
+				
+				String userInfo = trinityPrinc.getName();
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				if(null != trinityPrinc.getLastAccessTimeInMillis()) {
+					userInfo += " (" + sdf.format(new Date(trinityPrinc.getLastAccessTimeInMillis())) + ")";
+				}
+				
+				info.setMsg(TrinityServiceStatusMsg.VALIDATE_SUCCESS);
+				info.setStatus(TrinityServiceStatus.SUCCESS);
+				info.setUserinfo(userInfo);
+				info.setUsertype(trinityPrinc.isPowerUser() ? "R" : "G");
+				return info;
 			}else {
-				return "Validate Fail.";
+				return info;
 			}
 		}catch(Exception e) {
-			return "Validate Fail.";
+			return info;
 		}
 	}
 }

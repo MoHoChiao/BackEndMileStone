@@ -69,7 +69,7 @@ public class ClientServiceLogin {
 		dataSource.setMaxActive(max_active);
 		dataSource.setInitialSize(initial_size);
 		dataSource.setMaxWait(max_wait);
-		LOG.info("back-service-authc dataSource url: " + dataSource.getUrl());
+		LOG.info("special for authc dataSource url: " + dataSource.getUrl());
 		return dataSource;
 	}
 	public static void main(String[] args) {

@@ -4,10 +4,12 @@ import java.util.List;
 //宣告一個POJO
 public class App {
 	private String name;
-    private String cls;
     private String img;
     private String alt;
     private String model;
+    private String url;
+    private String target;
+    private String authorization;
     private List<String> desc;
     
 	public String getName() {
@@ -15,12 +17,6 @@ public class App {
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	public String getCls() {
-		return cls;
-	}
-	public void setCls(String cls) {
-		this.cls = cls;
 	}
 	public String getImg() {
 		return img;
@@ -45,5 +41,23 @@ public class App {
 	}
 	public void setDesc(List<String> desc) {
 		this.desc = desc;
+	}
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	public String getTarget() {
+		return target;
+	}
+	public void setTarget(String target) {
+		this.target = target;
+	}
+	public String getAuthorization() {
+		return authorization;
+	}
+	public void setAuthorization(String authorization) {
+		this.authorization = authorization;
 	}
 }

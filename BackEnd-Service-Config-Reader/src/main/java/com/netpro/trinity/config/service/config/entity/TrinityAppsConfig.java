@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix="trinity")
+@ConfigurationProperties(prefix="trinity-model")
 public class TrinityAppsConfig
 {
     List<App> apps = new ArrayList<App>();
@@ -21,10 +21,12 @@ public class TrinityAppsConfig
     public static class App
     {
         private String name;
-        private String cls;
         private String img;
         private String alt;
         private String model;
+        private String url;
+        private String target;
+        private String authorization;
         private List<String> desc;
         
 		public String getName() {
@@ -32,12 +34,6 @@ public class TrinityAppsConfig
 		}
 		public void setName(String name) {
 			this.name = name;
-		}
-		public String getCls() {
-			return cls;
-		}
-		public void setCls(String cls) {
-			this.cls = cls;
 		}
 		public String getImg() {
 			return img;
@@ -62,6 +58,24 @@ public class TrinityAppsConfig
 		}
 		public void setDesc(List<String> desc) {
 			this.desc = desc;
+		}
+		public String getUrl() {
+			return url;
+		}
+		public void setUrl(String url) {
+			this.url = url;
+		}
+		public String getTarget() {
+			return target;
+		}
+		public void setTarget(String target) {
+			this.target = target;
+		}
+		public String getAuthorization() {
+			return authorization;
+		}
+		public void setAuthorization(String authorization) {
+			this.authorization = authorization;
 		}
     }
 }

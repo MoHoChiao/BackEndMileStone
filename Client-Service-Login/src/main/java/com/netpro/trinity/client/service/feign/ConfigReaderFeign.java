@@ -1,17 +1,15 @@
 package com.netpro.trinity.client.service.feign;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.netpro.trinity.error.config.SkipTrinityBadRequestsConfiguration;
-import com.netpro.trinity.service.util.entity.dto.App;
+import com.netpro.trinity.error.factory.FallbackResponseFactory;
 
 import feign.hystrix.FallbackFactory;
 /*
@@ -22,7 +20,7 @@ import feign.hystrix.FallbackFactory;
 @FeignClient(name = "back-service-config-reader", configuration = SkipTrinityBadRequestsConfiguration.class, fallbackFactory = ConfigReaderFallbackFactory.class)
 public interface ConfigReaderFeign {
   @RequestMapping(value = "/trinity-apps-setting/find-apps-model", method = RequestMethod.GET)
-  public List<App> findAppsModel();
+  public ResponseEntity<?> findAppsModel();
 }
 
 /**
@@ -37,26 +35,13 @@ class ConfigReaderFallbackFactory implements FallbackFactory<ConfigReaderFeign> 
   @Override
   public ConfigReaderFeign create(Throwable cause) {
     return new ConfigReaderFeign() {
-
+    	String methodKey = "";
+    	
     	@Override
-    	public List<App> findAppsModel() {
-    		ConfigReaderFallbackFactory.LOGGER.error("fallback; reason was:", cause);
-    		App app = new App();
-    		app.setName("Error !");
-    		app.setAlt("Error !");
-    		app.setCls("Error !");
-    		app.setImg("Error !");
-    		app.setModel("Error !");
-    		List<String> desc = new ArrayList<String>();
-    		desc.add("Fall Back Function");
-    		desc.add("Class: ConfigReaderFallbackFactory");
-    		desc.add("Class: ConfigReaderFeign");
-    		desc.add("Method: findAppsModel");
-    		desc.add("Service: back-service-config-reader");
-    		app.setDesc(desc);
-    		List<App> apps = new ArrayList<App>();
-    		apps.add(app);
-    		return apps;
+    	public ResponseEntity<?> findAppsModel() {
+    		ConfigReaderFallbackFactory.LOGGER.error("findAppsModel fallback; reason was:", cause);
+    		methodKey = "ConfigReaderFeign#findAppsModel()";
+    		return FallbackResponseFactory.getFallbackResponse(cause, methodKey);
     	}
     };
   }

@@ -77,7 +77,6 @@ public class AuthcLib {
 					
 					TrinityWebV2Utils.issueResetToken(response, e.getResetCredentialsToken(), service.getResetTokenMaxAgeInSeconds());
 					String cookieStr = response.getHeader("Set-Cookie");
-					info.setToken(cookieStr);
 					info.setMsg(TrinityServiceStatusMsg.RESET_PSW);
 					info.setStatus(TrinityServiceStatus.CHANGE_CREDENTIALS);
 					return info;
@@ -105,7 +104,6 @@ public class AuthcLib {
 				TrinityWebV2Utils.issueHttpOnlyCookies(response, trinityPrinc, expireSeconds, true);
 				String cookieStr = response.getHeader("Set-Cookie");
 				info.setUserinfo(userInfo);
-				info.setToken(cookieStr);
 				return info;
 			}
 		} finally {

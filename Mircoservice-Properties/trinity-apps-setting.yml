@@ -1,11 +1,13 @@
-trinity:
+trinity-model:
     apps:
         -
             name: 'Resource Setter'
-            cls: 'Resource Setter'
             img: '/src/assets/images/FlexWebUI 128.png'
             alt: 'Resource Setter'
             model: 'RC'
+            url: 'FlexWebUI'
+            target: '_blank'
+            authorization: 'G'
             desc: 
                 - 'appCardContent.User_Group_Access_Design'
                 - 'appCardContent.Job_Frequency_Design'
@@ -13,11 +15,13 @@ trinity:
                 - 'appCardContent.JCS_Agent_Define'
                 - 'appCardContent.Alias_Domain_Define'
         -
-            name: 'Metadata Define'
-            cls: 'Metadata Define'
+            name: 'DIS Management'
             img: '/src/assets/images/DisUI 128.png'
-            alt: 'Metadata Define'
-            model: 'MD'
+            alt: 'DIS Management'
+            model: 'Dis'
+            url: 'DisUI'
+            target: '_blank'
+            authorization: 'R'
             desc: 
                 - 'appCardContent.Database_Mgnt'
                 - 'appCardContent.File_Mgnt'
@@ -26,10 +30,12 @@ trinity:
                 - 'appCardContent.Meta_Table_Column_Mgnt'
         -
             name: 'JF Designer'
-            cls: 'JF Designer'
             img: '/src/assets/images/JFDesigner 128.png'
             alt: 'JF Designer'
             model: 'JF'
+            url: 'software/JFDesigner.jnlp'
+            target: '_parent'
+            authorization: 'G'
             desc: 
                 - 'appCardContent.Entity_Category_Job_Define'
                 - 'appCardContent.Job_Step_Design'
@@ -38,10 +44,12 @@ trinity:
                 - 'appCardContent.Import_Export_Operation'
         -
             name: 'Task Console'
-            cls: 'Task Console'
             img: '/src/assets/images/TaskConsole 128.png'
             alt: 'Task Console'
             model: 'Task'
+            url: 'software/TaskConsole.jnlp'
+            target: '_parent'
+            authorization: 'G'
             desc: 
                 - 'appCardContent.Job_Flow_Task_Execution'
                 - 'appCardContent.Job_Flow_Task_Monitor'
@@ -50,10 +58,12 @@ trinity:
                 - 'appCardContent.Task_Log_Viewer'
         -
             name: 'Metaman'
-            cls: 'Metaman'
             img: '/src/assets/images/MetaMan Logo 128.png'
             alt: 'Metaman'
             model: 'MM'
+            url: 'software/Metaman.jnlp'
+            target: '_parent'
+            authorization: 'G'
             desc: 
                 - 'appCardContent.Tech_Meta_Design'
                 - 'appCardContent.Business_Meta_Design'
@@ -62,10 +72,12 @@ trinity:
                 - 'appCardContent.Data_Profile'
         -
             name: 'Operation Logger'
-            cls: 'Operation Log'
             img: '/src/assets/images/OperationLog 128.png'
             alt: 'Operation Log'
             model: 'Operation'
+            url: 'OperationLog'
+            target: '_blank'
+            authorization: 'R'
             desc: 
                 - 'appCardContent.Resource_Op_Log'
                 - 'appCardContent.Metadata_Op_Log'
@@ -74,10 +86,12 @@ trinity:
                 - 'appCardContent.Login_Logout_Log'
         -
             name: 'Remote Updater'
-            cls: Remote Updater'
             img: '/src/assets/images/ResManagement 128.png'
             alt: 'Remote Updater'
             model: 'UP'
+            url: 'software/Updater.jnlp'
+            target: '_parent'
+            authorization: 'R'
             desc: 
                 - 'appCardContent.Remote_Data_Fetch'
                 - 'appCardContent.Remote_Data_Push'
@@ -86,10 +100,12 @@ trinity:
                 - 'appCardContent.Remote_Data_Build'
         -
             name: 'Web Task Console'
-            cls: Web Task Console'
             img: '/src/assets/images/WebTaskConsole 128.png'
             alt: 'Web Task Console'
             model: 'WebTask'
+            url: 'WebTaskConsole'
+            target: '_blank'
+            authorization: 'G'
             desc: 
                 - 'appCardContent.Web_Job_Flow_Task_Execution'
                 - 'appCardContent.Web_Job_Flow_Task_Monitor'
