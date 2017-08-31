@@ -32,8 +32,9 @@ public class AuthcLibController {
 	private AuthcLib authcLib;
 	
 	@PostMapping("/gen-authc")
-	public ResponseEntity<?> genAuthc(HttpServletResponse response, @RequestBody LoginInfo info) {
-		String methodKey = "AuthcLibController#genAuthc()";
+	public ResponseEntity<?> genAuthc(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginInfo info) {
+		info.setRemoteip(request.getRemoteAddr());
+		String methodKey = "AuthcLibController#genAuthc(...)";
 		try {
 			return ResponseEntity.ok(authcLib.genAuthc(response, info.getRemoteip(), info.getAccount(), info.getPsw()));
 		} catch (SQLException e) {
@@ -59,5 +60,25 @@ public class AuthcLibController {
 	@GetMapping("/find-authc")
 	public ResponseEntity<?> findAuthc(HttpServletRequest request) {
 		return ResponseEntity.ok(authcLib.findAuthc(request));
+	}
+	
+	@PostMapping("/reset-authc")
+	public ResponseEntity<?> resetAuthc(HttpServletRequest request, HttpServletResponse response, @RequestBody String psw) {
+		String methodKey = "AuthcLibController#resetAuthc(...)";
+		try {
+			return ResponseEntity.ok(authcLib.resetAuthc(request, response, request.getRemoteAddr(), psw));
+		} catch (SQLException e) {
+			AuthcLibController.LOGGER.error("SQLException; reason was:", e.getCause());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+		} catch (IllegalArgumentException e) {
+			AuthcLibController.LOGGER.error("IllegalArgumentException; reason was:", e.getCause());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getMessage()));
+		} catch (IllegalAccessException e) {
+			AuthcLibController.LOGGER.error("IllegalAccessException; reason was:", e.getCause());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getMessage()));
+		} catch (Exception e) {
+			AuthcLibController.LOGGER.error("Exception; reason was:", e.getCause());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+		}
 	}
 }

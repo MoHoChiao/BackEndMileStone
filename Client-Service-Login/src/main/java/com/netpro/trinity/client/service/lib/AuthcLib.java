@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.netpro.ac.ACException;
 import com.netpro.ac.AuthenticatorModes;
 import com.netpro.ac.DefaultAuthenticationService;
+import com.netpro.ac.DefaultCredentialsService;
 import com.netpro.ac.ErrorCodes;
 import com.netpro.ac.TrinityPrincipal;
 import com.netpro.ac.UsernamePasswordCredentials;
@@ -64,8 +65,6 @@ public class AuthcLib {
 							, timestamp, trinity_key, AuthenticatorModes.NORMAL);
 					expireSeconds = service.getAccessTokenMaxAgeInSeconds();
 				} catch (ACException e) {
-					e.printStackTrace();
-					
 					if(e.getErrorCode() != ErrorCodes.EAC00010) {
 						StringBuilder msg = new StringBuilder();
 						for(ErrorCodes error : CommonUtils.collectErrorCodes(e)) {
@@ -151,6 +150,50 @@ public class AuthcLib {
 			}
 		}catch(Exception e) {
 			return info;
+		}
+	}
+	
+	public String resetAuthc(HttpServletRequest request, HttpServletResponse response, String ip, String psw) throws SQLException, IllegalArgumentException, IllegalAccessException, Exception {		
+		if(null == psw || psw.trim().equals("")) {
+			throw new IllegalArgumentException(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.PSW_EMPTY);
+		}
+		
+		String resetToken = TrinityWebV2Utils.getResetToken(request);
+		TrinityWebV2Utils.revokeHttpOnlyCookies(response);
+		
+		Principal principal = TrinityWebV2Utils.doValidateAccessTokenAndReturnPrincipal(resetToken);
+		if(!(principal instanceof TrinityPrincipal)) {
+			throw new IllegalAccessException(TrinityServiceStatusMsg.Session_Expired);
+		}
+		
+		Connection con = null;
+		try {
+			con = dataSource.getConnection();
+			if(con != null) {
+				long timestamp = System.currentTimeMillis();
+				DaoFactory factory = new JdbcDaoFactoryImpl(con);
+				DefaultCredentialsService service = new DefaultCredentialsService(factory);
+				String module = "TrinityHome";
+				
+				try {
+					service.changeCredentials(module, ip, resetToken, principal.getName(), psw.toCharArray(), timestamp, "");
+					return TrinityServiceStatusMsg.RESET_PSW_SUCCESS;
+				} catch (ACException e) {					
+					StringBuilder msg = new StringBuilder();
+					for(ErrorCodes error : CommonUtils.collectErrorCodes(e)) {
+						msg.append(error.getMessage()).append('\n');
+					}
+					String errMsg = msg.toString().trim();
+					throw new IllegalAccessException(TrinityServiceStatusMsg.RESET_PSW_ERROR + " " + errMsg);
+				}
+			}else {
+				throw new Exception("Error! Database Connection Null.");
+			}
+		} finally {
+			if(con != null)
+				try {
+					con.close();
+				} catch (SQLException e) {}
 		}
 	}
 }

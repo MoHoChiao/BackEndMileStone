@@ -1,11 +1,14 @@
-trinity-model:
-    apps:
+trinity-apps-model:
+    server: 
+      host: localhost
+      port: 8080
+      apps:
         -
             name: 'Resource Setter'
             img: '/src/assets/images/FlexWebUI 128.png'
             alt: 'Resource Setter'
             model: 'RC'
-            url: 'http://localhost:8080/FlexWebUI'
+            url: 'FlexWebUI'
             target: '_blank'
             authorization: 'G'
             desc: 

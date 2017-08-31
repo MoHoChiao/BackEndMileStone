@@ -12,4 +12,7 @@ public class TrinityServiceStatusMsg {
 	public static String PSW_NEAR_EXPIRE = "Password is near expiration date!";
 	public static String ACCOUNT_CHECK = "Please Check Your Account!";
 	public static String RESET_PSW = "Please Reset your password!";
+	public static String RESET_PSW_SUCCESS = "Password changed, please login with new password.";
+	public static String RESET_PSW_ERROR = "Change password failed!";
+	public static String Session_Expired = "Session expired, please login to get reset token again!";
 }
