@@ -1,11 +1,20 @@
 package com.netpro.trinity.client.service;
 
+import java.io.File;
+
+import javax.servlet.ServletException;
+
+import org.apache.catalina.Context;
+import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
+import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer;
+import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
@@ -72,6 +81,44 @@ public class ClientServiceLogin {
 		LOG.info("special for authc dataSource url: " + dataSource.getUrl());
 		return dataSource;
 	}
+	
+	@Bean
+	public EmbeddedServletContainerFactory servletContainerFactory() {
+	    return new TomcatEmbeddedServletContainerFactory() {
+
+	        @Override
+	        protected TomcatEmbeddedServletContainer getTomcatEmbeddedServletContainer(
+	                Tomcat tomcat) {
+	            // Ensure that the webapps directory exists
+	            new File(tomcat.getServer().getCatalinaBase(), "webapps").mkdirs();
+
+	            try {
+	            	System.setProperty("trinity.prop", "D:\\Trinity\\DISServer\\cfg\\trinity.properties");
+	            	System.setProperty("DATABASE_DRIVER", dbDriverClassName);
+	            	
+	                Context context1 = tomcat.addWebapp("/WebTaskConsole", "D:\\MyWork\\micro_services\\WebTaskConsole.war");
+	                System.out.println("WebTaskConsole*****************");
+	                context1.setParentClassLoader(getClass().getClassLoader());
+	                System.out.println("WebTaskConsole*****************ClassLoader");
+	                
+	                Context context2 = tomcat.addWebapp("/OperationLog", "D:\\MyWork\\micro_services\\OperationLog.war");
+	                System.out.println("OperationLog*****************");
+	                context2.setParentClassLoader(getClass().getClassLoader());
+	                System.out.println("OperationLog*****************ClassLoader");
+	                
+	                Context context3 = tomcat.addWebapp("/DisUI", "D:\\MyWork\\micro_services\\DisUI.war");
+	                System.out.println("DisUI*****************");
+	                context3.setParentClassLoader(getClass().getClassLoader());
+	                System.out.println("DisUI*****************ClassLoader");
+	            } catch (ServletException ex) {
+	                throw new IllegalStateException("Failed to add webapp", ex);
+	            }
+	            return super.getTomcatEmbeddedServletContainer(tomcat);
+	        }
+
+	    };
+	}
+	
 	public static void main(String[] args) {
 		SpringApplication.run(ClientServiceLogin.class, args);
 	}

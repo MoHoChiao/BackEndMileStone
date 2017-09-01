@@ -1,7 +1,7 @@
 trinity-apps-model:
     server: 
-      host: localhost
-      port: 8080
+      host: 192.168.7.63
+      port: 8001
       apps:
         -
             name: 'Resource Setter'
