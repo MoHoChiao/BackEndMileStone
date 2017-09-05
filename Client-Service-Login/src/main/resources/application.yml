@@ -2,4 +2,4 @@ spring:
   application:
     name: client-service-login                    # 指定要注冊到Eureka Server上的應用程式之名稱
 server:
-  port: 8001                                      # 此Consumer Process啟動的port
+  port: 8001                                      # 此Process啟動的port

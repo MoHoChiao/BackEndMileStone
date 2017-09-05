@@ -7,8 +7,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix="trinity-apps-model")
-public class TrinityAppsConfig
+@ConfigurationProperties(prefix="trinity-apps-setting")
+public class TrinityAppsSetting
 {
     Server server = new Server();
     

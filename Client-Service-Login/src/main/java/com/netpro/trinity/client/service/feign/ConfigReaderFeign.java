@@ -19,8 +19,12 @@ import feign.hystrix.FallbackFactory;
  */
 @FeignClient(name = "back-service-config-reader", configuration = SkipTrinityBadRequestsConfiguration.class, fallbackFactory = ConfigReaderFallbackFactory.class)
 public interface ConfigReaderFeign {
+	
   @RequestMapping(value = "/trinity-apps-setting/find-apps-model", method = RequestMethod.GET)
   public ResponseEntity<?> findAppsModel();
+  
+  @RequestMapping(value = "/trinity-sys-prop-setting/find-trinity-prop", method = RequestMethod.GET)
+  public ResponseEntity<?> findTrinityProp();
 }
 
 /**
@@ -43,6 +47,12 @@ class ConfigReaderFallbackFactory implements FallbackFactory<ConfigReaderFeign> 
     		methodKey = "ConfigReaderFeign#findAppsModel()";
     		return FallbackResponseFactory.getFallbackResponse(cause, methodKey);
     	}
+
+		@Override
+		public ResponseEntity<?> findTrinityProp() {
+			// TODO Auto-generated method stub
+			return null;
+		}
     };
   }
 }

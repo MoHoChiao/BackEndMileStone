@@ -28,13 +28,15 @@ public class AuthcLibController {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthcLibController.class);
 	
+	private String methodKey = "AuthcLibController";
+	
 	@Autowired	//自動注入AuthcLib物件
 	private AuthcLib authcLib;
 	
 	@PostMapping("/gen-authc")
 	public ResponseEntity<?> genAuthc(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginInfo info) {
 		info.setRemoteip(request.getRemoteAddr());
-		String methodKey = "AuthcLibController#genAuthc(...)";
+		methodKey += "#genAuthc(...)";
 		try {
 			return ResponseEntity.ok(authcLib.genAuthc(response, info.getRemoteip(), info.getAccount(), info.getPsw()));
 		} catch (SQLException e) {
@@ -64,7 +66,7 @@ public class AuthcLibController {
 	
 	@PostMapping("/reset-authc")
 	public ResponseEntity<?> resetAuthc(HttpServletRequest request, HttpServletResponse response, @RequestBody String psw) {
-		String methodKey = "AuthcLibController#resetAuthc(...)";
+		methodKey += "#resetAuthc(...)";
 		try {
 			return ResponseEntity.ok(authcLib.resetAuthc(request, response, request.getRemoteAddr(), psw));
 		} catch (SQLException e) {

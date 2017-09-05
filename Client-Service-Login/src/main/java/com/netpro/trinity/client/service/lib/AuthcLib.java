@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.netpro.ac.ACException;
@@ -26,6 +25,7 @@ import com.netpro.ac.dao.JdbcDaoFactoryImpl;
 import com.netpro.ac.util.CommonUtils;
 import com.netpro.ac.util.CookieUtils;
 import com.netpro.ac.util.TrinityWebV2Utils;
+import com.netpro.trinity.client.service.dto.prop.TrinityPropSetting;
 import com.netpro.trinity.service.util.entity.dto.Return_LoginInfo;
 import com.netpro.trinity.service.util.status.TrinityServiceStatus;
 import com.netpro.trinity.service.util.status.TrinityServiceStatusMsg;
@@ -33,8 +33,8 @@ import com.netpro.trinity.service.util.status.TrinityServiceStatusMsg;
 @Service
 public class AuthcLib {
 	
-	@Value("${trinity_key}")
-	private String trinity_key;
+	@Autowired
+	private TrinityPropSetting trinityProp;
 	
 	@Autowired	//自動注入DataSource物件
 	private DataSource dataSource;
@@ -62,7 +62,7 @@ public class AuthcLib {
 				
 				try {
 					principal = service.login(module, ip, ac, new UsernamePasswordCredentials(ac, psw.toCharArray())
-							, timestamp, trinity_key, AuthenticatorModes.NORMAL);
+							, timestamp, trinityProp.getEncrypt().getKey(), AuthenticatorModes.NORMAL);
 					expireSeconds = service.getAccessTokenMaxAgeInSeconds();
 				} catch (ACException e) {
 					if(e.getErrorCode() != ErrorCodes.EAC00010) {

@@ -9,17 +9,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.config.service.config.entity.TrinityAppsConfig;
-import com.netpro.trinity.config.service.config.entity.TrinityAppsConfig.Server.App;
+import com.netpro.trinity.config.service.config.entity.TrinityAppsSetting.Server.App;
+import com.netpro.trinity.config.service.config.entity.TrinityAppsSetting;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/trinity-apps-setting")
-public class TrinityAppsModelController {
+public class TrinityAppsSettingController {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(TrinityAppsModelController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TrinityAppsSettingController.class);
 	
-	@Autowired	//自動注入LoadBalancerClient物件
-	private TrinityAppsConfig appsConfig;
+	@Autowired
+	private TrinityAppsSetting appsConfig;
 	
 	@GetMapping("/find-apps-model")
 	public ResponseEntity<?> findAppsModel() {
@@ -34,7 +34,7 @@ public class TrinityAppsModelController {
 			}
 			return ResponseEntity.ok(appsConfig.getServer().getApps());
 		} catch (Exception e) {
-			TrinityAppsModelController.LOGGER.error("Exception; reason was:", e.getCause());
+			TrinityAppsSettingController.LOGGER.error("Exception; reason was:", e.getCause());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
