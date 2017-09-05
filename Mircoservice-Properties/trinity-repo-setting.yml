@@ -1,4 +1,9 @@
 spring:
+  jpa:
+    generate-ddl: false
+    show-sql: true
+    hibernate:
+      ddl-auto: none
   datasource:
     platform: org.eclipse.persistence.platform.database.PostgreSQLPlatform
     driver-class-name: org.postgresql.Driver

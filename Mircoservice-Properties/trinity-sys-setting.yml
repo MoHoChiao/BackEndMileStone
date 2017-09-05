@@ -1,0 +1,10 @@
+trinity-sys-setting: 
+  dir: 
+    home: 'D:\Trinity\DISServer'
+    config: 'D:\Trinity\DISServer\cfg'
+    software: 'D:\Trinity\DISServer\data\software'
+    jdbc: 'D:\Trinity\DISServer\data\jdbc'
+    log: 'D:\Trinity\DISServer\cfg\log'
+    comparereport: 'D:\Trinity\DISServer\data\comparereport'
+    extlib: 'D:\Trinity\DISServer\data\extlib'
+    data: 'D:\Trinity\DISServer\data'

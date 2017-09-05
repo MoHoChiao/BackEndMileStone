@@ -1,4 +1,4 @@
-trinity-apps-model:
+trinity-apps-setting:
     server: 
       host: 192.168.7.63
       port: 8001
@@ -38,6 +38,7 @@ trinity-apps-model:
             model: 'JF'
             url: 'software/JFDesigner.jnlp'
             target: '_parent'
+            position: 'D:\Trinity\DISServer\data\software'
             authorization: 'G'
             desc: 
                 - 'appCardContent.Entity_Category_Job_Define'
@@ -52,6 +53,7 @@ trinity-apps-model:
             model: 'Task'
             url: 'software/TaskConsole.jnlp'
             target: '_parent'
+            position: 'D:\Trinity\DISServer\data\software'
             authorization: 'G'
             desc: 
                 - 'appCardContent.Job_Flow_Task_Execution'
