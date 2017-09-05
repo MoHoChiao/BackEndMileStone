@@ -125,7 +125,7 @@ public class JnlpController {
 	public ResponseEntity<?> getUpdaterJnlp(HttpServletRequest request, HttpServletResponse response) {
 		methodKey += "#getUpdaterJnlp(...)";
 		try {
-			byte[] content = jnlpLib.getTaskConsoleContent(request).getBytes();
+			byte[] content = jnlpLib.getUpdaterContent(request).getBytes();
 			ByteArrayResource resource = new ByteArrayResource(content);
 
 			HttpHeaders httpHeaders = new HttpHeaders();
