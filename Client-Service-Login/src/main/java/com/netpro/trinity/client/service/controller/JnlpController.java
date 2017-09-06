@@ -91,7 +91,9 @@ public class JnlpController {
 	public ResponseEntity<?> getTaskConsoleJnlp(HttpServletRequest request, HttpServletResponse response) {
 		methodKey += "#getTaskConsoleJnlp(...)";
 		try {
-			byte[] content = jnlpLib.getTaskConsoleContent(request).getBytes();
+			List<Disconfig_Dto> uiapPosition = repo.findUiapPosition("server", "uiap", "serverIP", "serverPort");
+			
+			byte[] content = jnlpLib.getTaskConsoleContent(request, uiapPosition).getBytes();
 			ByteArrayResource resource = new ByteArrayResource(content);
 
 			HttpHeaders httpHeaders = new HttpHeaders();
@@ -111,7 +113,9 @@ public class JnlpController {
 	public ResponseEntity<?> getMetamanJnlp(HttpServletRequest request, HttpServletResponse response) {
 		methodKey += "#getMetamanJnlp(...)";
 		try {
-			byte[] content = jnlpLib.getMetamanContent(request).getBytes();
+			List<Disconfig_Dto> metamanPosition = repo.findUiapPosition("server", "metamanserver", "serverIP", "serverPort");
+			
+			byte[] content = jnlpLib.getMetamanContent(request, metamanPosition).getBytes();
 			ByteArrayResource resource = new ByteArrayResource(content);
 
 			HttpHeaders httpHeaders = new HttpHeaders();
@@ -131,7 +135,9 @@ public class JnlpController {
 	public ResponseEntity<?> getUpdaterJnlp(HttpServletRequest request, HttpServletResponse response) {
 		methodKey += "#getUpdaterJnlp(...)";
 		try {
-			byte[] content = jnlpLib.getUpdaterContent(request).getBytes();
+			List<Disconfig_Dto> uiapPosition = repo.findUiapPosition("server", "uiap", "serverIP", "serverPort");
+			
+			byte[] content = jnlpLib.getUpdaterContent(request, uiapPosition).getBytes();
 			ByteArrayResource resource = new ByteArrayResource(content);
 
 			HttpHeaders httpHeaders = new HttpHeaders();

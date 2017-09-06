@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 public class TrinityPropSetting
 {
     Server server = new Server();
+    Uiap uiap = new Uiap();
+    Metaman metaman = new Metaman();
     List<App> apps = new ArrayList<App>();
     Encrypt encrypt = new Encrypt();
     
@@ -19,6 +21,20 @@ public class TrinityPropSetting
 	}
 	public Server getServer() {
 		return server;
+	}
+	
+	public void setUiap(Uiap uiap) {
+		this.uiap = uiap;
+	}
+	public Uiap getUiap() {
+		return uiap;
+	}
+	
+	public void setMetaman(Metaman metaman) {
+		this.metaman = metaman;
+	}
+	public Metaman getMetaman() {
+		return metaman;
 	}
 	
 	public void setApps(List<App> apps) {
@@ -37,6 +53,44 @@ public class TrinityPropSetting
 	
 	
 	public static class Server {
+		private String host;
+		private String port;
+		
+		public String getHost() {
+			return host;
+		}
+		public void setHost(String host) {
+			this.host = host;
+		}
+		
+		public String getPort() {
+			return port;
+		}
+		public void setPort(String port) {
+			this.port = port;
+		}
+	}
+	
+	public static class Uiap {
+		private String host;
+		private String port;
+		
+		public String getHost() {
+			return host;
+		}
+		public void setHost(String host) {
+			this.host = host;
+		}
+		
+		public String getPort() {
+			return port;
+		}
+		public void setPort(String port) {
+			this.port = port;
+		}
+	}
+	
+	public static class Metaman {
 		private String host;
 		private String port;
 		

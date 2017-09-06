@@ -54,15 +54,16 @@ public class JnlpLib {
 		prop_map.put("\\{trinity.server.url}", serverURL);
 		prop_map.put("\\{context_path}", "");
 		
-		prop_map.put("\\{trinity.uiap.ip}", "127.0.0.1");
-		prop_map.put("\\{trinity.uiap.port}", "19001");
+		
+		prop_map.put("\\{trinity.uiap.ip}", getServiceIP(uiapPosition));
+		prop_map.put("\\{trinity.uiap.port}", getServicePort("uiap", uiapPosition));
 		
 		checkAccessToken(req, prop_map);
 		
 		return getContent(ints, prop_map);
 	}
 	
-	public String getTaskConsoleContent(HttpServletRequest req) throws Exception {	
+	public String getTaskConsoleContent(HttpServletRequest req, List<Disconfig_Dto> uiapPosition) throws Exception {	
 		String separator = System.getProperty("file.separator");
 		String filePath = trinitySys.getDir().getSoftware();
 		String host = trinityProp.getServer().getHost();
@@ -85,15 +86,15 @@ public class JnlpLib {
 		prop_map.put("\\{database.username}", userid);
 		prop_map.put("\\{database.password.encrypt}", Crypto.getEncryptString(password, encryptKey));
 		
-		prop_map.put("\\{trinity.uiap.ip}", "uiap_ip=127.0.0.1");
-		prop_map.put("\\{trinity.uiap.port}", "uiap_port=19001");
+		prop_map.put("\\{trinity.uiap.ip}", "uiap_ip="+getServiceIP(uiapPosition));
+		prop_map.put("\\{trinity.uiap.port}", "uiap_port="+getServicePort("uiap", uiapPosition));
 		
 		checkAccessToken(req, prop_map);
 		
 		return getContent(ints, prop_map);
 	}
 	
-	public String getMetamanContent(HttpServletRequest req) throws Exception {	
+	public String getMetamanContent(HttpServletRequest req, List<Disconfig_Dto> metamanPosition) throws Exception {	
 		String separator = System.getProperty("file.separator");
 		String filePath = trinitySys.getDir().getSoftware();
 		String host = trinityProp.getServer().getHost();
@@ -108,15 +109,15 @@ public class JnlpLib {
 		prop_map.put("\\{trinity.server.url}", serverURL);
 		prop_map.put("\\{context_path}", "");
 		
-		prop_map.put("\\{trinity.metaman.ip}", "127.0.0.1");
-		prop_map.put("\\{trinity.metaman.port}", "19010");
+		prop_map.put("\\{trinity.metaman.ip}", getServiceIP(metamanPosition));
+		prop_map.put("\\{trinity.metaman.port}", getServicePort("metamanserver", metamanPosition));
 		
 		checkAccessToken(req, prop_map);
 		
 		return getContent(ints, prop_map);
 	}
 	
-	public String getUpdaterContent(HttpServletRequest req) throws Exception {	
+	public String getUpdaterContent(HttpServletRequest req, List<Disconfig_Dto> uiapPosition) throws Exception {	
 		String separator = System.getProperty("file.separator");
 		String filePath = trinitySys.getDir().getSoftware();
 		String host = trinityProp.getServer().getHost();
@@ -131,12 +132,42 @@ public class JnlpLib {
 		prop_map.put("\\{trinity.server.url}", serverURL);
 		prop_map.put("\\{context_path}", "");
 		
-		prop_map.put("\\{trinity.uiap.ip}", "127.0.0.1");
-		prop_map.put("\\{trinity.uiap.port}", "19001");
+		prop_map.put("\\{trinity.uiap.ip}", getServiceIP(uiapPosition));
+		prop_map.put("\\{trinity.uiap.port}", getServicePort("uiap", uiapPosition));
 		
 		checkAccessToken(req, prop_map);
 				
 		return getContent(ints, prop_map);
+	}
+	
+	private String getServiceIP(List<Disconfig_Dto> servicePosition) {
+		String uiap_ip = trinityProp.getUiap().getHost();
+		Disconfig_Dto dto1 = servicePosition.get(0);
+		Disconfig_Dto dto2 = servicePosition.get(1);
+		
+		if(uiap_ip == null) {
+			if("server".equals(dto1.getModule())) {
+				uiap_ip = dto1.getValue();
+			}else {
+				uiap_ip = dto2.getValue();
+			}
+		}
+		return uiap_ip;
+	}
+	
+	private String getServicePort(String whichService, List<Disconfig_Dto> servicePosition) {
+		String uiap_port = trinityProp.getUiap().getPort();
+		Disconfig_Dto dto1 = servicePosition.get(0);
+		Disconfig_Dto dto2 = servicePosition.get(1);
+		
+		if(uiap_port == null) {
+			if("uiap".equals(dto2.getModule())) {
+				uiap_port = dto2.getValue();
+			}else {
+				uiap_port = dto1.getValue();
+			}
+		}
+		return uiap_port;
 	}
 	
 	private void  checkAccessToken(HttpServletRequest req, Map<String,String> prop_map) {
