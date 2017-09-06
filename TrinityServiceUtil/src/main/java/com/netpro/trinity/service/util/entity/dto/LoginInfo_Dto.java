@@ -1,7 +1,7 @@
 package com.netpro.trinity.service.util.entity.dto;
 
 //宣告一個POJO
-public class LoginInfo{
+public class LoginInfo_Dto{
 	private String account;
 	private String psw;
 	private String model;

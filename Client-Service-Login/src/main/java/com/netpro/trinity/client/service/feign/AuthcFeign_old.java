@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.netpro.trinity.error.config.SkipTrinityBadRequestsConfiguration;
 import com.netpro.trinity.error.factory.FallbackResponseFactory;
-import com.netpro.trinity.service.util.entity.dto.LoginInfo;
+import com.netpro.trinity.service.util.entity.dto.LoginInfo_Dto;
 
 import feign.hystrix.FallbackFactory;
 /*
@@ -19,9 +19,9 @@ import feign.hystrix.FallbackFactory;
  * fallbackFactory:這裡是Feign結合Hystrix的fall back function之配置
  */
 @FeignClient(name = "back-service-authc", configuration = SkipTrinityBadRequestsConfiguration.class, fallbackFactory = AuthcFallbackFactory.class)
-public interface AuthcFeign {
+public interface AuthcFeign_old {
   @RequestMapping(value = "/authc-lib/gen-authc", method = RequestMethod.POST)
-  public ResponseEntity<?> genAuthc(LoginInfo info);
+  public ResponseEntity<?> genAuthc(LoginInfo_Dto info);
   
   @RequestMapping(value = "/authc-lib/remove-authc", method = RequestMethod.GET)
   public ResponseEntity<?> removeAuthc();
@@ -36,34 +36,33 @@ public interface AuthcFeign {
  * implement the interface annotated by {@link FeignClient}.
  */
 @Component
-class AuthcFallbackFactory implements FallbackFactory<AuthcFeign> {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AuthcFallbackFactory.class);
+class AuthcFallbackFactory implements FallbackFactory<AuthcFeign_old> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AuthcFallbackFactory.class);
+	@Override
+	public AuthcFeign_old create(Throwable cause) {
+		return new AuthcFeign_old() {
+			String methodKey = "";
+	    	
+			@Override
+	    	public ResponseEntity<?> genAuthc(LoginInfo_Dto info) {
+	    		AuthcFallbackFactory.LOGGER.error("genAuthc fallback; reason was:", cause);
+	    		methodKey = "AuthcFeign#genAuthc(LoginInfo)";
+	    		return FallbackResponseFactory.getFallbackResponse(cause, methodKey);
+	    	}
 
-  @Override
-  public AuthcFeign create(Throwable cause) {
-    return new AuthcFeign() {
-    	String methodKey = "";
-    	
-    	@Override
-    	public ResponseEntity<?> genAuthc(LoginInfo info) {
-    		AuthcFallbackFactory.LOGGER.error("genAuthc fallback; reason was:", cause);
-    		methodKey = "AuthcFeign#genAuthc(LoginInfo)";
-    		return FallbackResponseFactory.getFallbackResponse(cause, methodKey);
-    	}
+			@Override
+			public ResponseEntity<?> removeAuthc() {
+				AuthcFallbackFactory.LOGGER.error("removeAuthc fallback; reason was:", cause);
+				methodKey = "AuthcFeign#removeAuthc()";
+	    		return FallbackResponseFactory.getFallbackResponse(cause, methodKey);
+			}
 
-		@Override
-		public ResponseEntity<?> removeAuthc() {
-			AuthcFallbackFactory.LOGGER.error("removeAuthc fallback; reason was:", cause);
-			methodKey = "AuthcFeign#removeAuthc()";
-    		return FallbackResponseFactory.getFallbackResponse(cause, methodKey);
-		}
-
-		@Override
-		public ResponseEntity<?> findAuthc() {
-			AuthcFallbackFactory.LOGGER.error("findAuthc fallback; reason was:", cause);
-			methodKey = "AuthcFeign#findAuthc()";
-    		return FallbackResponseFactory.getFallbackResponse(cause, methodKey);
-		}
-    };
-  }
+			@Override
+			public ResponseEntity<?> findAuthc() {
+				AuthcFallbackFactory.LOGGER.error("findAuthc fallback; reason was:", cause);
+				methodKey = "AuthcFeign#findAuthc()";
+	    		return FallbackResponseFactory.getFallbackResponse(cause, methodKey);
+			}
+	    };
+	}
 }

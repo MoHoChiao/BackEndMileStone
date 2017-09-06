@@ -18,7 +18,7 @@ import feign.hystrix.FallbackFactory;
  * fallbackFactory:這裡是Feign結合Hystrix的fall back function之配置
  */
 @FeignClient(name = "back-service-config-reader", configuration = SkipTrinityBadRequestsConfiguration.class, fallbackFactory = ConfigReaderFallbackFactory.class)
-public interface ConfigReaderFeign {
+public interface ConfigReaderFeign_old {
 	
   @RequestMapping(value = "/trinity-apps-setting/find-apps-model", method = RequestMethod.GET)
   public ResponseEntity<?> findAppsModel();
@@ -33,12 +33,12 @@ public interface ConfigReaderFeign {
  * implement the interface annotated by {@link FeignClient}.
  */
 @Component
-class ConfigReaderFallbackFactory implements FallbackFactory<ConfigReaderFeign> {
+class ConfigReaderFallbackFactory implements FallbackFactory<ConfigReaderFeign_old> {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigReaderFallbackFactory.class);
 
   @Override
-  public ConfigReaderFeign create(Throwable cause) {
-    return new ConfigReaderFeign() {
+  public ConfigReaderFeign_old create(Throwable cause) {
+    return new ConfigReaderFeign_old() {
     	String methodKey = "";
     	
     	@Override

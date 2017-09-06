@@ -3,12 +3,12 @@ package com.netpro.trinity.client.service.lib;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.netpro.ac.util.CookieUtils;
@@ -17,9 +17,11 @@ import com.netpro.trinity.client.service.dto.prop.TrinityPropSetting;
 import com.netpro.trinity.client.service.dto.prop.TrinityRepoSetting;
 import com.netpro.trinity.client.service.dto.prop.TrinitySysSetting;
 import com.netpro.trinity.service.util.Crypto;
+import com.netpro.trinity.service.util.entity.dto.Disconfig_Dto;
 
 @Service
 public class JnlpLib {
+		
 	@Autowired
 	private TrinitySysSetting trinitySys;
 	
@@ -31,13 +33,13 @@ public class JnlpLib {
 	
 	public File getSoftwareFile(String softwareName) throws Exception {	
 		String separator = System.getProperty("file.separator");
-		String filePath = trinitySys.getDir().getSoftware();	
+		String filePath = trinitySys.getDir().getSoftware();
 		
 		File file = new File(filePath + separator + softwareName);
 		return file;
 	}
 	
-	public String getJFDesignerContent(HttpServletRequest req) throws Exception {	
+	public String getJFDesignerContent(HttpServletRequest req, List<Disconfig_Dto> uiapPosition) throws Exception {	
 		String separator = System.getProperty("file.separator");
 		String filePath = trinitySys.getDir().getSoftware();
 		String host = trinityProp.getServer().getHost();
@@ -55,30 +57,9 @@ public class JnlpLib {
 		prop_map.put("\\{trinity.uiap.ip}", "127.0.0.1");
 		prop_map.put("\\{trinity.uiap.port}", "19001");
 		
-		String accessToken = CookieUtils.getCookieValue(req, TrinityWebV2Utils.CNAME_ACCESS_TOKEN);
-		prop_map.put("\\{trinity.sso_uuid}", null == accessToken || "".equals(accessToken) ? "none" : accessToken);
+		checkAccessToken(req, prop_map);
 		
-		String content="";
-		try{
-			int ca = ints.available();
-			byte[] by = new byte[ca];
-			ints.read(by);
-			content = new String(by);
-			ints.close();
-		}catch(Exception e){
-			throw e;
-		}
-
-		if (!prop_map.isEmpty()) {
-			for (String index_pops : prop_map.keySet()) {
-				String pop_key = index_pops.toString();
-				String pop_val = prop_map.get(pop_key);
-				
-				content = content.replaceAll(pop_key, pop_val);
-			}
-		}
-				
-		return content;
+		return getContent(ints, prop_map);
 	}
 	
 	public String getTaskConsoleContent(HttpServletRequest req) throws Exception {	
@@ -104,33 +85,12 @@ public class JnlpLib {
 		prop_map.put("\\{database.username}", userid);
 		prop_map.put("\\{database.password.encrypt}", Crypto.getEncryptString(password, encryptKey));
 		
-		prop_map.put("\\{trinity.uiap.ip}", "127.0.0.1");
-		prop_map.put("\\{trinity.uiap.port}", "19001");
+		prop_map.put("\\{trinity.uiap.ip}", "uiap_ip=127.0.0.1");
+		prop_map.put("\\{trinity.uiap.port}", "uiap_port=19001");
 		
-		String accessToken = CookieUtils.getCookieValue(req, TrinityWebV2Utils.CNAME_ACCESS_TOKEN);
-		prop_map.put("\\{trinity.sso_uuid}", null == accessToken || "".equals(accessToken) ? "none" : accessToken);
+		checkAccessToken(req, prop_map);
 		
-		String content="";
-		try{
-			int ca = ints.available();
-			byte[] by = new byte[ca];
-			ints.read(by);
-			content = new String(by);
-			ints.close();
-		}catch(Exception e){
-			throw e;
-		}
-
-		if (!prop_map.isEmpty()) {
-			for (String index_pops : prop_map.keySet()) {
-				String pop_key = index_pops.toString();
-				String pop_val = prop_map.get(pop_key);
-				
-				content = content.replaceAll(pop_key, pop_val);
-			}
-		}
-				
-		return content;
+		return getContent(ints, prop_map);
 	}
 	
 	public String getMetamanContent(HttpServletRequest req) throws Exception {	
@@ -151,30 +111,9 @@ public class JnlpLib {
 		prop_map.put("\\{trinity.metaman.ip}", "127.0.0.1");
 		prop_map.put("\\{trinity.metaman.port}", "19010");
 		
-		String accessToken = CookieUtils.getCookieValue(req, TrinityWebV2Utils.CNAME_ACCESS_TOKEN);
-		prop_map.put("\\{trinity.sso_uuid}", null == accessToken || "".equals(accessToken) ? "none" : accessToken);
+		checkAccessToken(req, prop_map);
 		
-		String content="";
-		try{
-			int ca = ints.available();
-			byte[] by = new byte[ca];
-			ints.read(by);
-			content = new String(by);
-			ints.close();
-		}catch(Exception e){
-			throw e;
-		}
-
-		if (!prop_map.isEmpty()) {
-			for (String index_pops : prop_map.keySet()) {
-				String pop_key = index_pops.toString();
-				String pop_val = prop_map.get(pop_key);
-				
-				content = content.replaceAll(pop_key, pop_val);
-			}
-		}
-				
-		return content;
+		return getContent(ints, prop_map);
 	}
 	
 	public String getUpdaterContent(HttpServletRequest req) throws Exception {	
@@ -195,19 +134,24 @@ public class JnlpLib {
 		prop_map.put("\\{trinity.uiap.ip}", "127.0.0.1");
 		prop_map.put("\\{trinity.uiap.port}", "19001");
 		
+		checkAccessToken(req, prop_map);
+				
+		return getContent(ints, prop_map);
+	}
+	
+	private void  checkAccessToken(HttpServletRequest req, Map<String,String> prop_map) {
 		String accessToken = CookieUtils.getCookieValue(req, TrinityWebV2Utils.CNAME_ACCESS_TOKEN);
 		prop_map.put("\\{trinity.sso_uuid}", null == accessToken || "".equals(accessToken) ? "none" : accessToken);
-		
+	}
+	
+	private String getContent(FileInputStream ints, Map<String,String> prop_map) throws Exception{
 		String content="";
-		try{
-			int ca = ints.available();
-			byte[] by = new byte[ca];
-			ints.read(by);
-			content = new String(by);
-			ints.close();
-		}catch(Exception e){
-			throw e;
-		}
+		
+		int ca = ints.available();
+		byte[] by = new byte[ca];
+		ints.read(by);
+		content = new String(by);
+		ints.close();
 
 		if (!prop_map.isEmpty()) {
 			for (String index_pops : prop_map.keySet()) {
@@ -217,7 +161,7 @@ public class JnlpLib {
 				content = content.replaceAll(pop_key, pop_val);
 			}
 		}
-				
+		
 		return content;
 	}
 }

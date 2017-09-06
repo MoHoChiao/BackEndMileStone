@@ -1,8 +1,7 @@
 package com.netpro.trinity.client.service.controller;
 
-
-import java.io.File;
 import java.io.FileInputStream;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,7 +20,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.netpro.trinity.client.service.feign.DisconfigRepoClient;
 import com.netpro.trinity.client.service.lib.JnlpLib;
+import com.netpro.trinity.error.exception.TrinityBadResponseWrapper;
+import com.netpro.trinity.service.util.entity.dto.Disconfig_Dto;
 import com.netpro.trinity.service.util.status.ExceptionMsgFormat;
 
 @CrossOrigin
@@ -33,6 +35,9 @@ public class JnlpController {
 	
 	private String methodKey = "JnlpController";
 	
+	@Autowired	//自動注入DisconfigRepoClient物件
+	private DisconfigRepoClient repo;
+	
 	@Autowired	//自動注入JnlpLib物件
 	private JnlpLib jnlpLib;
 	
@@ -41,9 +46,7 @@ public class JnlpController {
 		methodKey += "#getSoftwareJar(...)";
 		try {
 			StringBuffer url = request.getRequestURL();
-			System.out.println(url);
 			String softwareName = url.substring(url.lastIndexOf("/")+1);
-			System.out.println(softwareName);
 			InputStreamResource resource = new InputStreamResource(new FileInputStream(jnlpLib.getSoftwareFile(softwareName)));
 
 			HttpHeaders httpHeaders = new HttpHeaders();
@@ -54,7 +57,7 @@ public class JnlpController {
 		            .contentType(MediaType.parseMediaType("text/plain"))
 		            .body(resource);
 		} catch (Exception e) {
-			JnlpController.LOGGER.error("Exception; reason was:", e.getCause());
+			JnlpController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
 		}
 	}
@@ -63,9 +66,9 @@ public class JnlpController {
 	public ResponseEntity<?> getJfdesignerJnlp(HttpServletRequest request, HttpServletResponse response) {
 		methodKey += "#getJfdesignerJnlp(...)";
 		try {
-			StringBuffer url = request.getRequestURL();
-			System.out.println(url);
-			byte[] content = jnlpLib.getJFDesignerContent(request).getBytes();
+			List<Disconfig_Dto> uiapPosition = repo.findUiapPosition("server", "uiap", "serverIP", "serverPort");
+			
+			byte[] content = jnlpLib.getJFDesignerContent(request, uiapPosition).getBytes();
 			ByteArrayResource resource = new ByteArrayResource(content);
 
 			HttpHeaders httpHeaders = new HttpHeaders();
@@ -75,8 +78,11 @@ public class JnlpController {
 		            .headers(httpHeaders)
 		            .contentType(MediaType.parseMediaType("application/x-java-jnlp-file"))
 		            .body(resource);
+		}catch (TrinityBadResponseWrapper e) {
+			JnlpController.LOGGER.error("TrinityBadResponseWrapper; reason was:\n"+e.getBody());
+			return ResponseEntity.status(e.getStatus()).body(e.getBody());
 		} catch (Exception e) {
-			JnlpController.LOGGER.error("Exception; reason was:", e.getCause());
+			JnlpController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
 		}
 	}
@@ -105,7 +111,7 @@ public class JnlpController {
 	public ResponseEntity<?> getMetamanJnlp(HttpServletRequest request, HttpServletResponse response) {
 		methodKey += "#getMetamanJnlp(...)";
 		try {
-			byte[] content = jnlpLib.getTaskConsoleContent(request).getBytes();
+			byte[] content = jnlpLib.getMetamanContent(request).getBytes();
 			ByteArrayResource resource = new ByteArrayResource(content);
 
 			HttpHeaders httpHeaders = new HttpHeaders();

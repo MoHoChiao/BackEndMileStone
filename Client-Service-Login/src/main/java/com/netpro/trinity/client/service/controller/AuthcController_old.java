@@ -14,26 +14,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.client.service.feign.AuthcFeign;
+import com.netpro.trinity.client.service.feign.AuthcFeign_old;
 import com.netpro.trinity.error.exception.TrinityBadResponseWrapper;
-import com.netpro.trinity.service.util.entity.dto.LoginInfo;
+import com.netpro.trinity.service.util.entity.dto.LoginInfo_Dto;
 
 @CrossOrigin
 @RestController		//宣告一個Restful Web Service的Resource
 @RequestMapping("/authc")
-public class AuthcController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(AuthcController.class);
+public class AuthcController_old {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AuthcController_old.class);
 	
 	@Autowired	//自動注入AuthcFeign物件
-	private AuthcFeign authc;
+	private AuthcFeign_old authc;
 	
 	@PostMapping("/gen-token")
-	public ResponseEntity<?> genToken(HttpServletRequest request, @RequestBody LoginInfo info) {
+	public ResponseEntity<?> genToken(HttpServletRequest request, @RequestBody LoginInfo_Dto info) {
 		info.setRemoteip(request.getRemoteAddr());
 		try {
 			return this.authc.genAuthc(info);
 		}catch (TrinityBadResponseWrapper e) {
-			AuthcController.LOGGER.error("TrinityBadResponseWrapper; reason was:\n"+e.getBody());
+			AuthcController_old.LOGGER.error("TrinityBadResponseWrapper; reason was:\n"+e.getBody());
 			return ResponseEntity.status(e.getStatus()).body(e.getBody());
 	    }
 	}

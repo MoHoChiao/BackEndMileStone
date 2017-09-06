@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.client.service.lib.AuthcLib;
-import com.netpro.trinity.service.util.entity.dto.LoginInfo;
+import com.netpro.trinity.service.util.entity.dto.LoginInfo_Dto;
 import com.netpro.trinity.service.util.status.ExceptionMsgFormat;
 
 @CrossOrigin
@@ -34,22 +34,22 @@ public class AuthcLibController {
 	private AuthcLib authcLib;
 	
 	@PostMapping("/gen-authc")
-	public ResponseEntity<?> genAuthc(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginInfo info) {
+	public ResponseEntity<?> genAuthc(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginInfo_Dto info) {
 		info.setRemoteip(request.getRemoteAddr());
 		methodKey += "#genAuthc(...)";
 		try {
 			return ResponseEntity.ok(authcLib.genAuthc(response, info.getRemoteip(), info.getAccount(), info.getPsw()));
 		} catch (SQLException e) {
-			AuthcLibController.LOGGER.error("SQLException; reason was:", e.getCause());
+			AuthcLibController.LOGGER.error("SQLException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
 		} catch (IllegalArgumentException e) {
-			AuthcLibController.LOGGER.error("IllegalArgumentException; reason was:", e.getCause());
+			AuthcLibController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getMessage()));
 		} catch (IllegalAccessException e) {
-			AuthcLibController.LOGGER.error("IllegalAccessException; reason was:", e.getCause());
+			AuthcLibController.LOGGER.error("IllegalAccessException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getMessage()));
 		} catch (Exception e) {
-			AuthcLibController.LOGGER.error("Exception; reason was:", e.getCause());
+			AuthcLibController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
 		}
 	}

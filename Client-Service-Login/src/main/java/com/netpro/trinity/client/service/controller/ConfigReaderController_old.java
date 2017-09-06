@@ -9,25 +9,25 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.client.service.feign.ConfigReaderFeign;
+import com.netpro.trinity.client.service.feign.ConfigReaderFeign_old;
 import com.netpro.trinity.error.exception.TrinityBadResponseWrapper;
 
 @CrossOrigin
 @RestController		//宣告一個Restful Web Service的Resource
 @RequestMapping("/trinity-apps-model")
-public class ConfigReaderController {
+public class ConfigReaderController_old {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigReaderController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigReaderController_old.class);
 	
 	@Autowired	//自動注入ConfigReaderFeign物件
-	private ConfigReaderFeign configReader;
+	private ConfigReaderFeign_old configReader;
 	
 	@GetMapping("/get-apps-model")
 	public ResponseEntity<?> getAppsModel() {
 		try {
 			return this.configReader.findAppsModel();
 		}catch (TrinityBadResponseWrapper e) {
-			ConfigReaderController.LOGGER.error("TrinityBadResponseWrapper; reason was:\n"+e.getBody());
+			ConfigReaderController_old.LOGGER.error("TrinityBadResponseWrapper; reason was:\n"+e.getBody());
 			return ResponseEntity.status(e.getStatus()).body(e.getBody());
 	    }
 	}
