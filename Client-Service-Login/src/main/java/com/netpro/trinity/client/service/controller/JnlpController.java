@@ -66,7 +66,7 @@ public class JnlpController {
 	public ResponseEntity<?> getJfdesignerJnlp(HttpServletRequest request, HttpServletResponse response) {
 		methodKey += "#getJfdesignerJnlp(...)";
 		try {
-			List<Disconfig_Dto> uiapPosition = repo.findUiapPosition("server", "uiap", "serverIP", "serverPort");
+			List<Disconfig_Dto> uiapPosition = repo.findServicePosition("server", "uiap", "serverIP", "serverPort");
 			
 			byte[] content = jnlpLib.getJFDesignerContent(request, uiapPosition).getBytes();
 			ByteArrayResource resource = new ByteArrayResource(content);
@@ -91,7 +91,7 @@ public class JnlpController {
 	public ResponseEntity<?> getTaskConsoleJnlp(HttpServletRequest request, HttpServletResponse response) {
 		methodKey += "#getTaskConsoleJnlp(...)";
 		try {
-			List<Disconfig_Dto> uiapPosition = repo.findUiapPosition("server", "uiap", "serverIP", "serverPort");
+			List<Disconfig_Dto> uiapPosition = repo.findServicePosition("server", "uiap", "serverIP", "serverPort");
 			
 			byte[] content = jnlpLib.getTaskConsoleContent(request, uiapPosition).getBytes();
 			ByteArrayResource resource = new ByteArrayResource(content);
@@ -113,7 +113,7 @@ public class JnlpController {
 	public ResponseEntity<?> getMetamanJnlp(HttpServletRequest request, HttpServletResponse response) {
 		methodKey += "#getMetamanJnlp(...)";
 		try {
-			List<Disconfig_Dto> metamanPosition = repo.findUiapPosition("server", "metamanserver", "serverIP", "serverPort");
+			List<Disconfig_Dto> metamanPosition = repo.findServicePosition("server", "metamanserver", "serverIP", "serverPort");
 			
 			byte[] content = jnlpLib.getMetamanContent(request, metamanPosition).getBytes();
 			ByteArrayResource resource = new ByteArrayResource(content);
@@ -135,7 +135,7 @@ public class JnlpController {
 	public ResponseEntity<?> getUpdaterJnlp(HttpServletRequest request, HttpServletResponse response) {
 		methodKey += "#getUpdaterJnlp(...)";
 		try {
-			List<Disconfig_Dto> uiapPosition = repo.findUiapPosition("server", "uiap", "serverIP", "serverPort");
+			List<Disconfig_Dto> uiapPosition = repo.findServicePosition("server", "uiap", "serverIP", "serverPort");
 			
 			byte[] content = jnlpLib.getUpdaterContent(request, uiapPosition).getBytes();
 			ByteArrayResource resource = new ByteArrayResource(content);

@@ -24,7 +24,7 @@ public class DisconfigController {
 		return findOne;
 	}
   
-	@GetMapping("/findUiapPosition")
+	@GetMapping("/findServicePosition")
 	public List<Disconfig_Entity> findUiapPosition(String module1, String module2, String configname1, String configname2) {
 		List<Disconfig_Entity> uiapPos = this.dao.findUiapPosition(module1, module2, configname1, configname2);
 		return uiapPos;

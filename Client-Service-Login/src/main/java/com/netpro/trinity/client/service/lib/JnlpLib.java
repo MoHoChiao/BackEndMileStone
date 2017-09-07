@@ -161,7 +161,7 @@ public class JnlpLib {
 		Disconfig_Dto dto2 = servicePosition.get(1);
 		
 		if(uiap_port == null) {
-			if("uiap".equals(dto2.getModule())) {
+			if(whichService.equals(dto2.getModule())) {
 				uiap_port = dto2.getValue();
 			}else {
 				uiap_port = dto1.getValue();
