@@ -1,7 +1,7 @@
 trinity-prop-setting: 
   server: 
     host: 192.168.7.63
-    port: 8001
+    port: 8080
   encrypt: 
     key: 'trinity'
   apps: 
@@ -10,7 +10,7 @@ trinity-prop-setting:
       img: '/src/assets/images/FlexWebUI 128.png'
       alt: 'Resource Setter'
       model: 'RC'
-      url: 'FlexWebUI'
+      url: 'ResourceSetter'
       target: '_blank'
       authorization: 'G'
       desc: 
