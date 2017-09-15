@@ -1,7 +1,7 @@
 trinity-prop-setting: 
   server: 
     host: 192.168.7.63
-    port: 8080
+    port: 8001
   encrypt: 
     key: 'trinity'
   apps: 
