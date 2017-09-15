@@ -1,0 +1,14 @@
+spring:
+  cloud:
+    config:
+      name: eureka-client-setting
+      uri: http://localhost:8888/     # 這種直接指定IP的方式並不優雅,當你有兩台以上Config Server時,也不會做到load balanced,下面方法較優
+      profile: default                # 本地檔案,無GIT,用default沒差 
+zuul:
+  routes:
+    myservice: 
+      path: /client-service/**
+      serviceId: 'client-service-login'
+management:
+  security:
+    enabled: false                    # 把安全性關掉,才可以使用遠端的property來更新本地的property

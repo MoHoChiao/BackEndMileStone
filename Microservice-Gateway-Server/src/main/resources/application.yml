@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: microservice-gateway-server           # 指定要注冊到Eureka Server上的應用程式之名稱
+server:
+  port: 8080                                    # 指定這台Server啟動的port
