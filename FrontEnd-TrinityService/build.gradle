@@ -1,0 +1,135 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.7.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath files(
+			// for login authc
+			'lib/authc-all.jar',
+			// for trinity repository db driver
+			'lib/postgresql-9.2-1003-jdbc4.jar',
+			// for login authc third party lib
+			'lib/jose4j-0.5.5.jar',
+			// for trinity micro-service util lib
+			'lib/TrinityServiceUtil-0.0.1-SNAPSHOT.jar',
+			// for trinity micro-service util lib
+			'lib/TrinityServiceErrorHanddler-0.0.1-SNAPSHOT.jar',
+			// for gwt ui
+			'lib/gwt-user-2.4.jar',
+			// for gwt ui
+			'lib/servlet-api-3.0.jar',
+			// for gwt ui
+			'lib/tomcat-jasper-6.0.29.jar',
+			// for gwt ui
+			'lib/jsp-api-2.1.jar',
+			// for ap ui to record auditing log
+			'lib/com.netpro.trinity.auditing.jar',
+			// for dis ui
+			'lib/commons-dbcp-1.4.jar',
+			// for dis ui
+			'lib/commons-pool-1.5.6.jar',
+			// for dis ui
+			'lib/org.eclipse.persistence.jpa-2.1.2.v20101206-r8635.jar',
+			// for dis ui
+			'lib/org.eclipse.persistence.antlr-2.1.2.v20101206-r8635.jar',
+			// for dis ui
+			'lib/org.eclipse.persistence.asm-2.1.2.v20101206-r8635.jar',
+			// for dis ui
+			'lib/org.eclipse.persistence.core-2.1.2.v20101206-r8635.jar',
+			// for dis ui
+			'lib/com.netpro.dis.dao.jar',
+			// for dis ui
+			'lib/spring-orm-3.0.5.RELEASE.jar',
+			// for dis ui
+			'lib/com.netpro.dis.service.jar',
+			// for dis ui
+			'lib/com.netpro.dis.service.impl.jar',
+			// for dis ui
+			'lib/com.netpro.dis.common.jar')
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+group = 'com.netpro.trinity'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+
+ext {
+	springCloudVersion = 'Dalston.SR3'
+}
+
+dependencies {
+	compile('org.springframework.cloud:spring-cloud-starter-config')
+	compile('org.springframework.cloud:spring-cloud-starter-feign')
+	compile('org.springframework.cloud:spring-cloud-starter-eureka')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.cloud:spring-cloud-starter-ribbon')
+	compile('org.springframework.cloud:spring-cloud-starter-hystrix')
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	compile('com.sun.jersey:jersey-server:1.17')
+    compile('com.sun.jersey:jersey-core:1.17')
+    compile('com.sun.jersey:jersey-servlet:1.17')
+	compile files(
+			// for login authc
+			'lib/authc-all.jar',
+			// for trinity repository db driver
+			'lib/postgresql-9.2-1003-jdbc4.jar',
+			// for login authc third party lib
+			'lib/jose4j-0.5.5.jar',
+			// for trinity micro-service util lib
+			'lib/TrinityServiceUtil-0.0.1-SNAPSHOT.jar',
+			// for trinity micro-service util lib
+			'lib/TrinityServiceErrorHanddler-0.0.1-SNAPSHOT.jar',
+			// for gwt ui
+			'lib/gwt-user-2.4.jar',
+			// for gwt ui
+			'lib/servlet-api-3.0.jar',
+			// for gwt ui
+			'lib/tomcat-jasper-6.0.29.jar',
+			// for gwt ui
+			'lib/jsp-api-2.1.jar',
+			// for ap ui to record auditing log
+			'lib/com.netpro.trinity.auditing.jar',
+			// for dis ui
+			'lib/commons-dbcp-1.4.jar',
+			// for dis ui
+			'lib/commons-pool-1.5.6.jar',
+			// for dis ui
+			'lib/org.eclipse.persistence.jpa-2.1.2.v20101206-r8635.jar',
+			// for dis ui
+			'lib/org.eclipse.persistence.antlr-2.1.2.v20101206-r8635.jar',
+			// for dis ui
+			'lib/org.eclipse.persistence.asm-2.1.2.v20101206-r8635.jar',
+			// for dis ui
+			'lib/org.eclipse.persistence.core-2.1.2.v20101206-r8635.jar',
+			// for dis ui
+			'lib/com.netpro.dis.dao.jar',
+			// for dis ui
+			'lib/spring-orm-3.0.5.RELEASE.jar',
+			// for dis ui
+			'lib/com.netpro.dis.service.jar',
+			// for dis ui
+			'lib/com.netpro.dis.service.impl.jar',
+			// for dis ui
+			'lib/com.netpro.dis.common.jar')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
