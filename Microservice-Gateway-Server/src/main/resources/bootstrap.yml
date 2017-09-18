@@ -6,9 +6,9 @@ spring:
       profile: default                # 本地檔案,無GIT,用default沒差 
 zuul:
   routes:
-    myservice: 
-      path: /client-service/**
-      serviceId: 'client-service-login'
+    trinityservice: 
+      path: /frontend-trinity-service/**
+      serviceId: 'frontend-trinity-service'
 management:
   security:
     enabled: false                    # 把安全性關掉,才可以使用遠端的property來更新本地的property
