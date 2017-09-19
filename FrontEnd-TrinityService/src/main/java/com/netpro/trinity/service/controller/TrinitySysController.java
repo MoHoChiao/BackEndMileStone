@@ -19,15 +19,13 @@ import com.netpro.trinity.service.util.tool.ExceptionMsgFormat;
 public class TrinitySysController {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(TrinitySysController.class);
-	
-	private String methodKey = "TrinitySysController";
-	
+		
 	@Autowired
 	private TrinitySysSetting trinitySys;
 	
 	@GetMapping("/find-all-dirs")
 	public ResponseEntity<?> findAllDirs() {
-		methodKey += "#findAllDirs(...)";
+		String methodKey = "TrinitySysController#findAllDirs(...)";
 		try {
 			return ResponseEntity.ok(trinitySys.getDir());
 		}catch (Exception e) {

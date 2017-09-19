@@ -1,5 +1,79 @@
 package com.netpro.trinity.service.controller;
 
-public class AgentController {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.netpro.trinity.service.feign.JCSAgentRepoClient;
+import com.netpro.trinity.service.util.entity.JCSAgent;
+import com.netpro.trinity.service.util.tool.ExceptionMsgFormat;
+
+@CrossOrigin
+@RestController  //宣告一個Restful Web Service的Resource
+@RequestMapping("/agent")
+public class AgentController {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AgentController.class);
+	
+	@Autowired	//自動注入DisconfigRepoClient物件
+	private JCSAgentRepoClient repo;
+	
+	@GetMapping("/findAll")
+	public ResponseEntity<?> findAll() {
+		String methodKey = "AgentController#findById(...)";
+		try {
+			return ResponseEntity.ok(this.repo.findAllAgent());
+		} catch (Exception e) {
+			AgentController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+		}
+	}
+  
+	@GetMapping("/findById/{id}")
+	public ResponseEntity<?> findById(@PathVariable String id) {
+		String methodKey = "AgentController#findById(...)";
+		try {
+			return ResponseEntity.ok(this.repo.findAgentById(id));
+		} catch (Exception e) {
+			AgentController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+		}
+	}
+  
+	@GetMapping("/findByName/{name}")
+	public ResponseEntity<?> findByName(@PathVariable String name) {
+		String methodKey = "AgentController#findByIdAndName(...)";
+		try {
+			return ResponseEntity.ok(this.repo.findAgentByName(name));
+		} catch (Exception e) {
+			AgentController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+		}
+	}
+  
+	@PostMapping("/save")
+	public ResponseEntity<?> save(@RequestBody JCSAgent agent) {
+		String methodKey = "AgentController#save(...)";
+		try {
+			return ResponseEntity.ok(this.repo.saveAgent(agent));
+		} catch (IllegalArgumentException e) {
+			AgentController.LOGGER.warn("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getMessage()));
+		} catch (DataIntegrityViolationException e) {
+			AgentController.LOGGER.warn("DataIntegrityViolationException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getMessage()));
+		} catch (Exception e) {
+			AgentController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+		}
+	}
 }

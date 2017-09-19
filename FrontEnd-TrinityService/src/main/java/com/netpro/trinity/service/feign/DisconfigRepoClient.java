@@ -25,7 +25,7 @@ import feign.hystrix.FallbackFactory;
 @FeignClient(name = "backend-trinity-repository", configuration = SkipTrinityBadRequestsConfiguration.class, fallbackFactory = DisconfigRepoFallback.class)
 public interface DisconfigRepoClient {
 	@RequestMapping(value = "/disconfig/findById", method = RequestMethod.GET)
-	public Disconfig findById(@RequestParam("module") String module, @RequestParam("configname") String configname) throws Exception;
+	public Disconfig findDisConfigById(@RequestParam("module") String module, @RequestParam("configname") String configname) throws Exception;
 	
 	@RequestMapping(value = "/disconfig/findServicePosition", method = RequestMethod.GET)
 	public List<Disconfig> findServicePosition(@RequestParam("module1") String module1, 
@@ -39,12 +39,11 @@ class DisconfigRepoFallback implements FallbackFactory<DisconfigRepoClient> {
 	@Override
 	public DisconfigRepoClient create(Throwable cause) {
 		return new DisconfigRepoClient() {
-			String methodKey = "DisconfigRepoClient";
 	    	
 			@Override
-	    	public Disconfig findById(@RequestParam("module") String module, @RequestParam("configname") String configname) throws Exception {
-				DisconfigRepoFallback.LOGGER.error("findById fallback; reason was:", cause);
-	    		methodKey += "#findById(...)";
+	    	public Disconfig findDisConfigById(@RequestParam("module") String module, @RequestParam("configname") String configname) throws Exception {
+				DisconfigRepoFallback.LOGGER.error("findDisConfigById fallback; reason was:", cause);
+				String methodKey = "DisconfigRepoClient#findById(...)";
 	    		
 	    		String message = null;
 	    		if(cause instanceof FeignException) {
@@ -62,7 +61,7 @@ class DisconfigRepoFallback implements FallbackFactory<DisconfigRepoClient> {
 			public List<Disconfig> findServicePosition(String module1, String module2, String configname1, String configname2)
 					throws Exception {
 				DisconfigRepoFallback.LOGGER.error("findUiapPosition fallback; reason was:", cause);
-	    		methodKey += "#findUiapPosition(...)";
+				String methodKey = "DisconfigRepoClient#findUiapPosition(...)";
 	    		
 	    		String message = null;
 	    		if(cause instanceof FeignException) {

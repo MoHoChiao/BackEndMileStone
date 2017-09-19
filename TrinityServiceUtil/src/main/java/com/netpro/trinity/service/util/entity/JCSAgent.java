@@ -1,6 +1,6 @@
 package com.netpro.trinity.service.util.entity;
 
-import java.sql.Date;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,10 +8,10 @@ import javax.persistence.Id;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-@Entity  //宣告這是一個實體User的類別
+@Entity  //宣告這是一個實體JCSAgent的類別
 public class JCSAgent {
 	@Id
-  	private Long agentuid;
+  	private String agentuid;
   	@Column
   	private String agentname;
   	@Column
@@ -39,10 +39,10 @@ public class JCSAgent {
   	@Temporal(TemporalType.TIMESTAMP)
   	private Date lastupdatetime;
   
-  	public Long getAgentuid() {
+  	public String getAgentuid() {
 		return agentuid;
 	}
-	public void setAgentuid(Long agentuid) {
+	public void setAgentuid(String agentuid) {
 		this.agentuid = agentuid;
 	}
 	public String getAgentname() {

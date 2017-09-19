@@ -27,16 +27,14 @@ import com.netpro.trinity.service.util.tool.ExceptionMsgFormat;
 public class AuthcLibController {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthcLibController.class);
-	
-	private String methodKey = "AuthcLibController";
-	
+		
 	@Autowired	//自動注入AuthcLib物件
 	private AuthcLib authcLib;
 	
 	@PostMapping("/gen-authc")
 	public ResponseEntity<?> genAuthc(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginInfo info) {
 		info.setRemoteip(request.getRemoteAddr());
-		methodKey += "#genAuthc(...)";
+		String methodKey = "AuthcLibController#genAuthc(...)";
 		try {
 			return ResponseEntity.ok(authcLib.genAuthc(response, info.getRemoteip(), info.getAccount(), info.getPsw()));
 		} catch (SQLException e) {
@@ -66,7 +64,7 @@ public class AuthcLibController {
 	
 	@PostMapping("/reset-authc")
 	public ResponseEntity<?> resetAuthc(HttpServletRequest request, HttpServletResponse response, @RequestBody String psw) {
-		methodKey += "#resetAuthc(...)";
+		String methodKey = "AuthcLibController#resetAuthc(...)";
 		try {
 			return ResponseEntity.ok(authcLib.resetAuthc(request, response, request.getRemoteAddr(), psw));
 		} catch (SQLException e) {

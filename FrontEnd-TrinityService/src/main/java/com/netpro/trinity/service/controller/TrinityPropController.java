@@ -20,15 +20,13 @@ import com.netpro.trinity.service.util.tool.ExceptionMsgFormat;
 public class TrinityPropController {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(TrinityPropController.class);
-	
-	private String methodKey = "TrinityPropController";
-	
+		
 	@Autowired
 	private TrinityPropSetting trinityProp;
 	
 	@GetMapping("/find-all-apps")
 	public ResponseEntity<?> findAllApps() {
-		methodKey += "#findAllApps(...)";
+		String methodKey = "TrinityPropController#findAllApps(...)";
 		try {
 			String host = trinityProp.getServer().getHost();
 			String port = trinityProp.getServer().getPort();
@@ -45,7 +43,7 @@ public class TrinityPropController {
 	
 	@GetMapping("/find-server-url")
 	public ResponseEntity<?> findServerUrl() {
-		methodKey += "#findServerUrl(...)";
+		String methodKey = "TrinityPropController#findServerUrl(...)";
 		try {
 			String host = trinityProp.getServer().getHost();
 			String port = trinityProp.getServer().getPort();
@@ -58,7 +56,7 @@ public class TrinityPropController {
 	
 	@GetMapping("/find-encrypt-key")
 	public ResponseEntity<?> findEncryptKey() {
-		methodKey += "#findEncryptKey(...)";
+		String methodKey = "TrinityPropController#findEncryptKey(...)";
 		try {
 			return ResponseEntity.ok(trinityProp.getEncrypt().getKey());
 		}catch (Exception e) {
