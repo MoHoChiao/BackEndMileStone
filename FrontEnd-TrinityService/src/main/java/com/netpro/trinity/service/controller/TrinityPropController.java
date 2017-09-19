@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.service.dto.prop.TrinityPropSetting;
 import com.netpro.trinity.service.dto.prop.TrinityPropSetting.App;
-import com.netpro.trinity.service.util.status.ExceptionMsgFormat;
+import com.netpro.trinity.service.util.tool.ExceptionMsgFormat;
 
 @CrossOrigin
 @RestController		//宣告一個Restful Web Service的Resource

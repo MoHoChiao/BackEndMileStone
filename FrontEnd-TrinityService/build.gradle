@@ -16,8 +16,6 @@ buildscript {
 			'lib/jose4j-0.5.5.jar',
 			// for trinity micro-service util lib
 			'lib/TrinityServiceUtil-0.0.1-SNAPSHOT.jar',
-			// for trinity micro-service util lib
-			'lib/TrinityServiceErrorHanddler-0.0.1-SNAPSHOT.jar',
 			// for gwt ui
 			'lib/gwt-user-2.4.jar',
 			// for gwt ui
@@ -91,8 +89,6 @@ dependencies {
 			'lib/jose4j-0.5.5.jar',
 			// for trinity micro-service util lib
 			'lib/TrinityServiceUtil-0.0.1-SNAPSHOT.jar',
-			// for trinity micro-service util lib
-			'lib/TrinityServiceErrorHanddler-0.0.1-SNAPSHOT.jar',
 			// for gwt ui
 			'lib/gwt-user-2.4.jar',
 			// for gwt ui

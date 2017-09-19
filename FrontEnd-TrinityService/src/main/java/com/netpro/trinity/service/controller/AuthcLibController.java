@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.service.lib.AuthcLib;
-import com.netpro.trinity.service.util.entity.dto.LoginInfo_Dto;
-import com.netpro.trinity.service.util.status.ExceptionMsgFormat;
+import com.netpro.trinity.service.util.entity.LoginInfo;
+import com.netpro.trinity.service.util.tool.ExceptionMsgFormat;
 
 @CrossOrigin
 @RestController  //宣告一個Restful Web Service的Resource
@@ -34,7 +34,7 @@ public class AuthcLibController {
 	private AuthcLib authcLib;
 	
 	@PostMapping("/gen-authc")
-	public ResponseEntity<?> genAuthc(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginInfo_Dto info) {
+	public ResponseEntity<?> genAuthc(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginInfo info) {
 		info.setRemoteip(request.getRemoteAddr());
 		methodKey += "#genAuthc(...)";
 		try {

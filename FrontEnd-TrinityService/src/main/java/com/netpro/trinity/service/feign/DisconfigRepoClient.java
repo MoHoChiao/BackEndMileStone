@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.netflix.hystrix.exception.HystrixTimeoutException;
-import com.netpro.trinity.error.config.SkipTrinityBadRequestsConfiguration;
-import com.netpro.trinity.service.util.entity.dto.Disconfig_Dto;
-import com.netpro.trinity.service.util.status.ExceptionMsgFormat;
+import com.netpro.trinity.service.util.entity.Disconfig;
+import com.netpro.trinity.service.util.error.config.SkipTrinityBadRequestsConfiguration;
+import com.netpro.trinity.service.util.tool.ExceptionMsgFormat;
 
 import feign.FeignException;
 import feign.hystrix.FallbackFactory;
@@ -25,10 +25,10 @@ import feign.hystrix.FallbackFactory;
 @FeignClient(name = "backend-trinity-repository", configuration = SkipTrinityBadRequestsConfiguration.class, fallbackFactory = DisconfigRepoFallback.class)
 public interface DisconfigRepoClient {
 	@RequestMapping(value = "/disconfig/findById", method = RequestMethod.GET)
-	public Disconfig_Dto findById(@RequestParam("module") String module, @RequestParam("configname") String configname) throws Exception;
+	public Disconfig findById(@RequestParam("module") String module, @RequestParam("configname") String configname) throws Exception;
 	
 	@RequestMapping(value = "/disconfig/findServicePosition", method = RequestMethod.GET)
-	public List<Disconfig_Dto> findServicePosition(@RequestParam("module1") String module1, 
+	public List<Disconfig> findServicePosition(@RequestParam("module1") String module1, 
 			@RequestParam("module2") String module2, @RequestParam("configname1") String configname1, 
 			@RequestParam("configname2") String configname2) throws Exception;
 }
@@ -42,7 +42,7 @@ class DisconfigRepoFallback implements FallbackFactory<DisconfigRepoClient> {
 			String methodKey = "DisconfigRepoClient";
 	    	
 			@Override
-	    	public Disconfig_Dto findById(@RequestParam("module") String module, @RequestParam("configname") String configname) throws Exception {
+	    	public Disconfig findById(@RequestParam("module") String module, @RequestParam("configname") String configname) throws Exception {
 				DisconfigRepoFallback.LOGGER.error("findById fallback; reason was:", cause);
 	    		methodKey += "#findById(...)";
 	    		
@@ -59,7 +59,7 @@ class DisconfigRepoFallback implements FallbackFactory<DisconfigRepoClient> {
 	    	}
 
 			@Override
-			public List<Disconfig_Dto> findServicePosition(String module1, String module2, String configname1, String configname2)
+			public List<Disconfig> findServicePosition(String module1, String module2, String configname1, String configname2)
 					throws Exception {
 				DisconfigRepoFallback.LOGGER.error("findUiapPosition fallback; reason was:", cause);
 	    		methodKey += "#findUiapPosition(...)";

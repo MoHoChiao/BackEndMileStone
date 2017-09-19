@@ -26,7 +26,7 @@ import com.netpro.ac.util.CommonUtils;
 import com.netpro.ac.util.CookieUtils;
 import com.netpro.ac.util.TrinityWebV2Utils;
 import com.netpro.trinity.service.dto.prop.TrinityPropSetting;
-import com.netpro.trinity.service.util.entity.dto.ReturnLoginInfo_Dto;
+import com.netpro.trinity.service.util.entity.ReturnLoginInfo;
 import com.netpro.trinity.service.util.status.TrinityServiceStatus;
 import com.netpro.trinity.service.util.status.TrinityServiceStatusMsg;
 
@@ -39,8 +39,8 @@ public class AuthcLib {
 	@Autowired	//自動注入DataSource物件
 	private DataSource dataSource;
 	
-	public ReturnLoginInfo_Dto genAuthc(HttpServletResponse response, String ip, String ac, String psw) throws SQLException, IllegalArgumentException, IllegalAccessException, Exception {
-		ReturnLoginInfo_Dto info = new ReturnLoginInfo_Dto();
+	public ReturnLoginInfo genAuthc(HttpServletResponse response, String ip, String ac, String psw) throws SQLException, IllegalArgumentException, IllegalAccessException, Exception {
+		ReturnLoginInfo info = new ReturnLoginInfo();
 		if(null == ac || ac.trim().equals("")) {
 			throw new IllegalArgumentException(TrinityServiceStatusMsg.LOGIN_ERROR+" "+TrinityServiceStatusMsg.ACCOUNT_EMPTY);
 		}
@@ -122,8 +122,8 @@ public class AuthcLib {
 		}
 	}
 	
-	public ReturnLoginInfo_Dto findAuthc(HttpServletRequest request) {
-		ReturnLoginInfo_Dto info = new ReturnLoginInfo_Dto();
+	public ReturnLoginInfo findAuthc(HttpServletRequest request) {
+		ReturnLoginInfo info = new ReturnLoginInfo();
 		info.setMsg(TrinityServiceStatusMsg.VALIDATE_ERROR);
 		info.setStatus(TrinityServiceStatus.ERROR);
 		info.setUserinfo("");

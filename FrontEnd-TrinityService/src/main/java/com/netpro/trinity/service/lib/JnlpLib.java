@@ -16,8 +16,8 @@ import com.netpro.ac.util.TrinityWebV2Utils;
 import com.netpro.trinity.service.dto.prop.TrinityPropSetting;
 import com.netpro.trinity.service.dto.prop.TrinityRepoSetting;
 import com.netpro.trinity.service.dto.prop.TrinitySysSetting;
-import com.netpro.trinity.service.util.Crypto;
-import com.netpro.trinity.service.util.entity.dto.Disconfig_Dto;
+import com.netpro.trinity.service.util.entity.Disconfig;
+import com.netpro.trinity.service.util.tool.Crypto;
 
 @Service
 public class JnlpLib {
@@ -39,7 +39,7 @@ public class JnlpLib {
 		return file;
 	}
 	
-	public String getJFDesignerContent(HttpServletRequest req, List<Disconfig_Dto> uiapPosition) throws Exception {	
+	public String getJFDesignerContent(HttpServletRequest req, List<Disconfig> uiapPosition) throws Exception {	
 		String separator = System.getProperty("file.separator");
 		String filePath = trinitySys.getDir().getSoftware();
 		String host = trinityProp.getServer().getHost();
@@ -63,7 +63,7 @@ public class JnlpLib {
 		return getContent(ints, prop_map);
 	}
 	
-	public String getTaskConsoleContent(HttpServletRequest req, List<Disconfig_Dto> uiapPosition) throws Exception {	
+	public String getTaskConsoleContent(HttpServletRequest req, List<Disconfig> uiapPosition) throws Exception {	
 		String separator = System.getProperty("file.separator");
 		String filePath = trinitySys.getDir().getSoftware();
 		String host = trinityProp.getServer().getHost();
@@ -94,7 +94,7 @@ public class JnlpLib {
 		return getContent(ints, prop_map);
 	}
 	
-	public String getMetamanContent(HttpServletRequest req, List<Disconfig_Dto> metamanPosition) throws Exception {	
+	public String getMetamanContent(HttpServletRequest req, List<Disconfig> metamanPosition) throws Exception {	
 		String separator = System.getProperty("file.separator");
 		String filePath = trinitySys.getDir().getSoftware();
 		String host = trinityProp.getServer().getHost();
@@ -117,7 +117,7 @@ public class JnlpLib {
 		return getContent(ints, prop_map);
 	}
 	
-	public String getUpdaterContent(HttpServletRequest req, List<Disconfig_Dto> uiapPosition) throws Exception {	
+	public String getUpdaterContent(HttpServletRequest req, List<Disconfig> uiapPosition) throws Exception {	
 		String separator = System.getProperty("file.separator");
 		String filePath = trinitySys.getDir().getSoftware();
 		String host = trinityProp.getServer().getHost();
@@ -140,10 +140,10 @@ public class JnlpLib {
 		return getContent(ints, prop_map);
 	}
 	
-	private String getServiceIP(List<Disconfig_Dto> servicePosition) {
+	private String getServiceIP(List<Disconfig> servicePosition) {
 		String uiap_ip = trinityProp.getUiap().getHost();
-		Disconfig_Dto dto1 = servicePosition.get(0);
-		Disconfig_Dto dto2 = servicePosition.get(1);
+		Disconfig dto1 = servicePosition.get(0);
+		Disconfig dto2 = servicePosition.get(1);
 		
 		if(uiap_ip == null) {
 			if("server".equals(dto1.getModule())) {
@@ -155,10 +155,10 @@ public class JnlpLib {
 		return uiap_ip;
 	}
 	
-	private String getServicePort(String whichService, List<Disconfig_Dto> servicePosition) {
+	private String getServicePort(String whichService, List<Disconfig> servicePosition) {
 		String uiap_port = trinityProp.getUiap().getPort();
-		Disconfig_Dto dto1 = servicePosition.get(0);
-		Disconfig_Dto dto2 = servicePosition.get(1);
+		Disconfig dto1 = servicePosition.get(0);
+		Disconfig dto2 = servicePosition.get(1);
 		
 		if(uiap_port == null) {
 			if(whichService.equals(dto2.getModule())) {
