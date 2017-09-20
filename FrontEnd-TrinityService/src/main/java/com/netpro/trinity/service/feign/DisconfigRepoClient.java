@@ -10,12 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.netflix.hystrix.exception.HystrixTimeoutException;
 import com.netpro.trinity.service.util.entity.Disconfig;
 import com.netpro.trinity.service.util.error.config.SkipTrinityBadRequestsConfiguration;
-import com.netpro.trinity.service.util.tool.ExceptionMsgFormat;
 
-import feign.FeignException;
 import feign.hystrix.FallbackFactory;
 /*
  * name:一個任意的客戶端服務名稱,即Eureka服務註冊列表中的服務
@@ -42,37 +39,15 @@ class DisconfigRepoFallback implements FallbackFactory<DisconfigRepoClient> {
 	    	
 			@Override
 	    	public Disconfig findDisConfigById(@RequestParam("module") String module, @RequestParam("configname") String configname) throws Exception {
-				DisconfigRepoFallback.LOGGER.error("findDisConfigById fallback; reason was:", cause);
-				String methodKey = "DisconfigRepoClient#findById(...)";
-	    		
-	    		String message = null;
-	    		if(cause instanceof FeignException) {
-	    			FeignException feign_ex = (FeignException)cause;
-	        		message = feign_ex.getMessage();
-	    		}else if (cause instanceof HystrixTimeoutException){
-	        		message = ExceptionMsgFormat.get(500, methodKey + " HystrixTimeoutException", cause.getMessage());
-	    		}else {
-	    			message = ExceptionMsgFormat.get(500, methodKey + " RutimeException", cause.getMessage());
-	    		}
-	    		throw new Exception(message);
+				DisconfigRepoFallback.LOGGER.error("DisconfigRepoClient#findDisConfigById fallback; reason was:", cause);
+				throw new Exception(cause.getMessage());
 	    	}
 
 			@Override
 			public List<Disconfig> findServicePosition(String module1, String module2, String configname1, String configname2)
 					throws Exception {
-				DisconfigRepoFallback.LOGGER.error("findUiapPosition fallback; reason was:", cause);
-				String methodKey = "DisconfigRepoClient#findUiapPosition(...)";
-	    		
-	    		String message = null;
-	    		if(cause instanceof FeignException) {
-	    			FeignException feign_ex = (FeignException)cause;
-	        		message = feign_ex.getMessage();
-	    		}else if (cause instanceof HystrixTimeoutException){
-	        		message = ExceptionMsgFormat.get(500, methodKey + " HystrixTimeoutException", cause.getMessage());
-	    		}else {
-	    			message = ExceptionMsgFormat.get(500, methodKey + " RutimeException", cause.getMessage());
-	    		}
-	    		throw new Exception(message);
+				DisconfigRepoFallback.LOGGER.error("DisconfigRepoClient#findUiapPosition fallback; reason was:", cause);
+				throw new Exception(cause.getMessage());
 			}
 	    };
 	}

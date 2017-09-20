@@ -37,7 +37,7 @@ public class TrinityPropController {
 			return ResponseEntity.ok(trinityProp.getApps());
 		}catch (Exception e) {
 			TrinityPropController.LOGGER.error("Exception; reason was:", e.getCause());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));
 	    }
 	}
 	
@@ -50,7 +50,7 @@ public class TrinityPropController {
 			return ResponseEntity.ok("http://"+host+":"+port);
 		}catch (Exception e) {
 			TrinityPropController.LOGGER.error("Exception; reason was:", e.getCause());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));
 	    }
 	}
 	
@@ -61,7 +61,7 @@ public class TrinityPropController {
 			return ResponseEntity.ok(trinityProp.getEncrypt().getKey());
 		}catch (Exception e) {
 			TrinityPropController.LOGGER.error("Exception; reason was:", e.getCause());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));
 	    }
 	}
 }

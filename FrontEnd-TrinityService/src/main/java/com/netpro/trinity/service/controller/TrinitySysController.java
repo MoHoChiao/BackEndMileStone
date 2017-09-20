@@ -30,7 +30,7 @@ public class TrinitySysController {
 			return ResponseEntity.ok(trinitySys.getDir());
 		}catch (Exception e) {
 			TrinitySysController.LOGGER.error("Exception; reason was:", e.getCause());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));
 	    }
 	}
 }

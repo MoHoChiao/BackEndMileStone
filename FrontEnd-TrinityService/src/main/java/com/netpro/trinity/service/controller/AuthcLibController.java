@@ -39,16 +39,16 @@ public class AuthcLibController {
 			return ResponseEntity.ok(authcLib.genAuthc(response, info.getRemoteip(), info.getAccount(), info.getPsw()));
 		} catch (SQLException e) {
 			AuthcLibController.LOGGER.error("SQLException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));
 		} catch (IllegalArgumentException e) {
 			AuthcLibController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getCause().toString()));
 		} catch (IllegalAccessException e) {
 			AuthcLibController.LOGGER.error("IllegalAccessException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getCause().toString()));
 		} catch (Exception e) {
 			AuthcLibController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));
 		}
 	}
 	
@@ -69,16 +69,16 @@ public class AuthcLibController {
 			return ResponseEntity.ok(authcLib.resetAuthc(request, response, request.getRemoteAddr(), psw));
 		} catch (SQLException e) {
 			AuthcLibController.LOGGER.error("SQLException; reason was:", e.getCause());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));
 		} catch (IllegalArgumentException e) {
 			AuthcLibController.LOGGER.error("IllegalArgumentException; reason was:", e.getCause());
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getCause().toString()));
 		} catch (IllegalAccessException e) {
 			AuthcLibController.LOGGER.error("IllegalAccessException; reason was:", e.getCause());
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionMsgFormat.get(400, methodKey, e.getCause().toString()));
 		} catch (Exception e) {
 			AuthcLibController.LOGGER.error("Exception; reason was:", e.getCause());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));
 		}
 	}
 }

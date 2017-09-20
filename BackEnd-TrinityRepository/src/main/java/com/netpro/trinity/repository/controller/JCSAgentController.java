@@ -1,10 +1,14 @@
 package com.netpro.trinity.repository.controller;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,42 +28,54 @@ public class JCSAgentController {
 	private JCSAgentDao dao;
 
 	@GetMapping("/findAll")
-	public List<JCSAgent> findAll() {
+	public ResponseEntity<?> findAll(Integer pageSize, String order, String orderField) {
 		try {
-			return this.dao.findAll();
+			pageSize = 2;
+			PageRequest page = null;
+			if(pageSize != null) {
+				if(order != null && orderField != null) {
+					page = new PageRequest(0, pageSize,new Sort(new Order(Direction.ASC, orderField)));
+				}else {
+					page = new PageRequest(0, pageSize);
+				}
+			}
+			if(page == null)
+				return ResponseEntity.ok(this.dao.findAll());
+			else
+				return ResponseEntity.ok(this.dao.findAll(page));
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
-			throw e;
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
   
-	@GetMapping("/findById/{id}")
-	public JCSAgent findById(@PathVariable String id) {
+	@GetMapping("/findById")
+	public ResponseEntity<?> findById(String id) {
 		try {
-			return this.dao.findOne(id);
+			return ResponseEntity.ok(this.dao.findOne(id));
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
-			throw e;
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
   
-	@GetMapping("/findByName/{name}")
-	public List<JCSAgent> findByName(@PathVariable String name) {
+	@GetMapping("/findByName")
+	public ResponseEntity<?> findByName(String name) {
 		try {
-			return this.dao.findByAgentname(name.toUpperCase());
+			return ResponseEntity.ok(this.dao.findByAgentname(name.toUpperCase()));
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
-			throw e;
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
   
 	@PostMapping("/save")
-	public JCSAgent save(@RequestBody JCSAgent agent) {
+	public ResponseEntity<?> save(@RequestBody JCSAgent agent) {
 		try {
-			return this.dao.save(agent);
+			return ResponseEntity.ok(this.dao.save(agent));
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
-			throw e;
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 //  

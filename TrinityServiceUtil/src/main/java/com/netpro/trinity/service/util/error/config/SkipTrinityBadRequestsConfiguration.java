@@ -18,7 +18,7 @@ public class SkipTrinityBadRequestsConfiguration {
     @Bean
     public ErrorDecoder errorDecoder() {
         return (methodKey, response) -> {
-            if (response.status() >= 400 && response.status() <= 499) {
+            if (response.status() >= 400 && response.status() <= 500) {
             	String body = "Bad request";
                 try {
                     body = Util.toString(response.body().asReader());

@@ -56,7 +56,7 @@ public class JnlpController {
 		            .body(resource);
 		} catch (Exception e) {
 			JnlpController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));
 		}
 	}
 	
@@ -76,12 +76,12 @@ public class JnlpController {
 		            .headers(httpHeaders)
 		            .contentType(MediaType.parseMediaType("application/x-java-jnlp-file"))
 		            .body(resource);
-		}catch (TrinityBadResponseWrapper e) {
+		} catch (TrinityBadResponseWrapper e) {
 			JnlpController.LOGGER.error("TrinityBadResponseWrapper; reason was:\n"+e.getBody());
 			return ResponseEntity.status(e.getStatus()).body(e.getBody());
 		} catch (Exception e) {
 			JnlpController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));
 		}
 	}
 	
@@ -101,9 +101,12 @@ public class JnlpController {
 		            .headers(httpHeaders)
 		            .contentType(MediaType.parseMediaType("application/x-java-jnlp-file"))
 		            .body(resource);
+		} catch (TrinityBadResponseWrapper e) {
+			JnlpController.LOGGER.error("TrinityBadResponseWrapper; reason was:\n"+e.getBody());
+			return ResponseEntity.status(e.getStatus()).body(e.getBody());
 		} catch (Exception e) {
 			JnlpController.LOGGER.error("Exception; reason was:", e.getCause());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));
 		}
 	}
 	
@@ -123,9 +126,12 @@ public class JnlpController {
 		            .headers(httpHeaders)
 		            .contentType(MediaType.parseMediaType("application/x-java-jnlp-file"))
 		            .body(resource);
+		} catch (TrinityBadResponseWrapper e) {
+			JnlpController.LOGGER.error("TrinityBadResponseWrapper; reason was:\n"+e.getBody());
+			return ResponseEntity.status(e.getStatus()).body(e.getBody());
 		} catch (Exception e) {
 			JnlpController.LOGGER.error("Exception; reason was:", e.getCause());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));
 		}
 	}
 	
@@ -145,9 +151,12 @@ public class JnlpController {
 		            .headers(httpHeaders)
 		            .contentType(MediaType.parseMediaType("application/x-java-jnlp-file"))
 		            .body(resource);
+		} catch (TrinityBadResponseWrapper e) {
+			JnlpController.LOGGER.error("TrinityBadResponseWrapper; reason was:\n"+e.getBody());
+			return ResponseEntity.status(e.getStatus()).body(e.getBody());
 		} catch (Exception e) {
 			JnlpController.LOGGER.error("Exception; reason was:", e.getCause());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getMessage()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));
 		}
 	}
 }
