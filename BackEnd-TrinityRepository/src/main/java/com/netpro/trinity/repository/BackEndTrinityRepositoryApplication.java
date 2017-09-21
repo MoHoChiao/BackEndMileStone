@@ -19,7 +19,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 /*
  * 掃瞄Entity Bean的Package及其下的Sub-Package
  */
-@EntityScan( basePackages = {"com.netpro.trinity.service.util.entity"} )
+//@EntityScan( basePackages = {"com.netpro.trinity.service.util.entity"} )
 public class BackEndTrinityRepositoryApplication {
 
 	public static void main(String[] args) {

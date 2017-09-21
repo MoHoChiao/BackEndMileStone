@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +17,6 @@ import com.netpro.trinity.service.util.entity.JCSAgent;
 import com.netpro.trinity.service.util.error.exception.TrinityBadResponseWrapper;
 import com.netpro.trinity.service.util.tool.ExceptionMsgFormat;
 
-@CrossOrigin
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/agent")
 public class AgentController {

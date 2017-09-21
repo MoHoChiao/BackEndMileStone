@@ -10,14 +10,13 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.repository.dao.JCSAgentDao;
-import com.netpro.trinity.service.util.entity.JCSAgent;
+import com.netpro.trinity.repository.entity.JCSAgent;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/jcsagent")
@@ -28,16 +27,11 @@ public class JCSAgentController {
 	private JCSAgentDao dao;
 
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAll(Integer pageSize, String order, String orderField) {
+	public ResponseEntity<?> findAll(Integer number, Integer size, String order, String orderField) {
 		try {
-			pageSize = 2;
 			PageRequest page = null;
-			if(pageSize != null) {
-				if(order != null && orderField != null) {
-					page = new PageRequest(0, pageSize,new Sort(new Order(Direction.ASC, orderField)));
-				}else {
-					page = new PageRequest(0, pageSize);
-				}
+			if(size != null) {
+				page = new PageRequest(number, size,new Sort(new Order(Direction.ASC, "agentname")));
 			}
 			if(page == null)
 				return ResponseEntity.ok(this.dao.findAll());

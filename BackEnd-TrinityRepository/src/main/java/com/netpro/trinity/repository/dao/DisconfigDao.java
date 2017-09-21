@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.netpro.trinity.service.util.entity.Disconfig;
-import com.netpro.trinity.service.util.entity.DisconfigPKs;
+import com.netpro.trinity.repository.entity.Disconfig;
+import com.netpro.trinity.repository.entity.DisconfigPKs;
 
 @Repository  //宣告這是一個DAO類別
 public interface DisconfigDao extends JpaRepository<Disconfig, DisconfigPKs> {  //自動繼承JapRepository下的所有方法
