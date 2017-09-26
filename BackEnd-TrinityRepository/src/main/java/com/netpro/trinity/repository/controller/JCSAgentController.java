@@ -1,12 +1,10 @@
 package com.netpro.trinity.repository.controller;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.repository.dao.JCSAgentDao;
+import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.entity.JCSAgent;
+import com.netpro.trinity.repository.service.JCSAgentService;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/jcsagent")
@@ -24,29 +23,25 @@ public class JCSAgentController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JCSAgentController.class);
 		
 	@Autowired
-	private JCSAgentDao dao;
-
+	private JCSAgentService service;
+	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAll(Integer number, Integer size, String order, String orderField) {
+	public ResponseEntity<?> findAllAgent() {
 		try {
-			PageRequest page = null;
-			if(size != null) {
-				page = new PageRequest(number, size,new Sort(new Order(Direction.ASC, "agentname")));
-			}
-			if(page == null)
-				return ResponseEntity.ok(this.dao.findAll());
-			else
-				return ResponseEntity.ok(this.dao.findAll(page));
+			return ResponseEntity.ok(this.service.getAllAgent());
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
-  
+	
 	@GetMapping("/findById")
-	public ResponseEntity<?> findById(String id) {
+	public ResponseEntity<?> findAgentById(String id) {
 		try {
-			return ResponseEntity.ok(this.dao.findOne(id));
+			return ResponseEntity.ok(this.service.getAgentById(id));
+		}catch(IllegalArgumentException e) {
+			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -54,19 +49,63 @@ public class JCSAgentController {
 	}
   
 	@GetMapping("/findByName")
-	public ResponseEntity<?> findByName(String name) {
+	public ResponseEntity<?> findAgentByName(String name) {
 		try {
-			return ResponseEntity.ok(this.dao.findByAgentname(name.toUpperCase()));
+			return ResponseEntity.ok(this.service.getAgentByName(name));
+		}catch(IllegalArgumentException e) {
+			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
+	
+	@PostMapping("/findByFilter")
+	public ResponseEntity<?> findAgentByFilter(@RequestBody FilterInfo filter) {
+		try {
+			return this.service.getAgentByFieldQuery(filter);
+		}catch(SecurityException e) {
+			JCSAgentController.LOGGER.error("SecurityException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(NoSuchMethodException e) {
+			JCSAgentController.LOGGER.error("NoSuchMethodException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(IllegalAccessException e) {
+			JCSAgentController.LOGGER.error("IllegalAccessException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(InvocationTargetException e) {
+			JCSAgentController.LOGGER.error("InvocationTargetException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(IllegalArgumentException e) {
+			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+//	@GetMapping("/findByFieldQuery/PaggingAndSorting")
+//	public ResponseEntity<?> findAgentByName(RequestBody Page_Sort_Filter) {
+//		try {
+//			return ResponseEntity.ok(this.service.getAgentByName(name));
+//		}catch(IllegalArgumentException e) {
+//			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//		}catch(Exception e) {
+//			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//		}
+//	}
   
 	@PostMapping("/save")
-	public ResponseEntity<?> save(@RequestBody JCSAgent agent) {
+	public ResponseEntity<?> saveAgent(@RequestBody JCSAgent agent) {
 		try {
-			return ResponseEntity.ok(this.dao.save(agent));
+			return ResponseEntity.ok(this.service.upsertAgent(agent));
+		}catch(IllegalArgumentException e) {
+			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
