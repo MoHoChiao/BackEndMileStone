@@ -41,8 +41,20 @@ public class JCSAgent {
   	@Column
   	@Temporal(TemporalType.TIMESTAMP)
   	private Date lastupdatetime;
+  	
   	@Transient
-  	private String mytest;
+  	private String deadperiod;
+  	@Transient
+  	private String monitortime;
+  	@Transient
+  	private String cpuweight;
+  	@Transient
+  	private String memweight;
+  	@Transient
+  	private String encoding;
+  	@Transient
+  	private String compresstransfer;
+  	
   
   	public String getAgentuid() {
 		return agentuid;
@@ -123,10 +135,41 @@ public class JCSAgent {
 	public void setLastupdatetime(Date lastupdatetime) {
 		this.lastupdatetime = lastupdatetime;
 	}
-	public String getMytest() {
-		return mytest;
+	
+	public String getDeadperiod() {
+		return deadperiod;
 	}
-	public void setMytest(String mytest) {
-		this.mytest = mytest;
+	public void setDeadperiod(String deadperiod) {
+		this.deadperiod = deadperiod;
+	}
+	public String getMonitortime() {
+		return monitortime;
+	}
+	public void setMonitortime(String monitortime) {
+		this.monitortime = monitortime;
+	}
+	public String getCpuweight() {
+		return cpuweight;
+	}
+	public void setCpuweight(String cpuweight) {
+		this.cpuweight = cpuweight;
+	}
+	public String getMemweight() {
+		return memweight;
+	}
+	public void setMemweight(String memweight) {
+		this.memweight = memweight;
+	}
+	public String getEncoding() {
+		return encoding;
+	}
+	public void setEncoding(String encoding) {
+		this.encoding = encoding;
+	}
+	public String getCompresstransfer() {
+		return compresstransfer;
+	}
+	public void setCompresstransfer(String compresstransfer) {
+		this.compresstransfer = compresstransfer;
 	}
 }

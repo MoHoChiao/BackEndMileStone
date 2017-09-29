@@ -6,12 +6,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.netpro.trinity.repository.entity.JCSAgent;
 
 @Repository  //宣告這是一個DAO類別
-public interface JCSAgentDao extends JpaRepository<JCSAgent, String> {	
+public interface JCSAgentDao extends JpaRepository<JCSAgent, String> {
+	@Query("select count(agent)>0 from JCSAgent agent where agent.agentname=:agentname")
+	Boolean existByName(@Param("agentname") String agentname);
+	
 	//agentname field
 	List<JCSAgent> findByagentname(String name);
 	List<JCSAgent> findByagentname(String name, Sort sort);
@@ -29,16 +34,16 @@ public interface JCSAgentDao extends JpaRepository<JCSAgent, String> {
 	//activate field
 	List<JCSAgent> findByactivate(String activate);
 	List<JCSAgent> findByactivate(String activate, Sort sort);
-	List<JCSAgent> findByactivate(String activate, Pageable pageable);
+	Page<JCSAgent> findByactivate(String activate, Pageable pageable);
 	List<JCSAgent> findByactivateIgnoreCase(String activate);
 	List<JCSAgent> findByactivateIgnoreCase(String activate, Sort sort);
-	List<JCSAgent> findByactivateIgnoreCase(String activate, Pageable pageable);
+	Page<JCSAgent> findByactivateIgnoreCase(String activate, Pageable pageable);
 	List<JCSAgent> findByactivateLike(String activate);
 	List<JCSAgent> findByactivateLike(String activate, Sort sort);
-	List<JCSAgent> findByactivateLike(String activate, Pageable pageable);
+	Page<JCSAgent> findByactivateLike(String activate, Pageable pageable);
 	List<JCSAgent> findByactivateLikeIgnoreCase(String activate);
 	List<JCSAgent> findByactivateLikeIgnoreCase(String activate, Sort sort);
-	List<JCSAgent> findByactivateLikeIgnoreCase(String activate, Pageable pageable);
+	Page<JCSAgent> findByactivateLikeIgnoreCase(String activate, Pageable pageable);
 	
 	//host field
 	List<JCSAgent> findByhost(String host);

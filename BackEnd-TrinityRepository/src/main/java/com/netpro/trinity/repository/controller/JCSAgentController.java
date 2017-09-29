@@ -99,10 +99,23 @@ public class JCSAgentController {
 //		}
 //	}
   
-	@PostMapping("/save")
-	public ResponseEntity<?> saveAgent(@RequestBody JCSAgent agent) {
+	@PostMapping("/add")
+	public ResponseEntity<?> addAgent(@RequestBody JCSAgent agent) {
 		try {
-			return ResponseEntity.ok(this.service.upsertAgent(agent));
+			return ResponseEntity.ok(this.service.addAgent(agent));
+		}catch(IllegalArgumentException e) {
+			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/edit")
+	public ResponseEntity<?> editAgent(@RequestBody JCSAgent agent) {
+		try {
+			return ResponseEntity.ok(this.service.editAgent(agent));
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
