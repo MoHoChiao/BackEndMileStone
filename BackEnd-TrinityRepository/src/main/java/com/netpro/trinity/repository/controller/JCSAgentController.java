@@ -125,9 +125,18 @@ public class JCSAgentController {
 		}
 	}
 //  
-//  @GetMapping("/delete/{id}") //對應client端的一個Http Get請求,其參數為id
-//  public String delete(@PathVariable Long id) {
-//	this.userRepository.delete(id);  //使用JPA,根據ID刪除一筆資料
-//    return "Delete Success!";
-//  }
+	@GetMapping("/delete")
+	public ResponseEntity<?> deleteAgent(String agentuid) {
+		try {
+			System.out.println(agentuid+"////////////////");
+			this.service.deleteAgent(agentuid);
+		}catch(IllegalArgumentException e) {
+			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+		return ResponseEntity.ok(agentuid);
+	}
 }

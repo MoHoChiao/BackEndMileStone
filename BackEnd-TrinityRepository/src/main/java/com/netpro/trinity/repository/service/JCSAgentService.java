@@ -1,12 +1,16 @@
 package com.netpro.trinity.repository.service;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.persistence.Transient;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -56,6 +60,7 @@ public class JCSAgentService {
 			throw new IllegalArgumentException("Agent UID can not be empty!");
 		
 		JCSAgent agent = this.dao.findOne(id);
+		System.out.println(agent.getLastupdatetime()+"//////////////////////");
 		setExtraXmlProp(agent);
 		return agent;
 	}
@@ -153,7 +158,6 @@ public class JCSAgentService {
 					return ResponseEntity.ok(page_agent);
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
-					System.out.println(methodName);
 					Page<JCSAgent> page_agent = (Page<JCSAgent>) method.invoke(this.dao, queryString, pageRequest);
 					setExtraXmlProp(page_agent.getContent());
 					return ResponseEntity.ok(page_agent);
@@ -256,13 +260,27 @@ public class JCSAgentService {
 		String xmldata = xmlUtil.parseHashMapToXMLString(xmlMap, false);
 		agent.setXmldata(xmldata);
 		
-		return this.dao.save(agent);
+		/*
+		 * because lastupdatetime column is auto created value, it can not be reload new value.
+		 * here, we force to give value to lastupdatetime column.
+		 */
+		agent.setLastupdatetime(new Date());
+		
+		JCSAgent new_agent = this.dao.save(agent);
+		new_agent.setCompresstransfer(compresstransfer);
+		
+		/*
+		 * because xml column is defined by @Transient, it can not be reload new value.
+		 */
+		setExtraXmlProp(new_agent);
+		
+		return new_agent;
 	}
 	
 	public JCSAgent editAgent(JCSAgent agent) throws IllegalArgumentException, Exception{
 		if(null == agent.getAgentuid() || agent.getAgentuid().length() <= 0)
 			throw new IllegalArgumentException("JCSAgent Uid can not be empty!");
-		
+
 		JCSAgent old_agent = getAgentById(agent.getAgentuid());
 		if(null == old_agent)
 			throw new IllegalArgumentException("JCSAgent Uid does not exist!");
@@ -282,7 +300,6 @@ public class JCSAgentService {
 		agent.setAgentstatus("0");
 		
 		String compresstransfer = agent.getCompresstransfer();
-		System.out.println(compresstransfer+"////////////////////");
 		if(null == compresstransfer || (!compresstransfer.equals("1") && !compresstransfer.equals("0")))
 			throw new IllegalArgumentException("JCSAgent compresstransfer value can only be 1 or 0!");
 		
@@ -335,7 +352,28 @@ public class JCSAgentService {
 		String xmldata = xmlUtil.parseHashMapToXMLString(xmlMap, false);
 		agent.setXmldata(xmldata);
 		
-		return this.dao.save(agent);
+		/*
+		 * because lastupdatetime column is auto created value, it can not be reload new value.
+		 * here, we force to give value to lastupdatetime column.
+		 */
+		agent.setLastupdatetime(new Date());
+		
+		JCSAgent new_agent = this.dao.save(agent);
+		new_agent.setCompresstransfer(compresstransfer);
+		
+		/*
+		 * because xml column is defined by @Transient, it can not be reload new value.
+		 */
+		setExtraXmlProp(new_agent);
+				
+		return new_agent;
+	}
+	
+	public void deleteAgent(String agentuid) {
+		if(null == agentuid || agentuid.length() <= 0)
+			throw new IllegalArgumentException("JCSAgent Uid can not be empty!");
+		
+		this.dao.delete(agentuid);
 	}
 	
 	
