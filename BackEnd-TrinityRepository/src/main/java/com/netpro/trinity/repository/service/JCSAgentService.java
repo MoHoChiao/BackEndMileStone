@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.persistence.Transient;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -60,7 +58,6 @@ public class JCSAgentService {
 			throw new IllegalArgumentException("Agent UID can not be empty!");
 		
 		JCSAgent agent = this.dao.findOne(id);
-		System.out.println(agent.getLastupdatetime()+"//////////////////////");
 		setExtraXmlProp(agent);
 		return agent;
 	}
@@ -231,7 +228,13 @@ public class JCSAgentService {
 		
 		if(null == agent.getHost())
 			throw new IllegalArgumentException("JCSAgent Host can not be empty!");
-				
+		
+		if(null == agent.getPort())
+			throw new IllegalArgumentException("JCSAgent Port value can only be small integer!");
+		
+		if(null == agent.getMaximumjob())
+			throw new IllegalArgumentException("JCSAgent Maximum Job value can only be small integer!");
+		
 		try{
 			Integer.valueOf(agent.getMemweight());
 		}catch(Exception e){
@@ -323,7 +326,13 @@ public class JCSAgentService {
 		
 		if(null == agent.getHost())
 			throw new IllegalArgumentException("JCSAgent Host can not be empty!");
-				
+		
+		if(null == agent.getPort())
+			throw new IllegalArgumentException("JCSAgent Port can not be empty!");
+		
+		if(null == agent.getMaximumjob())
+			throw new IllegalArgumentException("JCSAgent Maximum Job can not be empty!");
+		
 		try{
 			Integer.valueOf(agent.getMemweight());
 		}catch(Exception e){
@@ -369,7 +378,7 @@ public class JCSAgentService {
 		return new_agent;
 	}
 	
-	public void deleteAgent(String agentuid) {
+	public void deleteAgent(String agentuid) throws IllegalArgumentException, Exception{
 		if(null == agentuid || agentuid.length() <= 0)
 			throw new IllegalArgumentException("JCSAgent Uid can not be empty!");
 		

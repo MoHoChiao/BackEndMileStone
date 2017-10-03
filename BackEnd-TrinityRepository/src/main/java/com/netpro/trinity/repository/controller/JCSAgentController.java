@@ -128,7 +128,6 @@ public class JCSAgentController {
 	@GetMapping("/delete")
 	public ResponseEntity<?> deleteAgent(String agentuid) {
 		try {
-			System.out.println(agentuid+"////////////////");
 			this.service.deleteAgent(agentuid);
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
