@@ -14,115 +14,115 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.repository.dto.FilterInfo;
-import com.netpro.trinity.repository.entity.JCSAgent;
-import com.netpro.trinity.repository.service.JCSAgentService;
+import com.netpro.trinity.repository.entity.VRAgent;
+import com.netpro.trinity.repository.service.VRAgentService;
 
 @RestController  //宣告一個Restful Web Service的Resource
-@RequestMapping("/jcsagent")
-public class JCSAgentController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(JCSAgentController.class);
+@RequestMapping("/vragent")
+public class VRAgentController {
+	private static final Logger LOGGER = LoggerFactory.getLogger(VRAgentController.class);
 		
 	@Autowired
-	private JCSAgentService service;
+	private VRAgentService service;
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllAgent() {
+	public ResponseEntity<?> findAllVRAgent() {
 		try {
-			return ResponseEntity.ok(this.service.getAllAgent());
+			return ResponseEntity.ok(this.service.getAllVRAgent());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@GetMapping("/findById")
-	public ResponseEntity<?> findAgentById(String id) {
+	public ResponseEntity<?> findVRAgentById(String id) {
 		try {
-			return ResponseEntity.ok(this.service.getAgentById(id));
+			return ResponseEntity.ok(this.service.getVRAgentById(id));
 		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
   
 	@GetMapping("/findByName")
-	public ResponseEntity<?> findAgentByName(String name) {
+	public ResponseEntity<?> findVRAgentByName(String name) {
 		try {
-			return ResponseEntity.ok(this.service.getAgentByName(name));
+			return ResponseEntity.ok(this.service.getVRAgentByName(name));
 		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findAgentByFilter(@RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findVRAgentByFilter(@RequestBody FilterInfo filter) {
 		try {
-			return this.service.getAgentByFieldQuery(filter);
+			return this.service.getVRAgentByFieldQuery(filter);
 		}catch(SecurityException e) {
-			JCSAgentController.LOGGER.error("SecurityException; reason was:", e);
+			VRAgentController.LOGGER.error("SecurityException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(NoSuchMethodException e) {
-			JCSAgentController.LOGGER.error("NoSuchMethodException; reason was:", e);
+			VRAgentController.LOGGER.error("NoSuchMethodException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(IllegalAccessException e) {
-			JCSAgentController.LOGGER.error("IllegalAccessException; reason was:", e);
+			VRAgentController.LOGGER.error("IllegalAccessException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(InvocationTargetException e) {
-			JCSAgentController.LOGGER.error("InvocationTargetException; reason was:", e);
+			VRAgentController.LOGGER.error("InvocationTargetException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
   
 	@PostMapping("/add")
-	public ResponseEntity<?> addAgent(@RequestBody JCSAgent agent) {
+	public ResponseEntity<?> addVRAgent(@RequestBody VRAgent vragent) {
 		try {
-			return ResponseEntity.ok(this.service.addAgent(agent));
+			return ResponseEntity.ok(this.service.addVRAgent(vragent));
 		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/edit")
-	public ResponseEntity<?> editAgent(@RequestBody JCSAgent agent) {
+	public ResponseEntity<?> editVRAgent(@RequestBody VRAgent vragent) {
 		try {
-			return ResponseEntity.ok(this.service.editAgent(agent));
+			return ResponseEntity.ok(this.service.editVRAgent(vragent));
 		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 //  
 	@GetMapping("/delete")
-	public ResponseEntity<?> deleteAgent(String agentuid) {
+	public ResponseEntity<?> deleteVRAgent(String virtualagentuid) {
 		try {
-			this.service.deleteAgent(agentuid);
+			this.service.deleteVRAgent(virtualagentuid);
 		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
-		return ResponseEntity.ok(agentuid);
+		return ResponseEntity.ok(virtualagentuid);
 	}
 }

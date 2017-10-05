@@ -11,7 +11,8 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-@Entity  //宣告這是一個實體JCSAgent的類別
+
+@Entity(name="JCSAgent")  //宣告這是一個實體JCSAgent的類別
 public class JCSAgent {	
 	@Id
   	private String agentuid;

@@ -28,16 +28,11 @@ import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
 import com.netpro.trinity.repository.entity.JCSAgent;
+import com.netpro.trinity.repository.util.Constant;
 import com.netpro.trinity.repository.util.XMLDataUtility;
 
 @Service
 public class JCSAgentService {
-	public static final String[] ORDER_TYPE_VALUES = new String[] { "ASC", "DESC" };
-	public static final Set<String> ORDER_TYPE_SET = new HashSet<>(Arrays.asList(ORDER_TYPE_VALUES));
-	
-	public static final String[] QUERY_TYPE_VALUES = new String[] { "equals", "like" };
-	public static final Set<String> QUERY_TYPE_SET = new HashSet<>(Arrays.asList(QUERY_TYPE_VALUES));
-	
 	public static final String[] AGENT_FIELD_VALUES = new String[] { "agentname", "activate", "host", "port", "description" };
 	public static final Set<String> AGENT_FIELD_SET = new HashSet<>(Arrays.asList(AGENT_FIELD_VALUES));
 	
@@ -121,8 +116,8 @@ public class JCSAgentService {
 				return ResponseEntity.ok(agents);
 			}
 		}else {
-			if(querying.getQueryType() == null || !QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query type! "+QUERY_TYPE_SET.toString());
+			if(querying.getQueryType() == null || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
+				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
 			if(querying.getQueryField() == null || !AGENT_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
 				throw new IllegalArgumentException("Illegal query field! "+ AGENT_FIELD_SET.toString());
 			if(querying.getIgnoreCase() == null)
@@ -191,7 +186,7 @@ public class JCSAgentService {
 		agent.setAgentuid(UUID.randomUUID().toString());
 		
 		String agentname = agent.getAgentname();
-		if(null == agentname || agentname.length() <= 0)
+		if(null == agentname || agentname.trim().length() <= 0)
 			throw new IllegalArgumentException("JCSAgent Name can not be empty!");
 		agent.setAgentname(agentname.toUpperCase());
 		
@@ -226,7 +221,8 @@ public class JCSAgentService {
 		if(null == agent.getEncoding())
 			agent.setEncoding("");
 		
-		if(null == agent.getHost())
+		String host = agent.getHost();
+		if(null == host || host.trim().length()<=0)
 			throw new IllegalArgumentException("JCSAgent Host can not be empty!");
 		
 		if(null == agent.getPort())
@@ -273,6 +269,7 @@ public class JCSAgentService {
 		new_agent.setCompresstransfer(compresstransfer);
 		
 		/*
+		 * Very suck design.
 		 * because xml column is defined by @Transient, it can not be reload new value.
 		 */
 		setExtraXmlProp(new_agent);
@@ -281,7 +278,8 @@ public class JCSAgentService {
 	}
 	
 	public JCSAgent editAgent(JCSAgent agent) throws IllegalArgumentException, Exception{
-		if(null == agent.getAgentuid() || agent.getAgentuid().length() <= 0)
+		String agentuid = agent.getAgentuid();
+		if(null == agentuid || agentuid.trim().length() <= 0)
 			throw new IllegalArgumentException("JCSAgent Uid can not be empty!");
 
 		JCSAgent old_agent = getAgentById(agent.getAgentuid());
@@ -289,7 +287,7 @@ public class JCSAgentService {
 			throw new IllegalArgumentException("JCSAgent Uid does not exist!");
 		
 		String agentname = agent.getAgentname();
-		if(null == agentname || agentname.length() <= 0)
+		if(null == agentname || agentname.trim().length() <= 0)
 			throw new IllegalArgumentException("JCSAgent Name can not be empty!");
 		agent.setAgentname(agentname.toUpperCase());
 		
@@ -324,7 +322,8 @@ public class JCSAgentService {
 		if(null == agent.getEncoding())
 			agent.setEncoding("");
 		
-		if(null == agent.getHost())
+		String host = agent.getHost();
+		if(null == host || host.trim().length()<=0)
 			throw new IllegalArgumentException("JCSAgent Host can not be empty!");
 		
 		if(null == agent.getPort())
@@ -371,6 +370,7 @@ public class JCSAgentService {
 		new_agent.setCompresstransfer(compresstransfer);
 		
 		/*
+		 * Very suck design
 		 * because xml column is defined by @Transient, it can not be reload new value.
 		 */
 		setExtraXmlProp(new_agent);
@@ -379,7 +379,7 @@ public class JCSAgentService {
 	}
 	
 	public void deleteAgent(String agentuid) throws IllegalArgumentException, Exception{
-		if(null == agentuid || agentuid.length() <= 0)
+		if(null == agentuid || agentuid.trim().length() <= 0)
 			throw new IllegalArgumentException("JCSAgent Uid can not be empty!");
 		
 		this.dao.delete(agentuid);
@@ -404,7 +404,7 @@ public class JCSAgentService {
 	
 	private Sort getOrdering(Ordering ordering) throws Exception{
 		Direction direct = Direction.fromStringOrNull("DESC");
-		if(ordering.getOrderType() != null && ORDER_TYPE_SET.contains(ordering.getOrderType().toUpperCase()))
+		if(ordering.getOrderType() != null && Constant.ORDER_TYPE_SET.contains(ordering.getOrderType().toUpperCase()))
 			direct = Direction.fromStringOrNull(ordering.getOrderType());
 		
 		Order order = new Order(direct, "lastupdatetime");
