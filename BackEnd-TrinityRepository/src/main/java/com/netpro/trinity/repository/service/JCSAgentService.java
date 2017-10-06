@@ -269,8 +269,8 @@ public class JCSAgentService {
 		new_agent.setCompresstransfer(compresstransfer);
 		
 		/*
-		 * Very suck design.
-		 * because xml column is defined by @Transient, it can not be reload new value.
+		 * Because All fields associated with xml are defined by @Transient, it can not be reload new value.
+		 * The fields associated with xml is very suck design!
 		 */
 		setExtraXmlProp(new_agent);
 		
@@ -370,8 +370,8 @@ public class JCSAgentService {
 		new_agent.setCompresstransfer(compresstransfer);
 		
 		/*
-		 * Very suck design
-		 * because xml column is defined by @Transient, it can not be reload new value.
+		 * Because All fields associated with xml are defined by @Transient, it can not be reload new value.
+		 * The fields associated with xml is very suck design!
 		 */
 		setExtraXmlProp(new_agent);
 				

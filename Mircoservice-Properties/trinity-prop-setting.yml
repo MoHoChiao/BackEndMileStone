@@ -1,6 +1,6 @@
 trinity-prop-setting: 
   server: 
-    host: 192.168.7.63
+    host: 192.168.27.63
     port: 8001
   encrypt: 
     key: 'trinity'
