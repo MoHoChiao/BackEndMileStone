@@ -1,14 +1,20 @@
 package com.netpro.trinity.repository.entity;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 
@@ -16,17 +22,27 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class JCSAgent {	
 	@Id
   	private String agentuid;
-  	@Column
+  	@Column(nullable=false)
+  	@NotNull(message = "JCSAgent name must not be null")
+  	@NotEmpty(message = "JCSAgent name must not be empty")
   	private String agentname;
   	@Column
   	private String description;
-  	@Column
+  	@Column(nullable=false)
+  	@NotNull(message = "JCSAgent host must not be null")
+  	@NotEmpty(message = "JCSAgent host must not be empty")
   	private String host;
-  	@Column
+  	@Column(nullable=false)
+  	@NotNull(message = "JCSAgent port must not be null")
+  	@NotEmpty(message = "JCSAgent port must not be empty")
   	private Integer port;
-  	@Column
+  	@Column(nullable=false)
+  	@NotNull(message = "JCSAgent maximum job must not be null")
+  	@NotEmpty(message = "JCSAgent maximum job must not be empty")
   	private Integer maximumjob;
-  	@Column
+  	@Column(nullable=false)
+  	@NotNull(message = "JCSAgent activate must not be null")
+  	@NotEmpty(message = "JCSAgent activate must not be empty")
   	private String activate;
   	@Column
   	private String ostype;
@@ -42,6 +58,9 @@ public class JCSAgent {
   	@Column
   	@Temporal(TemporalType.TIMESTAMP)
   	private Date lastupdatetime;
+  	@OneToOne(mappedBy = "jcsAgent")
+  	@JsonBackReference	//Avoid one-to-one relationship, JSON infinite recursive.
+  	private VRAgentList vRAgentList;
   	
   	@Transient
   	private String deadperiod;
@@ -136,6 +155,13 @@ public class JCSAgent {
 	public void setLastupdatetime(Date lastupdatetime) {
 		this.lastupdatetime = lastupdatetime;
 	}
+	public VRAgentList getvRAgentList() {
+		return vRAgentList;
+	}
+	public void setvRAgentList(VRAgentList vRAgentList) {
+		this.vRAgentList = vRAgentList;
+	}
+	
 	
 	public String getDeadperiod() {
 		return deadperiod;

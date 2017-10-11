@@ -1,26 +1,40 @@
 package com.netpro.trinity.repository.entity;
 
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity(name="jcsvirtualagent")  //宣告這是一個實體JCSVirtualAgent的類別
 public class VRAgent {	
 	@Id
 	private String virtualagentuid;
-	@Column
+	@Column(nullable=false)
+	@NotNull(message = "Virtual Agent name must not be null")
+  	@NotEmpty(message = "Virtual Agent name must not be empty")
   	private String virtualagentname;
   	@Column
   	private String description;
-  	@Column
+  	@Column(nullable=false)
+  	@NotNull(message = "Virtual Agent maximum job must not be null")
+  	@NotEmpty(message = "Virtual Agent maximum job must not be empty")
   	private Integer maximumjob;
-  	@Column
+  	@Column(nullable=false)
+  	@NotNull(message = "Virtual Agent activate must not be null")
+  	@NotEmpty(message = "Virtual Agent activate must not be empty")
   	private String activate;
   	@Column
   	private String mode;
@@ -29,6 +43,10 @@ public class VRAgent {
   	@Column
   	@Temporal(TemporalType.TIMESTAMP)
   	private Date lastupdatetime;
+  	@OneToMany(mappedBy = "vrAgent", cascade = CascadeType.DETACH)
+  	@JsonManagedReference	//Avoid one-to-many relationship, JSON infinite recursive.
+  	@OrderBy("seq ASC")
+  	private List<VRAgentList> vRAgentList;
   	
   	public String getVirtualagentuid() {
 		return virtualagentuid;
@@ -79,4 +97,11 @@ public class VRAgent {
 	public void setLastupdatetime(Date lastupdatetime) {
 		this.lastupdatetime = lastupdatetime;
 	}
+	public List<VRAgentList> getvRAgentList() {
+		return vRAgentList;
+	}
+	public void setvRAgentList(List<VRAgentList> vRAgentList) {
+		this.vRAgentList = vRAgentList;
+	}
+	
 }
