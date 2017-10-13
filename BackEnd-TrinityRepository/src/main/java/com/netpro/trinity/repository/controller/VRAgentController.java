@@ -113,9 +113,9 @@ public class VRAgentController {
 	}
 //  
 	@GetMapping("/delete")
-	public ResponseEntity<?> deleteVRAgent(String virtualagentuid) {
+	public ResponseEntity<?> deleteVRAgent(String id) {
 		try {
-			this.service.deleteVRAgent(virtualagentuid);
+			this.service.deleteVRAgent(id);
 		}catch(IllegalArgumentException e) {
 			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -123,6 +123,6 @@ public class VRAgentController {
 			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
-		return ResponseEntity.ok(virtualagentuid);
+		return ResponseEntity.ok(id);
 	}
 }

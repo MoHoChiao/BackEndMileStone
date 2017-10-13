@@ -113,9 +113,9 @@ public class JCSAgentController {
 	}
 //  
 	@GetMapping("/delete")
-	public ResponseEntity<?> deleteAgent(String agentuid) {
+	public ResponseEntity<?> deleteAgent(String id) {
 		try {
-			this.service.deleteAgent(agentuid);
+			this.service.deleteAgent(id);
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -123,6 +123,6 @@ public class JCSAgentController {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
-		return ResponseEntity.ok(agentuid);
+		return ResponseEntity.ok(id);
 	}
 }

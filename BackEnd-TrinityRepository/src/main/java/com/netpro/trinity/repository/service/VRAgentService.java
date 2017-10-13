@@ -44,7 +44,11 @@ public class VRAgentService {
 		if(id == null || id.isEmpty())
 			throw new IllegalArgumentException("Virtual Agent UID can not be empty!");
 		
-		return this.dao.findOne(id);
+		VRAgent vrAgent = this.dao.findOne(id);
+		if(vrAgent == null)
+			throw new IllegalArgumentException("Virtual Agent UID does not exist!");
+		
+		return vrAgent;
 	}
 	
 	public List<VRAgent> getVRAgentByName(String name) throws IllegalArgumentException, Exception{

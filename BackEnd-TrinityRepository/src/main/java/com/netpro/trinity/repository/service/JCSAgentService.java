@@ -53,6 +53,8 @@ public class JCSAgentService {
 			throw new IllegalArgumentException("Agent UID can not be empty!");
 		
 		JCSAgent agent = this.dao.findOne(id);
+		if(agent == null)
+			throw new IllegalArgumentException("Agent UID does not exist!");
 		setExtraXmlProp(agent);
 		return agent;
 	}

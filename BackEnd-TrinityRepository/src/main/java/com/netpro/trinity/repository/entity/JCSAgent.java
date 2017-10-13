@@ -33,12 +33,8 @@ public class JCSAgent {
   	@NotEmpty(message = "JCSAgent host must not be empty")
   	private String host;
   	@Column(nullable=false)
-  	@NotNull(message = "JCSAgent port must not be null")
-  	@NotEmpty(message = "JCSAgent port must not be empty")
   	private Integer port;
   	@Column(nullable=false)
-  	@NotNull(message = "JCSAgent maximum job must not be null")
-  	@NotEmpty(message = "JCSAgent maximum job must not be empty")
   	private Integer maximumjob;
   	@Column(nullable=false)
   	@NotNull(message = "JCSAgent activate must not be null")
