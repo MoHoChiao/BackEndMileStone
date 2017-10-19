@@ -23,18 +23,12 @@ public class VRAgent {
 	@Id
 	private String virtualagentuid;
 	@Column(nullable=false)
-	@NotNull(message = "Virtual Agent name must not be null")
-  	@NotEmpty(message = "Virtual Agent name must not be empty")
   	private String virtualagentname;
   	@Column
   	private String description;
   	@Column(nullable=false)
-  	@NotNull(message = "Virtual Agent maximum job must not be null")
-  	@NotEmpty(message = "Virtual Agent maximum job must not be empty")
   	private Integer maximumjob;
   	@Column(nullable=false)
-  	@NotNull(message = "Virtual Agent activate must not be null")
-  	@NotEmpty(message = "Virtual Agent activate must not be empty")
   	private String activate;
   	@Column
   	private String mode;

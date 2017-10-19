@@ -23,22 +23,16 @@ public class JCSAgent {
 	@Id
   	private String agentuid;
   	@Column(nullable=false)
-  	@NotNull(message = "JCSAgent name must not be null")
-  	@NotEmpty(message = "JCSAgent name must not be empty")
   	private String agentname;
   	@Column
   	private String description;
   	@Column(nullable=false)
-  	@NotNull(message = "JCSAgent host must not be null")
-  	@NotEmpty(message = "JCSAgent host must not be empty")
   	private String host;
   	@Column(nullable=false)
   	private Integer port;
   	@Column(nullable=false)
   	private Integer maximumjob;
   	@Column(nullable=false)
-  	@NotNull(message = "JCSAgent activate must not be null")
-  	@NotEmpty(message = "JCSAgent activate must not be empty")
   	private String activate;
   	@Column
   	private String ostype;

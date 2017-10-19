@@ -29,8 +29,6 @@ public class VRAgentList {
 	@Id
 	private String agentuid;
 	@Column(nullable=false)
-  	@NotNull(message = "VRAgentList activate must not be null")
-  	@NotEmpty(message = "VRAgentList activate must not be empty")
 	private String activate;
 	@Column
 	private String description;
