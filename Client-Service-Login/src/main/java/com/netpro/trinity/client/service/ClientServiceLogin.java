@@ -82,45 +82,45 @@ public class ClientServiceLogin {
 		return dataSource;
 	}
 	
-//	@Bean
-//	public EmbeddedServletContainerFactory servletContainerFactory() {
-//	    return new TomcatEmbeddedServletContainerFactory() {
-//
-//	        @Override
-//	        protected TomcatEmbeddedServletContainer getTomcatEmbeddedServletContainer(
-//	                Tomcat tomcat) {
-//	            // Ensure that the webapps directory exists
-//	            new File(tomcat.getServer().getCatalinaBase(), "webapps").mkdirs();
-//
-//	            try {
-//	            	System.setProperty("trinity.prop", "D:\\Trinity\\DISServer\\cfg\\trinity.properties");
-//	            	System.setProperty("software.dir", "D:\\Trinity\\DISServer\\data\\software");
-//	            	System.setProperty("DATABASE_DRIVER", dbDriverClassName);
-//	            	System.setProperty("DATABASE_URL", dbUrl);
-//	            	System.setProperty("DATABASE_USER", dbUsername);
-//	            	System.setProperty("DATABASE_PASSWORD", dbPassword);
-////	            	System.setProperty("com.netpro.dis.server.config.dir", "D:\\Trinity\\DISServer\\cfg");
-////	            	System.setProperty("log.dir", "D:\\MyWork\\log");
-//	            	
-////	            	Context context0 = tomcat.addWebapp("/software", "D:\\MyWork\\micro_services\\com.netpro.trinity.home.war");
-////	            	context0.setParentClassLoader(getClass().getClassLoader());
-//	            	
-//	                Context context1 = tomcat.addWebapp("/WebTaskConsole", "D:\\MyWork\\micro_services\\WebTaskConsole.war");
-//	                context1.setParentClassLoader(getClass().getClassLoader());
-//	                
-//	                Context context2 = tomcat.addWebapp("/OperationLog", "D:\\MyWork\\micro_services\\OperationLog.war");
-//	                context2.setParentClassLoader(getClass().getClassLoader());
-//	                
-//	                Context context3 = tomcat.addWebapp("/DisUI", "D:\\MyWork\\micro_services\\DisUI.war");
-//	                context3.setParentClassLoader(getClass().getClassLoader());
-//	            } catch (ServletException ex) {
-//	                throw new IllegalStateException("Failed to add webapp", ex);
-//	            }
-//	            return super.getTomcatEmbeddedServletContainer(tomcat);
-//	        }
-//
-//	    };
-//	}
+	@Bean
+	public EmbeddedServletContainerFactory servletContainerFactory() {
+	    return new TomcatEmbeddedServletContainerFactory() {
+
+	        @Override
+	        protected TomcatEmbeddedServletContainer getTomcatEmbeddedServletContainer(
+	                Tomcat tomcat) {
+	            // Ensure that the webapps directory exists
+	            new File(tomcat.getServer().getCatalinaBase(), "webapps").mkdirs();
+
+	            try {
+	            	System.setProperty("trinity.prop", "D:\\Trinity\\DISServer\\cfg\\trinity.properties");
+	            	System.setProperty("software.dir", "D:\\Trinity\\DISServer\\data\\software");
+	            	System.setProperty("DATABASE_DRIVER", dbDriverClassName);
+	            	System.setProperty("DATABASE_URL", dbUrl);
+	            	System.setProperty("DATABASE_USER", dbUsername);
+	            	System.setProperty("DATABASE_PASSWORD", dbPassword);
+//	            	System.setProperty("com.netpro.dis.server.config.dir", "D:\\Trinity\\DISServer\\cfg");
+//	            	System.setProperty("log.dir", "D:\\MyWork\\log");
+	            	
+//	            	Context context0 = tomcat.addWebapp("/software", "D:\\MyWork\\micro_services\\com.netpro.trinity.home.war");
+//	            	context0.setParentClassLoader(getClass().getClassLoader());
+	            	
+	                Context context1 = tomcat.addWebapp("/WebTaskConsole", "D:\\MyWork\\micro_services\\WebTaskConsole.war");
+	                context1.setParentClassLoader(getClass().getClassLoader());
+	                
+	                Context context2 = tomcat.addWebapp("/OperationLog", "D:\\MyWork\\micro_services\\OperationLog.war");
+	                context2.setParentClassLoader(getClass().getClassLoader());
+	                
+	                Context context3 = tomcat.addWebapp("/DisUI", "D:\\MyWork\\micro_services\\DisUI.war");
+	                context3.setParentClassLoader(getClass().getClassLoader());
+	            } catch (ServletException ex) {
+	                throw new IllegalStateException("Failed to add webapp", ex);
+	            }
+	            return super.getTomcatEmbeddedServletContainer(tomcat);
+	        }
+
+	    };
+	}
 	
 	public static void main(String[] args) {
 		SpringApplication.run(ClientServiceLogin.class, args);

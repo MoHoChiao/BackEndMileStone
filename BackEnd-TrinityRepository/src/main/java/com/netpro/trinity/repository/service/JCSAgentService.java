@@ -387,9 +387,6 @@ public class JCSAgentService {
 		this.dao.delete(agentuid);
 	}
 	
-	
-	
-	
 	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{	
 		if(paging.getNumber() == null)
 			paging.setNumber(0);
