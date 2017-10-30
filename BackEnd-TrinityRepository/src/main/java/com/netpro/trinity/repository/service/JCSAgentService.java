@@ -42,24 +42,24 @@ public class JCSAgentService {
 	@Autowired
 	private JCSAgentDao dao;
 	
-	public List<JCSAgent> getAllAgent() throws Exception{
+	public List<JCSAgent> getAll() throws Exception{
 		List<JCSAgent> agents = this.dao.findAll();
 		setExtraXmlProp(agents);
 		return agents;
 	}
 	
-	public JCSAgent getAgentById(String id) throws IllegalArgumentException, Exception{
-		if(id == null || id.isEmpty())
+	public JCSAgent getByUid(String uid) throws IllegalArgumentException, Exception{
+		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Agent UID can not be empty!");
 		
-		JCSAgent agent = this.dao.findOne(id);
+		JCSAgent agent = this.dao.findOne(uid);
 		if(agent == null)
 			throw new IllegalArgumentException("Agent UID does not exist!");
 		setExtraXmlProp(agent);
 		return agent;
 	}
 	
-	public List<JCSAgent> getAgentByName(String name) throws IllegalArgumentException, Exception{
+	public List<JCSAgent> getByName(String name) throws IllegalArgumentException, Exception{
 		if(name == null || name.isEmpty())
 			throw new IllegalArgumentException("Agent Name can not be empty!");
 		
@@ -69,7 +69,7 @@ public class JCSAgentService {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getAgentByFieldQuery(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
+	public ResponseEntity<?> getByFieldQuery(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
 		if(filter == null) {
 			List<JCSAgent> agents = this.dao.findAll();
@@ -184,7 +184,7 @@ public class JCSAgentService {
 		}
 	}
 	
-	public JCSAgent addAgent(JCSAgent agent) throws IllegalArgumentException, Exception{
+	public JCSAgent add(JCSAgent agent) throws IllegalArgumentException, Exception{
 		agent.setAgentuid(UUID.randomUUID().toString());
 		
 		String agentname = agent.getAgentname();
@@ -279,12 +279,12 @@ public class JCSAgentService {
 		return new_agent;
 	}
 	
-	public JCSAgent editAgent(JCSAgent agent) throws IllegalArgumentException, Exception{
+	public JCSAgent edit(JCSAgent agent) throws IllegalArgumentException, Exception{
 		String agentuid = agent.getAgentuid();
 		if(null == agentuid || agentuid.trim().length() <= 0)
 			throw new IllegalArgumentException("JCSAgent Uid can not be empty!");
 
-		JCSAgent old_agent = getAgentById(agent.getAgentuid());
+		JCSAgent old_agent = getByUid(agent.getAgentuid());
 		if(null == old_agent)
 			throw new IllegalArgumentException("JCSAgent Uid does not exist!");
 		
@@ -380,11 +380,11 @@ public class JCSAgentService {
 		return new_agent;
 	}
 	
-	public void deleteAgent(String agentuid) throws IllegalArgumentException, Exception{
-		if(null == agentuid || agentuid.trim().length() <= 0)
+	public void deleteByUid(String uid) throws IllegalArgumentException, Exception{
+		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("JCSAgent Uid can not be empty!");
 		
-		this.dao.delete(agentuid);
+		this.dao.delete(uid);
 	}
 	
 	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{	

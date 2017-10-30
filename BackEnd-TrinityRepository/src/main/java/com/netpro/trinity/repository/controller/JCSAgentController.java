@@ -28,17 +28,17 @@ public class JCSAgentController {
 	@GetMapping("/findAll")
 	public ResponseEntity<?> findAllAgent() {
 		try {
-			return ResponseEntity.ok(this.service.getAllAgent());
+			return ResponseEntity.ok(this.service.getAll());
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
-	@GetMapping("/findById")
-	public ResponseEntity<?> findAgentById(String id) {
+	@GetMapping("/findByUid")
+	public ResponseEntity<?> findAgentByUid(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getAgentById(id));
+			return ResponseEntity.ok(this.service.getByUid(uid));
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -51,7 +51,7 @@ public class JCSAgentController {
 	@GetMapping("/findByName")
 	public ResponseEntity<?> findAgentByName(String name) {
 		try {
-			return ResponseEntity.ok(this.service.getAgentByName(name));
+			return ResponseEntity.ok(this.service.getByName(name));
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -64,7 +64,7 @@ public class JCSAgentController {
 	@PostMapping("/findByFilter")
 	public ResponseEntity<?> findAgentByFilter(@RequestBody FilterInfo filter) {
 		try {
-			return this.service.getAgentByFieldQuery(filter);
+			return this.service.getByFieldQuery(filter);
 		}catch(SecurityException e) {
 			JCSAgentController.LOGGER.error("SecurityException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -89,7 +89,7 @@ public class JCSAgentController {
 	@PostMapping("/add")
 	public ResponseEntity<?> addAgent(@RequestBody JCSAgent agent) {
 		try {
-			return ResponseEntity.ok(this.service.addAgent(agent));
+			return ResponseEntity.ok(this.service.add(agent));
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -102,7 +102,7 @@ public class JCSAgentController {
 	@PostMapping("/edit")
 	public ResponseEntity<?> editAgent(@RequestBody JCSAgent agent) {
 		try {
-			return ResponseEntity.ok(this.service.editAgent(agent));
+			return ResponseEntity.ok(this.service.edit(agent));
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -111,11 +111,11 @@ public class JCSAgentController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
-//  
+  
 	@GetMapping("/delete")
-	public ResponseEntity<?> deleteAgent(String id) {
+	public ResponseEntity<?> deleteAgentByUid(String uid) {
 		try {
-			this.service.deleteAgent(id);
+			this.service.deleteByUid(uid);
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -123,6 +123,6 @@ public class JCSAgentController {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
-		return ResponseEntity.ok(id);
+		return ResponseEntity.ok(uid);
 	}
 }

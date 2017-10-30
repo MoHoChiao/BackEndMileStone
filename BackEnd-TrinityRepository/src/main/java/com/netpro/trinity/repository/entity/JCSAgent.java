@@ -5,12 +5,10 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 
@@ -44,9 +42,6 @@ public class JCSAgent {
   	@Column
   	@Temporal(TemporalType.TIMESTAMP)
   	private Date lastupdatetime;
-  	@OneToOne(mappedBy = "jcsAgent")
-  	@JsonBackReference	//Avoid one-to-one relationship, JSON infinite recursive.
-  	private VRAgentList vRAgentList;
   	
   	@Transient
   	private String deadperiod;
@@ -140,12 +135,6 @@ public class JCSAgent {
 	}
 	public void setLastupdatetime(Date lastupdatetime) {
 		this.lastupdatetime = lastupdatetime;
-	}
-	public VRAgentList getvRAgentList() {
-		return vRAgentList;
-	}
-	public void setvRAgentList(VRAgentList vRAgentList) {
-		this.vRAgentList = vRAgentList;
 	}
 	
 	

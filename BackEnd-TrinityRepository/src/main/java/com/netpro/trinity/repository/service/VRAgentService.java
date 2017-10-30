@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.repository.dao.VRAgentDao;
+import com.netpro.trinity.repository.dao.VRAgentListDao;
 import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
@@ -36,40 +37,59 @@ public class VRAgentService {
 	@Autowired
 	private VRAgentDao dao;
 	
-	public List<VRAgent> getAllVRAgent() throws Exception{
-		return this.dao.findAll();
+	@Autowired
+	private VRAgentListDao listDao;
+	
+	public List<VRAgent> getAll() throws Exception{
+		List<VRAgent> vrAgents = this.dao.findAll();
+		getAgentList(vrAgents);
+		return vrAgents;
 	}
 	
-	public VRAgent getVRAgentById(String id) throws IllegalArgumentException, Exception{
-		if(id == null || id.isEmpty())
+	public VRAgent getByUid(String uid) throws IllegalArgumentException, Exception{
+		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Virtual Agent UID can not be empty!");
 		
-		VRAgent vrAgent = this.dao.findOne(id);
+		VRAgent vrAgent = this.dao.findOne(uid);
 		if(vrAgent == null)
 			throw new IllegalArgumentException("Virtual Agent UID does not exist!");
+		
+		getAgentList(vrAgent);
 		
 		return vrAgent;
 	}
 	
-	public List<VRAgent> getVRAgentByName(String name) throws IllegalArgumentException, Exception{
+	public List<VRAgent> getByName(String name) throws IllegalArgumentException, Exception{
 		if(name == null || name.isEmpty())
 			throw new IllegalArgumentException("Virtual Agent Name can not be empty!");
 		
-		return this.dao.findByvirtualagentname(name);
+		List<VRAgent> vrAgents = this.dao.findByvirtualagentname(name);
+		
+		getAgentList(vrAgents);
+		
+		return vrAgents;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getVRAgentByFieldQuery(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
+	public ResponseEntity<?> getByFieldQuery(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
-		if(filter == null) 
-			return ResponseEntity.ok(this.dao.findAll());
+		if(filter == null) {
+			List<VRAgent> vrAgents = this.dao.findAll();
+			getAgentList(vrAgents);
+			return ResponseEntity.ok(vrAgents);
+		}
+			
 		
 		Paging paging = filter.getPaging();
 		Ordering ordering = filter.getOrdering();
 		Querying querying = filter.getQuerying();
 		
-		if(paging == null && ordering == null && querying == null)
-			return ResponseEntity.ok(this.dao.findAll());
+		if(paging == null && ordering == null && querying == null) {
+			List<VRAgent> vrAgents = this.dao.findAll();
+			getAgentList(vrAgents);
+			return ResponseEntity.ok(vrAgents);
+		}
+			
 		
 		PageRequest pageRequest = null;
 		Sort sort = null;
@@ -84,16 +104,22 @@ public class VRAgentService {
 		
 		if(querying == null) {
 			if(pageRequest != null) {
-				return ResponseEntity.ok(this.dao.findAll(pageRequest));
+				Page<VRAgent> page_vragent = this.dao.findAll(pageRequest);
+				getAgentList(page_vragent.getContent());
+				return ResponseEntity.ok(page_vragent);
 			}else if(sort != null) {
-				return ResponseEntity.ok(this.dao.findAll(sort));
+				List<VRAgent> vrAgents = this.dao.findAll(sort);
+				getAgentList(vrAgents);
+				return ResponseEntity.ok(vrAgents);
 			}else {
 				/*
 				 * The paging and ordering both objects are null.
 				 * it means pageRequest and sort must be null too.
 				 * then return default
 				 */
-				return ResponseEntity.ok(this.dao.findAll());
+				List<VRAgent> vrAgents = this.dao.findAll(sort);
+				getAgentList(vrAgents);
+				return ResponseEntity.ok(vrAgents);
 			}
 		}else {
 			if(querying.getQueryType() == null || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
@@ -121,20 +147,23 @@ public class VRAgentService {
 			if(pageRequest != null){
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
 				Page<VRAgent> page_vragent = (Page<VRAgent>) method.invoke(this.dao, queryString, pageRequest);
+				getAgentList(page_vragent.getContent());
 				return ResponseEntity.ok(page_vragent);
 			}else if(sort != null) {
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
 				List<VRAgent> vragents = (List<VRAgent>) method.invoke(this.dao, queryString, sort);
+				getAgentList(vragents);
 				return ResponseEntity.ok(vragents);
 			}else {
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class);
 				List<VRAgent> vragents = (List<VRAgent>) method.invoke(this.dao, queryString);
+				getAgentList(vragents);
 				return ResponseEntity.ok(vragents);
 			}
 		}
 	}
 	
-	public VRAgent addVRAgent(VRAgent vragent) throws IllegalArgumentException, Exception{
+	public VRAgent add(VRAgent vragent) throws IllegalArgumentException, Exception{
 		vragent.setVirtualagentuid(UUID.randomUUID().toString());
 		
 		String vr_agentname = vragent.getVirtualagentname();
@@ -170,12 +199,14 @@ public class VRAgentService {
 		return this.dao.save(vragent);
 	}
 	
-	public VRAgent editVRAgent(VRAgent vragent) throws IllegalArgumentException, Exception{
+	public VRAgent edit(VRAgent vragent) throws IllegalArgumentException, Exception{
+		System.out.println(vragent.getAgentlist());
+		
 		String vr_agentuid = vragent.getVirtualagentuid();
 		if(null == vr_agentuid || vr_agentuid.trim().length() <= 0)
 			throw new IllegalArgumentException("Virtual Agent Uid can not be empty!");
 
-		VRAgent old_vragent = getVRAgentById(vragent.getVirtualagentuid());
+		VRAgent old_vragent = getByUid(vragent.getVirtualagentuid());
 		if(null == old_vragent)
 			throw new IllegalArgumentException("Virtual Agent Uid does not exist!");
 		
@@ -208,21 +239,25 @@ public class VRAgentService {
 		 * here, we force to give value to lastupdatetime column.
 		 */
 		vragent.setLastupdatetime(new Date());
-				
-		return this.dao.save(vragent);
+		
+		this.dao.save(vragent);
+		this.listDao.deleteByVRAgentUid(vragent.getVirtualagentuid());
+		this.listDao.batchSave(vragent.getAgentlist());
+		
+		return vragent;
 	}
 	
-	public void deleteVRAgent(String vragentuid) throws IllegalArgumentException, Exception{
-		if(null == vragentuid || vragentuid.trim().length() <= 0)
+	public void deleteByUid(String uid) throws IllegalArgumentException, Exception{
+		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Virtual Agent Uid can not be empty!");
 		
-		this.dao.delete(vragentuid);
+		this.dao.delete(uid);
 	}
 	
 	
 	
 	
-	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{	
+	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{
 		if(paging.getNumber() == null)
 			paging.setNumber(0);
 		
@@ -246,5 +281,15 @@ public class VRAgentService {
 			order = new Order(direct, ordering.getOrderField());
 		
 		return new Sort(order);
+	}
+	
+	private void getAgentList(List<VRAgent> vrAgents) throws Exception {
+		for(VRAgent vrAgent : vrAgents) {
+			getAgentList(vrAgent);
+		}
+	}
+	
+	private void getAgentList(VRAgent vrAgent) throws Exception {
+		vrAgent.setAgentlist(this.listDao.findExByVRAgentUid(vrAgent.getVirtualagentuid()));
 	}
 }

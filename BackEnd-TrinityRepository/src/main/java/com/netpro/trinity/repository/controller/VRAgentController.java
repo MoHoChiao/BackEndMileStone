@@ -28,17 +28,17 @@ public class VRAgentController {
 	@GetMapping("/findAll")
 	public ResponseEntity<?> findAllVRAgent() {
 		try {
-			return ResponseEntity.ok(this.service.getAllVRAgent());
+			return ResponseEntity.ok(this.service.getAll());
 		}catch(Exception e) {
 			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
-	@GetMapping("/findById")
-	public ResponseEntity<?> findVRAgentById(String id) {
+	@GetMapping("/findByUid")
+	public ResponseEntity<?> findVRAgentById(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getVRAgentById(id));
+			return ResponseEntity.ok(this.service.getByUid(uid));
 		}catch(IllegalArgumentException e) {
 			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -51,7 +51,7 @@ public class VRAgentController {
 	@GetMapping("/findByName")
 	public ResponseEntity<?> findVRAgentByName(String name) {
 		try {
-			return ResponseEntity.ok(this.service.getVRAgentByName(name));
+			return ResponseEntity.ok(this.service.getByName(name));
 		}catch(IllegalArgumentException e) {
 			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -64,7 +64,7 @@ public class VRAgentController {
 	@PostMapping("/findByFilter")
 	public ResponseEntity<?> findVRAgentByFilter(@RequestBody FilterInfo filter) {
 		try {
-			return this.service.getVRAgentByFieldQuery(filter);
+			return this.service.getByFieldQuery(filter);
 		}catch(SecurityException e) {
 			VRAgentController.LOGGER.error("SecurityException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -89,7 +89,7 @@ public class VRAgentController {
 	@PostMapping("/add")
 	public ResponseEntity<?> addVRAgent(@RequestBody VRAgent vragent) {
 		try {
-			return ResponseEntity.ok(this.service.addVRAgent(vragent));
+			return ResponseEntity.ok(this.service.add(vragent));
 		}catch(IllegalArgumentException e) {
 			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -102,7 +102,7 @@ public class VRAgentController {
 	@PostMapping("/edit")
 	public ResponseEntity<?> editVRAgent(@RequestBody VRAgent vragent) {
 		try {
-			return ResponseEntity.ok(this.service.editVRAgent(vragent));
+			return ResponseEntity.ok(this.service.edit(vragent));
 		}catch(IllegalArgumentException e) {
 			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -113,9 +113,9 @@ public class VRAgentController {
 	}
 //  
 	@GetMapping("/delete")
-	public ResponseEntity<?> deleteVRAgent(String id) {
+	public ResponseEntity<?> deleteVRAgentByUid(String uid) {
 		try {
-			this.service.deleteVRAgent(id);
+			this.service.deleteByUid(uid);
 		}catch(IllegalArgumentException e) {
 			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -123,6 +123,6 @@ public class VRAgentController {
 			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
-		return ResponseEntity.ok(id);
+		return ResponseEntity.ok(uid);
 	}
 }

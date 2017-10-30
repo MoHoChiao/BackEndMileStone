@@ -3,17 +3,14 @@ package com.netpro.trinity.repository.entity;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity(name="jcsvirtualagent")  //宣告這是一個實體JCSVirtualAgent的類別
 public class VRAgent {	
@@ -34,10 +31,9 @@ public class VRAgent {
   	@Column
   	@Temporal(TemporalType.TIMESTAMP)
   	private Date lastupdatetime;
-  	@OneToMany(mappedBy = "vrAgent", cascade = CascadeType.DETACH)
-  	@JsonManagedReference	//Avoid one-to-many relationship, JSON infinite recursive.
-  	@OrderBy("seq ASC")
-  	private List<VRAgentList> vRAgentList;
+  	
+  	@Transient
+  	private List<VRAgentList> agentlist;
   	
   	public String getVirtualagentuid() {
 		return virtualagentuid;
@@ -88,11 +84,12 @@ public class VRAgent {
 	public void setLastupdatetime(Date lastupdatetime) {
 		this.lastupdatetime = lastupdatetime;
 	}
-	public List<VRAgentList> getvRAgentList() {
-		return vRAgentList;
-	}
-	public void setvRAgentList(List<VRAgentList> vRAgentList) {
-		this.vRAgentList = vRAgentList;
-	}
 	
+	
+	public List<VRAgentList> getAgentlist() {
+		return agentlist;
+	}
+	public void setAgentlist(List<VRAgentList> agentlist) {
+		this.agentlist = agentlist;
+	}
 }
