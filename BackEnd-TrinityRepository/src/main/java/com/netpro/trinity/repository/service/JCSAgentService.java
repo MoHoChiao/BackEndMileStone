@@ -48,13 +48,17 @@ public class JCSAgentService {
 		return agents;
 	}
 	
+	public boolean existByUid(String uid) {
+		return this.dao.exists(uid);
+	}
+	
 	public JCSAgent getByUid(String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Agent UID can not be empty!");
 		
 		JCSAgent agent = this.dao.findOne(uid);
 		if(agent == null)
-			throw new IllegalArgumentException("Agent UID does not exist!");
+			throw new IllegalArgumentException("Agent UID does not exist!(" + uid + ")");
 		setExtraXmlProp(agent);
 		return agent;
 	}
@@ -284,9 +288,9 @@ public class JCSAgentService {
 		if(null == agentuid || agentuid.trim().length() <= 0)
 			throw new IllegalArgumentException("JCSAgent Uid can not be empty!");
 
-		JCSAgent old_agent = getByUid(agent.getAgentuid());
+		JCSAgent old_agent = this.dao.findOne(agentuid);
 		if(null == old_agent)
-			throw new IllegalArgumentException("JCSAgent Uid does not exist!");
+			throw new IllegalArgumentException("JCSAgent Uid does not exist!(" + agentuid + ")");
 		
 		String agentname = agent.getAgentname();
 		if(null == agentname || agentname.trim().length() <= 0)

@@ -35,6 +35,16 @@ public class VRAgentController {
 		}
 	}
 	
+	@GetMapping("/isExistByUid")
+	public ResponseEntity<?> isVRAgentExistByUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.existByUid(uid));
+		}catch(Exception e) {
+			VRAgentController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/findByUid")
 	public ResponseEntity<?> findVRAgentById(String uid) {
 		try {
@@ -111,7 +121,7 @@ public class VRAgentController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
-//  
+  
 	@GetMapping("/delete")
 	public ResponseEntity<?> deleteVRAgentByUid(String uid) {
 		try {

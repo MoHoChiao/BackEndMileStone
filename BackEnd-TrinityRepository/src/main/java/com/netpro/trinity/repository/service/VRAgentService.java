@@ -2,8 +2,10 @@ package com.netpro.trinity.repository.service;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.netpro.trinity.repository.dao.JCSAgentDao;
 import com.netpro.trinity.repository.dao.VRAgentDao;
 import com.netpro.trinity.repository.dao.VRAgentListDao;
 import com.netpro.trinity.repository.dto.FilterInfo;
@@ -27,6 +30,7 @@ import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
 import com.netpro.trinity.repository.entity.VRAgent;
+import com.netpro.trinity.repository.entity.VRAgentList;
 import com.netpro.trinity.repository.util.Constant;
 
 @Service
@@ -38,12 +42,16 @@ public class VRAgentService {
 	private VRAgentDao dao;
 	
 	@Autowired
-	private VRAgentListDao listDao;
+	private VRAgentListService listService;
 	
 	public List<VRAgent> getAll() throws Exception{
 		List<VRAgent> vrAgents = this.dao.findAll();
 		getAgentList(vrAgents);
 		return vrAgents;
+	}
+	
+	public boolean existByUid(String uid) {
+		return this.dao.exists(uid);
 	}
 	
 	public VRAgent getByUid(String uid) throws IllegalArgumentException, Exception{
@@ -52,7 +60,7 @@ public class VRAgentService {
 		
 		VRAgent vrAgent = this.dao.findOne(uid);
 		if(vrAgent == null)
-			throw new IllegalArgumentException("Virtual Agent UID does not exist!");
+			throw new IllegalArgumentException("Virtual Agent UID does not exist!(" + uid + ")");
 		
 		getAgentList(vrAgent);
 		
@@ -195,20 +203,22 @@ public class VRAgentService {
 		 * here, we force to give value to lastupdatetime column.
 		 */
 		vragent.setLastupdatetime(new Date());
-				
-		return this.dao.save(vragent);
+		
+		this.dao.save(vragent);
+		this.listService.deleteByVRAgentUid(vragent.getVirtualagentuid());
+		vragent.setAgentlist(this.listService.add(vragent.getVirtualagentuid(), vragent.getAgentlist())); //重設agent list, 只有插入成功的會留下來
+		
+		return vragent;
 	}
 	
-	public VRAgent edit(VRAgent vragent) throws IllegalArgumentException, Exception{
-		System.out.println(vragent.getAgentlist());
-		
+	public VRAgent edit(VRAgent vragent) throws IllegalArgumentException, Exception{		
 		String vr_agentuid = vragent.getVirtualagentuid();
 		if(null == vr_agentuid || vr_agentuid.trim().length() <= 0)
 			throw new IllegalArgumentException("Virtual Agent Uid can not be empty!");
 
-		VRAgent old_vragent = getByUid(vragent.getVirtualagentuid());
+		VRAgent old_vragent = this.dao.findOne(vr_agentuid);
 		if(null == old_vragent)
-			throw new IllegalArgumentException("Virtual Agent Uid does not exist!");
+			throw new IllegalArgumentException("Virtual Agent Uid does not exist!(" + vr_agentuid + ")");
 		
 		String vr_agentname = vragent.getVirtualagentname();
 		if(null == vr_agentname || vr_agentname.trim().length() <= 0)
@@ -241,8 +251,8 @@ public class VRAgentService {
 		vragent.setLastupdatetime(new Date());
 		
 		this.dao.save(vragent);
-		this.listDao.deleteByVRAgentUid(vragent.getVirtualagentuid());
-		this.listDao.batchSave(vragent.getAgentlist());
+		this.listService.deleteByVRAgentUid(vragent.getVirtualagentuid());
+		vragent.setAgentlist(this.listService.add(vragent.getVirtualagentuid(), vragent.getAgentlist())); //重設agent list, 只有插入成功的會留下來
 		
 		return vragent;
 	}
@@ -251,6 +261,7 @@ public class VRAgentService {
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Virtual Agent Uid can not be empty!");
 		
+		this.listService.deleteByVRAgentUid(uid);
 		this.dao.delete(uid);
 	}
 	
@@ -290,6 +301,6 @@ public class VRAgentService {
 	}
 	
 	private void getAgentList(VRAgent vrAgent) throws Exception {
-		vrAgent.setAgentlist(this.listDao.findExByVRAgentUid(vrAgent.getVirtualagentuid()));
+		vrAgent.setAgentlist(this.listService.getExByVRAgentUid(vrAgent.getVirtualagentuid()));
 	}
 }

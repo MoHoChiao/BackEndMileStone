@@ -35,6 +35,16 @@ public class JCSAgentController {
 		}
 	}
 	
+	@GetMapping("/isExistByUid")
+	public ResponseEntity<?> isAgentExistByUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.existByUid(uid));
+		}catch(Exception e) {
+			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/findByUid")
 	public ResponseEntity<?> findAgentByUid(String uid) {
 		try {
