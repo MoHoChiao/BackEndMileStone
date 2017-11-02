@@ -8,9 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.controller.VRAgentController;
-import com.netpro.trinity.repository.dao.VRAgentListDao;
-import com.netpro.trinity.repository.entity.VRAgentList;
+import com.netpro.trinity.repository.jdbc.dao.VRAgentListDao;
+import com.netpro.trinity.repository.jdbc.entity.VRAgentList;
 
 @Service
 public class VRAgentListService {

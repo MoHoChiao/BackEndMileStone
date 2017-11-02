@@ -22,12 +22,12 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.dao.JCSAgentDao;
 import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.entity.JCSAgent;
+import com.netpro.trinity.repository.jpa.dao.JCSAgentDao;
+import com.netpro.trinity.repository.jpa.entity.JCSAgent;
 import com.netpro.trinity.repository.util.Constant;
 import com.netpro.trinity.repository.util.XMLDataUtility;
 
@@ -67,7 +67,7 @@ public class JCSAgentService {
 		if(name == null || name.isEmpty())
 			throw new IllegalArgumentException("Agent Name can not be empty!");
 		
-		List<JCSAgent> agents = this.dao.findByagentname(name);
+		List<JCSAgent> agents = this.dao.findByagentname(name.toUpperCase());
 		setExtraXmlProp(agents);
 		return agents;
 	}

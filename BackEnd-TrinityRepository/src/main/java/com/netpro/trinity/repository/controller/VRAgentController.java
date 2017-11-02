@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.repository.dto.FilterInfo;
-import com.netpro.trinity.repository.entity.VRAgent;
+import com.netpro.trinity.repository.jpa.entity.VRAgent;
 import com.netpro.trinity.repository.service.VRAgentService;
 
 @RestController  //宣告一個Restful Web Service的Resource

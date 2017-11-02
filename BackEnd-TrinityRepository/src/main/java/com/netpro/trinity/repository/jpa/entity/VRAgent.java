@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.entity;
+package com.netpro.trinity.repository.jpa.entity;
 
 import java.util.Date;
 import java.util.List;
@@ -11,6 +11,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.netpro.trinity.repository.jdbc.entity.VRAgentList;
 
 @Entity(name="jcsvirtualagent")  //宣告這是一個實體JCSVirtualAgent的類別
 public class VRAgent {	

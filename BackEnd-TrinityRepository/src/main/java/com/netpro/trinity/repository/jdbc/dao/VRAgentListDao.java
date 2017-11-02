@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.dao;
+package com.netpro.trinity.repository.jdbc.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.netpro.trinity.repository.entity.VRAgentList;
+import com.netpro.trinity.repository.jdbc.entity.VRAgentList;
 
 @Repository  //宣告這是一個DAO類別
 public class VRAgentListDao {

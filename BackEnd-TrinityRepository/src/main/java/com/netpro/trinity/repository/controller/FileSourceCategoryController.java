@@ -14,123 +14,123 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.repository.dto.FilterInfo;
-import com.netpro.trinity.repository.jpa.entity.JCSAgent;
-import com.netpro.trinity.repository.service.JCSAgentService;
+import com.netpro.trinity.repository.jpa.entity.FileSourceCategory;
+import com.netpro.trinity.repository.service.FileSourceCategoryService;
 
 @RestController  //宣告一個Restful Web Service的Resource
-@RequestMapping("/jcsagent")
-public class JCSAgentController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(JCSAgentController.class);
+@RequestMapping("/file-source-category")
+public class FileSourceCategoryController {
+	private static final Logger LOGGER = LoggerFactory.getLogger(FileSourceCategoryController.class);
 		
 	@Autowired
-	private JCSAgentService service;
+	private FileSourceCategoryService service;
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllAgent() {
+	public ResponseEntity<?> findAllCategories() {
 		try {
 			return ResponseEntity.ok(this.service.getAll());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isAgentExistByUid(String uid) {
+	public ResponseEntity<?> isCategoryExistByUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.existByUid(uid));
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@GetMapping("/findByUid")
-	public ResponseEntity<?> findAgentByUid(String uid) {
+	public ResponseEntity<?> findCategoryByUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.getByUid(uid));
 		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
   
 	@GetMapping("/findByName")
-	public ResponseEntity<?> findAgentByName(String name) {
+	public ResponseEntity<?> findCategoriesByName(String name) {
 		try {
 			return ResponseEntity.ok(this.service.getByName(name));
 		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findAgentByFilter(@RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findCategoriesByFilter(@RequestBody FilterInfo filter) {
 		try {
 			return this.service.getByFieldQuery(filter);
 		}catch(SecurityException e) {
-			JCSAgentController.LOGGER.error("SecurityException; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("SecurityException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(NoSuchMethodException e) {
-			JCSAgentController.LOGGER.error("NoSuchMethodException; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("NoSuchMethodException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(IllegalAccessException e) {
-			JCSAgentController.LOGGER.error("IllegalAccessException; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("IllegalAccessException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(InvocationTargetException e) {
-			JCSAgentController.LOGGER.error("InvocationTargetException; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("InvocationTargetException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
   
 	@PostMapping("/add")
-	public ResponseEntity<?> addAgent(@RequestBody JCSAgent agent) {
+	public ResponseEntity<?> addCategory(@RequestBody FileSourceCategory category) {
 		try {
-			return ResponseEntity.ok(this.service.add(agent));
+			return ResponseEntity.ok(this.service.add(category));
 		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/edit")
-	public ResponseEntity<?> editAgent(@RequestBody JCSAgent agent) {
+	public ResponseEntity<?> editCategory(@RequestBody FileSourceCategory category) {
 		try {
-			return ResponseEntity.ok(this.service.edit(agent));
+			return ResponseEntity.ok(this.service.edit(category));
 		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
   
 	@GetMapping("/delete")
-	public ResponseEntity<?> deleteAgentByUid(String uid) {
+	public ResponseEntity<?> deleteCategoryByUid(String uid) {
 		try {
 			this.service.deleteByUid(uid);
 		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			FileSourceCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 		return ResponseEntity.ok(uid);

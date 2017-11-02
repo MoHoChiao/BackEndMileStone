@@ -2,10 +2,8 @@ package com.netpro.trinity.repository.service;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -22,15 +20,12 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.dao.JCSAgentDao;
-import com.netpro.trinity.repository.dao.VRAgentDao;
-import com.netpro.trinity.repository.dao.VRAgentListDao;
 import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.entity.VRAgent;
-import com.netpro.trinity.repository.entity.VRAgentList;
+import com.netpro.trinity.repository.jpa.dao.VRAgentDao;
+import com.netpro.trinity.repository.jpa.entity.VRAgent;
 import com.netpro.trinity.repository.util.Constant;
 
 @Service
@@ -71,7 +66,7 @@ public class VRAgentService {
 		if(name == null || name.isEmpty())
 			throw new IllegalArgumentException("Virtual Agent Name can not be empty!");
 		
-		List<VRAgent> vrAgents = this.dao.findByvirtualagentname(name);
+		List<VRAgent> vrAgents = this.dao.findByvirtualagentname(name.toUpperCase());
 		
 		getAgentList(vrAgents);
 		

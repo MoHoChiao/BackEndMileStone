@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.repository.dao.DisconfigDao;
-import com.netpro.trinity.repository.entity.Disconfig;
-import com.netpro.trinity.repository.entity.DisconfigPKs;
+import com.netpro.trinity.repository.jpa.dao.DisconfigDao;
+import com.netpro.trinity.repository.jpa.entity.Disconfig;
+import com.netpro.trinity.repository.jpa.entity.DisconfigPKs;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/disconfig")

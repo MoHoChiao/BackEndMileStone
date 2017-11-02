@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.entity;
+package com.netpro.trinity.repository.jpa.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

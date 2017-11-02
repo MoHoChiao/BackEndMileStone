@@ -14,3 +14,10 @@ spring:
       max-active: 20
       initial-size: 5
       max-wait: 10000
+logging: 
+  level: 
+    org: 
+      springframework: 
+        jdbc: 
+          core: 
+            JdbcTemplate: debug

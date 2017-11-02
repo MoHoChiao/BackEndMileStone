@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.entity;
+package com.netpro.trinity.repository.jdbc.entity;
 
 public class VRAgentList {
 	private String virtualagentuid;

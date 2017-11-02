@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.dao;
+package com.netpro.trinity.repository.jpa.dao;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.netpro.trinity.repository.entity.VRAgent;
+import com.netpro.trinity.repository.jpa.entity.VRAgent;
 
 @Repository  //宣告這是一個DAO類別
 public interface VRAgentDao extends JpaRepository<VRAgent, String> {
