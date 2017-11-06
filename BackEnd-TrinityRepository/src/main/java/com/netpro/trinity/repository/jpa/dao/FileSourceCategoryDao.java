@@ -17,7 +17,7 @@ public interface FileSourceCategoryDao extends JpaRepository<FileSourceCategory,
 	@Query("select count(category)>0 from Filesourcecategory category where category.fscategoryname=:fscategoryname")
 	Boolean existByName(@Param("fscategoryname") String fscategoryname);
 	
-	//agentname field
+	//file source category name field
 	List<FileSourceCategory> findByfscategoryname(String name);
 	List<FileSourceCategory> findByfscategoryname(String name, Sort sort);
 	Page<FileSourceCategory> findByfscategoryname(String name, Pageable pageable);
