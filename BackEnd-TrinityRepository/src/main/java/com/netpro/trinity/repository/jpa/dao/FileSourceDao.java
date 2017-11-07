@@ -17,6 +17,11 @@ public interface FileSourceDao extends JpaRepository<FileSource, String> {
 	@Query("select count(filesource)>0 from Filesource filesource where filesource.filesourcename=:filesourcename")
 	Boolean existByName(@Param("filesourcename") String filesourcename);
 	
+	//file source uid field
+	List<FileSource> findByFilesourceuidIn(List<String> uids);
+	List<FileSource> findByFilesourceuidIn(List<String> uids, Sort sort);
+	Page<FileSource> findByFilesourceuidIn(List<String> uids, Pageable pageable);	
+	
 	//file source name field
 	List<FileSource> findByfilesourcename(String name);
 	List<FileSource> findByfilesourcename(String name, Sort sort);
@@ -30,6 +35,20 @@ public interface FileSourceDao extends JpaRepository<FileSource, String> {
 	List<FileSource> findByfilesourcenameLikeIgnoreCase(String name);
 	List<FileSource> findByfilesourcenameLikeIgnoreCase(String name, Sort sort);
 	Page<FileSource> findByfilesourcenameLikeIgnoreCase(String name, Pageable pageable);
+	//file source name field with categoryUid constraints
+	List<FileSource> findByfilesourcenameAndFilesourceuidIn(String name, List<String> uids);
+	List<FileSource> findByfilesourcenameAndFilesourceuidIn(String name, Sort sort, List<String> uids);
+	Page<FileSource> findByfilesourcenameAndFilesourceuidIn(String name, Pageable pageable, List<String> uids);
+	List<FileSource> findByfilesourcenameIgnoreCaseAndFilesourceuidIn(String name, List<String> uids);
+	List<FileSource> findByfilesourcenameIgnoreCaseAndFilesourceuidIn(String name, Sort sort, List<String> uids);
+	Page<FileSource> findByfilesourcenameIgnoreCaseAndFilesourceuidIn(String name, Pageable pageable, List<String> uids);
+	List<FileSource> findByfilesourcenameLikeAndFilesourceuidIn(String name, List<String> uids);
+	List<FileSource> findByfilesourcenameLikeAndFilesourceuidIn(String name, Sort sort, List<String> uids);
+	Page<FileSource> findByfilesourcenameLikeAndFilesourceuidIn(String name, Pageable pageable, List<String> uids);
+	List<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidIn(String name, List<String> uids);
+	List<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidIn(String name, Sort sort, List<String> uids);
+	Page<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidIn(String name, Pageable pageable, List<String> uids);
+	
 	
 	//description field
 	List<FileSource> findBydescription(String description);
@@ -44,4 +63,18 @@ public interface FileSourceDao extends JpaRepository<FileSource, String> {
 	List<FileSource> findBydescriptionLikeIgnoreCase(String description);
 	List<FileSource> findBydescriptionLikeIgnoreCase(String description, Sort sort);
 	Page<FileSource> findBydescriptionLikeIgnoreCase(String description, Pageable pageable);
+	//description field with categoryUid constraints
+	List<FileSource> findBydescriptionAndFilesourceuidIn(String description, List<String> uids);
+	List<FileSource> findBydescriptionAndFilesourceuidIn(String description, Sort sort, List<String> uids);
+	Page<FileSource> findBydescriptionAndFilesourceuidIn(String description, Pageable pageable, List<String> uids);
+	List<FileSource> findBydescriptionIgnoreCaseAndFilesourceuidIn(String description, List<String> uids);
+	List<FileSource> findBydescriptionIgnoreCaseAndFilesourceuidIn(String description, Sort sort, List<String> uids);
+	Page<FileSource> findBydescriptionIgnoreCaseAndFilesourceuidIn(String description, Pageable pageable, List<String> uids);
+	List<FileSource> findBydescriptionLikeAndFilesourceuidIn(String description, List<String> uids);
+	List<FileSource> findBydescriptionLikeAndFilesourceuidIn(String description, Sort sort, List<String> uids);
+	Page<FileSource> findBydescriptionLikeAndFilesourceuidIn(String description, Pageable pageable, List<String> uids);
+	List<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidIn(String description, List<String> uids);
+	List<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidIn(String description, Sort sort, List<String> uids);
+	Page<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidIn(String description, Pageable pageable, List<String> uids);
 }
+

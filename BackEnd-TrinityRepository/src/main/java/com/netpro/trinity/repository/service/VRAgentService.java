@@ -74,7 +74,7 @@ public class VRAgentService {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFieldQuery(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
+	public ResponseEntity<?> getByFilter(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
 		if(filter == null) {
 			List<VRAgent> vrAgents = this.dao.findAll();

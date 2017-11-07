@@ -63,7 +63,7 @@ public class FileSourceCategoryService {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFieldQuery(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
+	public ResponseEntity<?> getByFilter(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
 		if(filter == null) {
 			return ResponseEntity.ok(this.dao.findAll());
@@ -116,15 +116,11 @@ public class FileSourceCategoryService {
 			StringBuffer methodName = new StringBuffer("findBy");
 			methodName.append(queryField);
 			if(queryType.equals("like")) {
-				if(!queryField.equals("port")) { //Integer Field can not be Like query
-					methodName.append("Like");
-					queryString = "%" + queryString + "%";
-				}
+				methodName.append("Like");
+				queryString = "%" + queryString + "%";
 			}
 			if(querying.getIgnoreCase()) {
-				if(!queryField.equals("port")) { //Integer Field can not be IgnoreCase query
-					methodName.append("IgnoreCase");
-				}
+				methodName.append("IgnoreCase");
 			}	
 
 			Method method = null;

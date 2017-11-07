@@ -74,7 +74,7 @@ public class VRAgentController {
 	@PostMapping("/findByFilter")
 	public ResponseEntity<?> findVRAgentByFilter(@RequestBody FilterInfo filter) {
 		try {
-			return this.service.getByFieldQuery(filter);
+			return this.service.getByFilter(filter);
 		}catch(SecurityException e) {
 			VRAgentController.LOGGER.error("SecurityException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

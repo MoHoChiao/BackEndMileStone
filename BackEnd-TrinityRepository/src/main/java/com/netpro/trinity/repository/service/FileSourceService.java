@@ -1,5 +1,6 @@
 package com.netpro.trinity.repository.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -44,6 +45,9 @@ public class FileSourceService {
 	@Autowired
 	private FileSourceDao dao;
 	
+	@Autowired
+	private FilesourceRelationService relService;
+	
 	public List<FileSource> getAll() throws Exception{
 		List<FileSource> filesources = this.dao.findAll();
 		setExtraXmlProp(filesources);
@@ -74,11 +78,26 @@ public class FileSourceService {
 		return filesources;
 	}
 	
+	public List<FileSource> getByCategoryUid(String uid) throws IllegalArgumentException, Exception{
+		if(uid == null || uid.isEmpty())
+			throw new IllegalArgumentException("File Source Category UID can not be empty!");
+		
+		List<FileSource> filesources = this.dao.findByFilesourceuidIn(relService.getByCategoryUid(uid), new Sort(new Order("filesourcename")));
+		setExtraXmlProp(filesources);
+		return filesources;
+	}
+	
 	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFieldQuery(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
+	public ResponseEntity<?> getByFilter(String categoryUid, FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
+		
 		if(filter == null) {
-			List<FileSource> filesources = this.dao.findAll();
+			List<FileSource> filesources;
+			if(categoryUid == null || categoryUid.isEmpty()) {
+				filesources = this.dao.findAll();
+			}else {
+				filesources = this.dao.findByFilesourceuidIn(relService.getByCategoryUid(categoryUid));
+			}
 			setExtraXmlProp(filesources);
 			return ResponseEntity.ok(filesources);
 		}
@@ -88,7 +107,12 @@ public class FileSourceService {
 		Querying querying = filter.getQuerying();
 		
 		if(paging == null && ordering == null && querying == null) {
-			List<FileSource> filesources = this.dao.findAll();
+			List<FileSource> filesources;
+			if(categoryUid == null || categoryUid.isEmpty()) {
+				filesources = this.dao.findAll();
+			}else {
+				filesources = this.dao.findByFilesourceuidIn(relService.getByCategoryUid(categoryUid));
+			}
 			setExtraXmlProp(filesources);
 			return ResponseEntity.ok(filesources);
 		}
@@ -106,11 +130,21 @@ public class FileSourceService {
 		
 		if(querying == null) {
 			if(pageRequest != null) {
-				Page<FileSource> page_filesource = this.dao.findAll(pageRequest);
+				Page<FileSource> page_filesource;
+				if(categoryUid == null || categoryUid.isEmpty()) {
+					page_filesource = this.dao.findAll(pageRequest);
+				}else {
+					page_filesource = this.dao.findByFilesourceuidIn(relService.getByCategoryUid(categoryUid), pageRequest);
+				}
 				setExtraXmlProp(page_filesource.getContent());
 				return ResponseEntity.ok(page_filesource);
 			}else if(sort != null) {
-				List<FileSource> filesources = this.dao.findAll(sort);
+				List<FileSource> filesources;
+				if(categoryUid == null || categoryUid.isEmpty()) {
+					filesources = this.dao.findAll(sort);
+				}else {
+					filesources = this.dao.findByFilesourceuidIn(relService.getByCategoryUid(categoryUid), sort);
+				}
 				setExtraXmlProp(filesources);
 				return ResponseEntity.ok(filesources);
 			}else {
@@ -119,7 +153,12 @@ public class FileSourceService {
 				 * it means pageRequest and sort must be null too.
 				 * then return default
 				 */
-				List<FileSource> filesources = this.dao.findAll();
+				List<FileSource> filesources;
+				if(categoryUid == null || categoryUid.isEmpty()) {
+					filesources = this.dao.findAll();
+				}else {
+					filesources = this.dao.findByFilesourceuidIn(relService.getByCategoryUid(categoryUid));
+				}
 				setExtraXmlProp(filesources);
 				return ResponseEntity.ok(filesources);
 			}
@@ -138,29 +177,48 @@ public class FileSourceService {
 			StringBuffer methodName = new StringBuffer("findBy");
 			methodName.append(queryField);
 			if(queryType.equals("like")) {
-				if(!queryField.equals("port")) { //Integer Field can not be Like query
-					methodName.append("Like");
-					queryString = "%" + queryString + "%";
-				}
+				methodName.append("Like");
+				queryString = "%" + queryString + "%";
 			}
 			if(querying.getIgnoreCase()) {
 				methodName.append("IgnoreCase");
 			}	
-
+			if(categoryUid != null && !categoryUid.isEmpty()) {
+				methodName.append("AndFilesourceuidIn");
+			}
+			
 			Method method = null;
 			if(pageRequest != null){
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
-				Page<FileSource> page_filesource = (Page<FileSource>) method.invoke(this.dao, queryString, pageRequest);
+				Page<FileSource> page_filesource;
+				if(categoryUid == null || categoryUid.isEmpty()) {
+					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
+					page_filesource = (Page<FileSource>) method.invoke(this.dao, queryString, pageRequest);
+				}else {
+					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class, List.class);
+					page_filesource = (Page<FileSource>) method.invoke(this.dao, queryString, pageRequest, relService.getByCategoryUid(categoryUid));
+				}
 				setExtraXmlProp(page_filesource.getContent());
 				return ResponseEntity.ok(page_filesource);
 			}else if(sort != null) {
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
-				List<FileSource> filesources = (List<FileSource>) method.invoke(this.dao, queryString, sort);
+				List<FileSource> filesources;
+				if(categoryUid == null || categoryUid.isEmpty()) {
+					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
+					filesources = (List<FileSource>) method.invoke(this.dao, queryString, sort);
+				}else {
+					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class, List.class);
+					filesources = (List<FileSource>) method.invoke(this.dao, queryString, sort, relService.getByCategoryUid(categoryUid));
+				}
 				setExtraXmlProp(filesources);
 				return ResponseEntity.ok(filesources);
 			}else {
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class);
-				List<FileSource> filesources = (List<FileSource>) method.invoke(this.dao, queryString);
+				List<FileSource> filesources;
+				if(categoryUid == null || categoryUid.isEmpty()) {
+					method = this.dao.getClass().getMethod(methodName.toString(), String.class);
+					filesources = (List<FileSource>) method.invoke(this.dao, queryString);
+				}else {
+					method = this.dao.getClass().getMethod(methodName.toString(), String.class, List.class);
+					filesources = (List<FileSource>) method.invoke(this.dao, queryString, relService.getByCategoryUid(categoryUid));
+				}
 				setExtraXmlProp(filesources);
 				return ResponseEntity.ok(filesources);
 			}
@@ -388,7 +446,7 @@ public class FileSourceService {
 		Direction direct = Direction.fromStringOrNull("DESC");
 		if(ordering.getOrderType() != null && Constant.ORDER_TYPE_SET.contains(ordering.getOrderType().toUpperCase()))
 			direct = Direction.fromStringOrNull(ordering.getOrderType());
-		
+
 		Order order = new Order(direct, "lastupdatetime");
 		if(ordering.getOrderField() != null && !ordering.getOrderField().isEmpty())
 			order = new Order(direct, ordering.getOrderField());

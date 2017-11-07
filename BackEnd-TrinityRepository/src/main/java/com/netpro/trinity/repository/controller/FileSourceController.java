@@ -71,10 +71,23 @@ public class FileSourceController {
 		}
 	}
 	
-	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findFileSourceByFilter(@RequestBody FilterInfo filter) {
+	@GetMapping("/findByCategoryUid")
+	public ResponseEntity<?> findFileSourceByCategoryUid(String uid) {
 		try {
-			return this.service.getByFieldQuery(filter);
+			return ResponseEntity.ok(this.service.getByCategoryUid(uid));
+		}catch(IllegalArgumentException e) {
+			FileSourceController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			FileSourceController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/findByFilter")
+	public ResponseEntity<?> findFileSourceByFilter(String categoryUid, @RequestBody FilterInfo filter) {
+		try {
+			return this.service.getByFilter(categoryUid, filter);
 		}catch(SecurityException e) {
 			FileSourceController.LOGGER.error("SecurityException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

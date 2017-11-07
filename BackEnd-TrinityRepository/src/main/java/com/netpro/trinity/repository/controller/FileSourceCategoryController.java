@@ -74,7 +74,7 @@ public class FileSourceCategoryController {
 	@PostMapping("/findByFilter")
 	public ResponseEntity<?> findCategoriesByFilter(@RequestBody FilterInfo filter) {
 		try {
-			return this.service.getByFieldQuery(filter);
+			return this.service.getByFilter(filter);
 		}catch(SecurityException e) {
 			FileSourceCategoryController.LOGGER.error("SecurityException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
