@@ -7,7 +7,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -15,25 +14,20 @@ import com.netpro.trinity.repository.jdbc.entity.VRAgentList;
 
 @Repository  //宣告這是一個DAO類別
 public class FilesourceRelationDao {
-	public static final String insert_sql = "INSERT INTO jcsvirtualagentlist "
-							+ "(virtualagentuid, agentuid, activate, description, seq) "
-							+ "VALUES (?, ?, ?, ?, ?)";
+	public static final String insert_sql = "INSERT INTO filesourcerelation "
+							+ "(fscategoryuid, filesourceuid) "
+							+ "VALUES (?, ?)";
 	
 	@Autowired
     protected JdbcTemplate jtm;
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public List<VRAgentList> findExByCategoryUid(String uid) throws DataAccessException{
+	public List<String> findAll() throws DataAccessException{
 
-        String sql = "SELECT f.* "
-        		+ "FROM filesourcerelation fr, filesource f "
-				+ "WHERE fr.filesourceuid = f.filesourceuid AND fr.fscategoryuid = ? "
-				+ "ORDER BY f.filesourcename";
-        Object[] param = new Object[] {uid};
+		String sql = "SELECT fr.filesourceuid "
+        		+ "FROM filesourcerelation fr "
+        		+ "ORDER BY fr.lastupdatetime DESC";
 
-        List<VRAgentList> lists = (List<VRAgentList>) jtm.query(sql, param,
-                new BeanPropertyRowMapper(VRAgentList.class));
-
+        List<String> lists = (List<String>) jtm.queryForList(sql, String.class);
         return lists;
     }
 	
@@ -49,16 +43,16 @@ public class FilesourceRelationDao {
         return lists;
     }
 	
-	public Boolean exitByVRAgentUidAndSeq(String vragentuid, Integer seq) throws DataAccessException{
+	public Boolean exitByCategoryUid(String uid) throws DataAccessException{
 
         String sql = "SELECT COUNT(*) "
-        		+ "FROM jcsvirtualagentlist "
-        		+ "WHERE virtualagentuid=? AND SEQ=? AND 1=1";
-        Object[] param = new Object[] {vragentuid, seq};
+        		+ "FROM filesourcerelation "
+        		+ "WHERE fscategoryuid=? AND 1=1";
+        Object[] param = new Object[] {uid};
         
-        Boolean ret = (Boolean) jtm.queryForObject(sql, Boolean.class, param);
+        Integer ret = (Integer) jtm.queryForObject(sql, Integer.class, param);
 
-        return ret;
+        return ret > 0 ? true : false;
     }
 	
 	public int save(VRAgentList list) throws DataAccessException{
@@ -88,8 +82,8 @@ public class FilesourceRelationDao {
         return insertCounts;
 	}
 	
-	public int deleteByVRAgentUid(String uid) throws DataAccessException{
-		String sql = "DELETE FROM jcsvirtualagentlist WHERE virtualagentuid = ?";
+	public int deleteByFileSourceUid(String uid) throws DataAccessException{
+		String sql = "DELETE FROM filesourcerelation WHERE filesourceuid = ?";
 		Object[] param = new Object[] {uid};
 		return jtm.update(sql, param);
 	}

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.netpro.trinity.repository.jdbc.dao.FilesourceRelationDao;
 import com.netpro.trinity.repository.jdbc.dao.VRAgentListDao;
 import com.netpro.trinity.repository.jdbc.entity.VRAgentList;
+import com.netpro.trinity.repository.jpa.entity.FileSource;
 
 @Service
 public class FilesourceRelationService {
@@ -24,6 +25,10 @@ public class FilesourceRelationService {
 	@Autowired
 	private VRAgentService vrAgentService;
 	
+	public List<String> getAll() throws Exception{
+		return this.dao.findAll();
+	}
+	
 	public List<String> getByCategoryUid(String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("File Source Category UID can not be empty!");
@@ -31,44 +36,51 @@ public class FilesourceRelationService {
 		return this.dao.findByCategoryUid(uid);
 	}
 	
+	public Boolean exitByCategoryUid(String uid) throws IllegalArgumentException, Exception{
+		if(uid == null || uid.isEmpty())
+			throw new IllegalArgumentException("File Source Category UID can not be empty!");
+				
+		return this.dao.exitByCategoryUid(uid);
+	}
+	
 	public VRAgentList add(VRAgentList list) throws IllegalArgumentException, Exception{
-		String vragentuid = list.getVirtualagentuid();
-		if(null == vragentuid)
-			throw new IllegalArgumentException("Virtual Agent UID can not be empty!");
-		
-		if(!this.vrAgentService.existByUid(vragentuid))
-			throw new IllegalArgumentException("Virtual Agent UID does not exist!(" + vragentuid + ")");
-		
-		String agentuid = list.getAgentuid();
-		if(null == agentuid)
-			throw new IllegalArgumentException("Agent UID can not be empty!");
-		
-		if(!this.agentService.existByUid(agentuid))
-			throw new IllegalArgumentException("Agent UID does not exist!(" + agentuid + ")");
-		
-		Integer seq = list.getSeq();
-		if(null == seq)
-			throw new IllegalArgumentException("Seq Field must be Integer!");
-		if(this.dao.exitByVRAgentUidAndSeq(vragentuid, seq))
-			throw new IllegalArgumentException("Duplicate Seq Field!");
-		
-		String vactivate = list.getActivate();
-		if(null == vactivate || (!vactivate.equals("1") && !vactivate.equals("0")))
-			vactivate = "1";
-
-		String vdescription = list.getDescription();
-		if(null == vdescription)
-			vdescription = "";
-		
-		String agentname = list.getAgentname();
-		if(null ==  agentname || agentname.isEmpty()) {
-			agentname = agentService.getByUid(agentuid).getAgentname();
-			list.setAgentname(agentname);
-		}
-		
-		if(this.dao.save(list) > 0)
-			return list;
-		else
+//		String vragentuid = list.getVirtualagentuid();
+//		if(null == vragentuid)
+//			throw new IllegalArgumentException("Virtual Agent UID can not be empty!");
+//		
+//		if(!this.vrAgentService.existByUid(vragentuid))
+//			throw new IllegalArgumentException("Virtual Agent UID does not exist!(" + vragentuid + ")");
+//		
+//		String agentuid = list.getAgentuid();
+//		if(null == agentuid)
+//			throw new IllegalArgumentException("Agent UID can not be empty!");
+//		
+//		if(!this.agentService.existByUid(agentuid))
+//			throw new IllegalArgumentException("Agent UID does not exist!(" + agentuid + ")");
+//		
+//		Integer seq = list.getSeq();
+//		if(null == seq)
+//			throw new IllegalArgumentException("Seq Field must be Integer!");
+//		if(this.dao.exitByVRAgentUidAndSeq(vragentuid, seq))
+//			throw new IllegalArgumentException("Duplicate Seq Field!");
+//		
+//		String vactivate = list.getActivate();
+//		if(null == vactivate || (!vactivate.equals("1") && !vactivate.equals("0")))
+//			vactivate = "1";
+//
+//		String vdescription = list.getDescription();
+//		if(null == vdescription)
+//			vdescription = "";
+//		
+//		String agentname = list.getAgentname();
+//		if(null ==  agentname || agentname.isEmpty()) {
+//			agentname = agentService.getByUid(agentuid).getAgentname();
+//			list.setAgentname(agentname);
+//		}
+//		
+//		if(this.dao.save(list) > 0)
+//			return list;
+//		else
 			throw new IllegalArgumentException("Add Virtual Agent List Fail!");		
 	}
 	
@@ -90,10 +102,10 @@ public class FilesourceRelationService {
 		return this.dao.saveBatch(lists);
 	}
 	
-	public void deleteByVRAgentUid(String uid) throws IllegalArgumentException, Exception{
+	public void deleteByFileSourceUid(String uid) throws IllegalArgumentException, Exception{
 		if(null == uid || uid.trim().length() <= 0)
-			throw new IllegalArgumentException("Virtual Agent Uid can not be empty!");
+			throw new IllegalArgumentException("File Source Uid can not be empty!");
 		
-		this.dao.deleteByVRAgentUid(uid);
+		this.dao.deleteByFileSourceUid(uid);
 	}
 }

@@ -35,6 +35,16 @@ public class FileSourceController {
 		}
 	}
 	
+	@GetMapping("/findAll-without-in-category")
+	public ResponseEntity<?> findAllFileSourcesWithoutInCategory() {
+		try {
+			return ResponseEntity.ok(this.service.getAllWithoutInCategory());
+		}catch(Exception e) {
+			FileSourceController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/isExistByUid")
 	public ResponseEntity<?> isFileSourceExistByUid(String uid) {
 		try {

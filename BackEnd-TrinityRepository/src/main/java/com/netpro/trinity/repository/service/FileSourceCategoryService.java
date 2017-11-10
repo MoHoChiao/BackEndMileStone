@@ -36,6 +36,9 @@ public class FileSourceCategoryService {
 	@Autowired
 	private FileSourceCategoryDao dao;
 	
+	@Autowired
+	private FilesourceRelationService relService;
+	
 	public List<FileSourceCategory> getAll() throws Exception{
 		return this.dao.findAll();
 	}
@@ -195,7 +198,9 @@ public class FileSourceCategoryService {
 	public void deleteByUid(String uid) throws IllegalArgumentException, Exception{
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("File Source Category Uid can not be empty!");
-		
+		if(relService.exitByCategoryUid(uid))
+			throw new IllegalArgumentException("Delete File Source under this category first!");
+
 		this.dao.delete(uid);
 	}
 	

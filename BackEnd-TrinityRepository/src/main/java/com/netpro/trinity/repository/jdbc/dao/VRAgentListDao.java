@@ -41,12 +41,12 @@ public class VRAgentListDao {
 
         String sql = "SELECT COUNT(*) "
         		+ "FROM jcsvirtualagentlist "
-        		+ "WHERE virtualagentuid=? AND SEQ=? AND 1=1";
+        		+ "WHERE virtualagentuid=? AND SEQ=?";
         Object[] param = new Object[] {vragentuid, seq};
         
-        Boolean ret = (Boolean) jtm.queryForObject(sql, Boolean.class, param);
+        Integer ret = (Integer) jtm.queryForObject(sql, Integer.class, param);
 
-        return ret;
+        return ret > 0 ? true : false;
     }
 	
 	public int save(VRAgentList list) throws DataAccessException{

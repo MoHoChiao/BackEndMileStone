@@ -88,6 +88,8 @@ public class FileSource {
   	@Transient
   	private String ftpmovedir;
   	@Transient
+  	private String datafilecountmode;
+  	@Transient
   	private String checksumfe;
   	@Transient
   	private String appendUid;
@@ -359,5 +361,11 @@ public class FileSource {
 	}
 	public void setFtpbinary(String ftpbinary) {
 		this.ftpbinary = ftpbinary;
+	}
+	public String getDatafilecountmode() {
+		return datafilecountmode;
+	}
+	public void setDatafilecountmode(String datafilecountmode) {
+		this.datafilecountmode = datafilecountmode;
 	}
 }

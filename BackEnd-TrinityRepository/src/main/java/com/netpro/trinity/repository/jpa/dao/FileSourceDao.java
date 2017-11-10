@@ -20,7 +20,9 @@ public interface FileSourceDao extends JpaRepository<FileSource, String> {
 	//file source uid field
 	List<FileSource> findByFilesourceuidIn(List<String> uids);
 	List<FileSource> findByFilesourceuidIn(List<String> uids, Sort sort);
-	Page<FileSource> findByFilesourceuidIn(List<String> uids, Pageable pageable);	
+	List<FileSource> findByFilesourceuidNotIn(List<String> uids, Sort sort);
+	Page<FileSource> findByFilesourceuidIn(List<String> uids, Pageable pageable);
+	
 	
 	//file source name field
 	List<FileSource> findByfilesourcename(String name);

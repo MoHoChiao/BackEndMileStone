@@ -54,6 +54,12 @@ public class FileSourceService {
 		return filesources;
 	}
 	
+	public List<FileSource> getAllWithoutInCategory() throws Exception{
+		List<FileSource> filesources = this.dao.findByFilesourceuidNotIn(relService.getAll(), new Sort(new Order("filesourcename")));
+		setExtraXmlProp(filesources);
+		return filesources;
+	}
+	
 	public boolean existByUid(String uid) {
 		return this.dao.exists(uid);
 	}
@@ -426,6 +432,7 @@ public class FileSourceService {
 			throw new IllegalArgumentException("File Source Uid can not be empty!");
 		
 		this.dao.delete(uid);
+		this.relService.deleteByFileSourceUid(uid);
 	}
 	
 	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{	
@@ -473,6 +480,7 @@ public class FileSourceService {
 			filesource.setChecksumalg(map.get("checksumalg"));
 			filesource.setTxdateendpos(map.get("txdateendpos"));
 			filesource.setFtpmovedir(map.get("ftpmovedir"));
+			filesource.setDatafilecountmode(map.get("datafilecountmode"));
 			filesource.setChecksumfe(map.get("checksumfe"));
 			filesource.setAppendUid(map.get("appendUid"));
 			filesource.setFtpremotedir(map.get("ftpremotedir"));
