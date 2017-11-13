@@ -20,4 +20,6 @@ public interface DisconfigDao extends JpaRepository<Disconfig, DisconfigPKs> {  
 	List<Disconfig> findUiapPosition(@Param("module1")String module1, 
 			@Param("module2")String module2, @Param("configname1")String configname1, @Param("configname2")String configname2);
 	
+	
+	List<Disconfig> findByModuleOrderByConfigname(String module);
 }
