@@ -26,7 +26,7 @@ public class JCSAgentController {
 	private JCSAgentService service;
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllAgent() {
+	public ResponseEntity<?> findAllAgents() {
 		try {
 			return ResponseEntity.ok(this.service.getAll());
 		}catch(Exception e) {
@@ -59,7 +59,7 @@ public class JCSAgentController {
 	}
   
 	@GetMapping("/findByName")
-	public ResponseEntity<?> findAgentByName(String name) {
+	public ResponseEntity<?> findAgentsByName(String name) {
 		try {
 			return ResponseEntity.ok(this.service.getByName(name));
 		}catch(IllegalArgumentException e) {
@@ -72,7 +72,7 @@ public class JCSAgentController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findAgentByFilter(@RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findAgentsByFilter(@RequestBody FilterInfo filter) {
 		try {
 			return this.service.getByFilter(filter);
 		}catch(SecurityException e) {

@@ -69,7 +69,7 @@ public class FileSourceController {
 	}
   
 	@GetMapping("/findByName")
-	public ResponseEntity<?> findFileSourceByName(String name) {
+	public ResponseEntity<?> findFileSourcesByName(String name) {
 		try {
 			return ResponseEntity.ok(this.service.getByName(name));
 		}catch(IllegalArgumentException e) {
@@ -82,7 +82,7 @@ public class FileSourceController {
 	}
 	
 	@GetMapping("/findByCategoryUid")
-	public ResponseEntity<?> findFileSourceByCategoryUid(String uid) {
+	public ResponseEntity<?> findFileSourcesByCategoryUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.getByCategoryUid(uid));
 		}catch(IllegalArgumentException e) {
@@ -95,7 +95,7 @@ public class FileSourceController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findFileSourceByFilter(String categoryUid, @RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findFileSourcesByFilter(String categoryUid, @RequestBody FilterInfo filter) {
 		try {
 			return this.service.getByFilter(categoryUid, filter);
 		}catch(SecurityException e) {

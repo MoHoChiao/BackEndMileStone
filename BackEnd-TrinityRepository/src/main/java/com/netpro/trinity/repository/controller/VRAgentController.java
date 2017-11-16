@@ -26,7 +26,7 @@ public class VRAgentController {
 	private VRAgentService service;
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllVRAgent() {
+	public ResponseEntity<?> findAllVRAgents() {
 		try {
 			return ResponseEntity.ok(this.service.getAll());
 		}catch(Exception e) {
@@ -59,7 +59,7 @@ public class VRAgentController {
 	}
   
 	@GetMapping("/findByName")
-	public ResponseEntity<?> findVRAgentByName(String name) {
+	public ResponseEntity<?> findVRAgentsByName(String name) {
 		try {
 			return ResponseEntity.ok(this.service.getByName(name));
 		}catch(IllegalArgumentException e) {
@@ -72,7 +72,7 @@ public class VRAgentController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findVRAgentByFilter(@RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findVRAgentsByFilter(@RequestBody FilterInfo filter) {
 		try {
 			return this.service.getByFilter(filter);
 		}catch(SecurityException e) {
