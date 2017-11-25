@@ -37,7 +37,7 @@ public interface FileSourceDao extends JpaRepository<FileSource, String> {
 	List<FileSource> findByfilesourcenameLikeIgnoreCase(String name);
 	List<FileSource> findByfilesourcenameLikeIgnoreCase(String name, Sort sort);
 	Page<FileSource> findByfilesourcenameLikeIgnoreCase(String name, Pageable pageable);
-	//file source name field with categoryUid constraints
+	//file source name field with Filesourceuid constraints
 	List<FileSource> findByfilesourcenameAndFilesourceuidIn(String name, List<String> uids);
 	List<FileSource> findByfilesourcenameAndFilesourceuidIn(String name, Sort sort, List<String> uids);
 	Page<FileSource> findByfilesourcenameAndFilesourceuidIn(String name, Pageable pageable, List<String> uids);
@@ -65,7 +65,7 @@ public interface FileSourceDao extends JpaRepository<FileSource, String> {
 	List<FileSource> findBydescriptionLikeIgnoreCase(String description);
 	List<FileSource> findBydescriptionLikeIgnoreCase(String description, Sort sort);
 	Page<FileSource> findBydescriptionLikeIgnoreCase(String description, Pageable pageable);
-	//description field with categoryUid constraints
+	//description field with Filesourceuid constraints
 	List<FileSource> findBydescriptionAndFilesourceuidIn(String description, List<String> uids);
 	List<FileSource> findBydescriptionAndFilesourceuidIn(String description, Sort sort, List<String> uids);
 	Page<FileSource> findBydescriptionAndFilesourceuidIn(String description, Pageable pageable, List<String> uids);

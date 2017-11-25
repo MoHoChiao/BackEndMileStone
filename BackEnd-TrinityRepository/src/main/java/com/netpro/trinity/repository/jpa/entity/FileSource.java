@@ -84,7 +84,7 @@ public class FileSource {
   	@Transient
   	private String checksumalg;
   	@Transient
-  	private String txdateendpos;
+  	private Integer txdateendpos;
   	@Transient
   	private String ftpmovedir;
   	@Transient
@@ -100,7 +100,7 @@ public class FileSource {
   	@Transient
   	private String sftp;
   	@Transient
-  	private String txdatestartpos;
+  	private Integer txdatestartpos;
   	@Transient
   	private String ftpbinary;
   	
@@ -308,10 +308,10 @@ public class FileSource {
 	public void setChecksumalg(String checksumalg) {
 		this.checksumalg = checksumalg;
 	}
-	public String getTxdateendpos() {
+	public Integer getTxdateendpos() {
 		return txdateendpos;
 	}
-	public void setTxdateendpos(String txdateendpos) {
+	public void setTxdateendpos(Integer txdateendpos) {
 		this.txdateendpos = txdateendpos;
 	}
 	public String getFtpmovedir() {
@@ -350,10 +350,10 @@ public class FileSource {
 	public void setChecksum(String checksum) {
 		this.checksum = checksum;
 	}
-	public String getTxdatestartpos() {
+	public Integer getTxdatestartpos() {
 		return txdatestartpos;
 	}
-	public void setTxdatestartpos(String txdatestartpos) {
+	public void setTxdatestartpos(Integer txdatestartpos) {
 		this.txdatestartpos = txdatestartpos;
 	}
 	public String getFtpbinary() {

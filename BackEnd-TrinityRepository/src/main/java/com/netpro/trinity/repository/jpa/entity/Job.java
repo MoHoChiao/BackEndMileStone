@@ -12,62 +12,90 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 
-@Entity(name="JCSAgent")  //宣告這是一個實體JCSAgent的類別
+@Entity(name="Job")  //宣告這是一個實體Job的類別
 public class Job {	
 	@Id
-  	private String agentuid;
+  	private String jobuid;
   	@Column(nullable=false)
-  	private String agentname;
+  	private String jobname;
   	@Column
   	private String description;
   	@Column(nullable=false)
-  	private String host;
-  	@Column(nullable=false)
-  	private Integer port;
-  	@Column(nullable=false)
-  	private Integer maximumjob;
-  	@Column(nullable=false)
   	private String activate;
   	@Column
-  	private String ostype;
+  	private String domainuid;
   	@Column
-  	private String osname;
+  	private String categoryuid;
   	@Column
-  	private String agentstatus;
+  	private String agentuid;
+  	@Column
+  	private String frequencyuid;
+  	@Column
+  	private String filesourceuid;
+  	@Column(nullable=false)
+  	private String jobtype;
+  	@Column(nullable=false)
+  	private String retry;
+  	@Column
+  	private Integer retryinterval;
+  	@Column
+  	private Integer maxretrytime;
+  	@Column(nullable=false)
+  	private String retrymode;
+  	@Column
+  	private Integer priority;
+  	@Column
+  	private Integer timewindowbegin;
+  	@Column
+  	private Integer timewindowend;
+  	@Column(nullable=false)
+  	private String txdaterule;
+  	@Column
+  	private Integer txoffsetday;
+  	@Column
+  	private String bypasserror;
+  	@Column(nullable=false)
+  	private String status;
+  	@Column(nullable=false)
+  	private String criticaljob;
+  	@Column(nullable=false)
+  	private String createuseruid;
   	@Column
   	private String xmldata;
   	@Column
-  	@Temporal(TemporalType.TIMESTAMP)
-  	private Date lostcontact;
+  	private String onlinedatetime;
+  	@Column
+  	private String offlinedatetime;
+  	@Column
+  	private String refjobuid;
   	@Column
   	@Temporal(TemporalType.TIMESTAMP)
   	private Date lastupdatetime;
   	
   	@Transient
-  	private String deadperiod;
+  	private Boolean rerunfromfs;
   	@Transient
-  	private String monitortime;
+  	private Boolean applycompletedtask;
   	@Transient
-  	private String cpuweight;
+  	private String waitingtime;
   	@Transient
-  	private String memweight;
+  	private Boolean dontsavehistory;
   	@Transient
-  	private String encoding;
+  	private Boolean usestepcondi;
   	@Transient
-  	private String compresstransfer;
+  	private Boolean skipmissingtask;
   	
-  
-  	public String getAgentuid() {
-		return agentuid;
+  	public String getJobuid() {
+		return jobuid;
 	}
-	public void setAgentuid(String agentuid) {
-		this.agentuid = agentuid;
+	public void setJobuid(String jobuid) {
+		this.jobuid = jobuid;
 	}
-	public String getAgentname() {
-		return agentname;
+	public String getJobname() {
+		return jobname;
 	}
-	public void setAgentname(String agentname) {
-		this.agentname = agentname;
+	public void setJobname(String jobname) {
+		this.jobname = jobname;
 	}
 	public String getDescription() {
 		return description;
@@ -75,47 +103,125 @@ public class Job {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public String getHost() {
-		return host;
-	}
-	public void setHost(String host) {
-		this.host = host;
-	}
-	public Integer getPort() {
-		return port;
-	}
-	public void setPort(Integer port) {
-		this.port = port;
-	}
-	public Integer getMaximumjob() {
-		return maximumjob;
-	}
-	public void setMaximumjob(Integer maximumjob) {
-		this.maximumjob = maximumjob;
-	}
 	public String getActivate() {
 		return activate;
 	}
 	public void setActivate(String activate) {
 		this.activate = activate;
 	}
-	public String getOstype() {
-		return ostype;
+	public String getDomainuid() {
+		return domainuid;
 	}
-	public void setOstype(String ostype) {
-		this.ostype = ostype;
+	public void setDomainuid(String domainuid) {
+		this.domainuid = domainuid;
 	}
-	public String getOsname() {
-		return osname;
+	public String getCategoryuid() {
+		return categoryuid;
 	}
-	public void setOsname(String osname) {
-		this.osname = osname;
+	public void setCategoryuid(String categoryuid) {
+		this.categoryuid = categoryuid;
 	}
-	public String getAgentstatus() {
-		return agentstatus;
+	public String getAgentuid() {
+		return agentuid;
 	}
-	public void setAgentstatus(String agentstatus) {
-		this.agentstatus = agentstatus;
+	public void setAgentuid(String agentuid) {
+		this.agentuid = agentuid;
+	}
+	public String getFrequencyuid() {
+		return frequencyuid;
+	}
+	public void setFrequencyuid(String frequencyuid) {
+		this.frequencyuid = frequencyuid;
+	}
+	public String getFilesourceuid() {
+		return filesourceuid;
+	}
+	public void setFilesourceuid(String filesourceuid) {
+		this.filesourceuid = filesourceuid;
+	}
+	public String getJobtype() {
+		return jobtype;
+	}
+	public void setJobtype(String jobtype) {
+		this.jobtype = jobtype;
+	}
+	public String getRetry() {
+		return retry;
+	}
+	public void setRetry(String retry) {
+		this.retry = retry;
+	}
+	public Integer getRetryinterval() {
+		return retryinterval;
+	}
+	public void setRetryinterval(Integer retryinterval) {
+		this.retryinterval = retryinterval;
+	}
+	public Integer getMaxretrytime() {
+		return maxretrytime;
+	}
+	public void setMaxretrytime(Integer maxretrytime) {
+		this.maxretrytime = maxretrytime;
+	}
+	public String getRetrymode() {
+		return retrymode;
+	}
+	public void setRetrymode(String retrymode) {
+		this.retrymode = retrymode;
+	}
+	public Integer getPriority() {
+		return priority;
+	}
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
+	public Integer getTimewindowbegin() {
+		return timewindowbegin;
+	}
+	public void setTimewindowbegin(Integer timewindowbegin) {
+		this.timewindowbegin = timewindowbegin;
+	}
+	public Integer getTimewindowend() {
+		return timewindowend;
+	}
+	public void setTimewindowend(Integer timewindowend) {
+		this.timewindowend = timewindowend;
+	}
+	public String getTxdaterule() {
+		return txdaterule;
+	}
+	public void setTxdaterule(String txdaterule) {
+		this.txdaterule = txdaterule;
+	}
+	public Integer getTxoffsetday() {
+		return txoffsetday;
+	}
+	public void setTxoffsetday(Integer txoffsetday) {
+		this.txoffsetday = txoffsetday;
+	}
+	public String getBypasserror() {
+		return bypasserror;
+	}
+	public void setBypasserror(String bypasserror) {
+		this.bypasserror = bypasserror;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public String getCriticaljob() {
+		return criticaljob;
+	}
+	public void setCriticaljob(String criticaljob) {
+		this.criticaljob = criticaljob;
+	}
+	public String getCreateuseruid() {
+		return createuseruid;
+	}
+	public void setCreateuseruid(String createuseruid) {
+		this.createuseruid = createuseruid;
 	}
 	public String getXmldata() {
 		return xmldata;
@@ -123,11 +229,23 @@ public class Job {
 	public void setXmldata(String xmldata) {
 		this.xmldata = xmldata;
 	}
-	public Date getLostcontact() {
-		return lostcontact;
+	public String getOnlinedatetime() {
+		return onlinedatetime;
 	}
-	public void setLostcontact(Date lostcontact) {
-		this.lostcontact = lostcontact;
+	public void setOnlinedatetime(String onlinedatetime) {
+		this.onlinedatetime = onlinedatetime;
+	}
+	public String getOfflinedatetime() {
+		return offlinedatetime;
+	}
+	public void setOfflinedatetime(String offlinedatetime) {
+		this.offlinedatetime = offlinedatetime;
+	}
+	public String getRefjobuid() {
+		return refjobuid;
+	}
+	public void setRefjobuid(String refjobuid) {
+		this.refjobuid = refjobuid;
 	}
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	public Date getLastupdatetime() {
@@ -138,40 +256,41 @@ public class Job {
 	}
 	
 	
-	public String getDeadperiod() {
-		return deadperiod;
+	//@Transient setter/getter
+	public Boolean getRerunfromfs() {
+		return rerunfromfs;
 	}
-	public void setDeadperiod(String deadperiod) {
-		this.deadperiod = deadperiod;
+	public void setRerunfromfs(Boolean rerunfromfs) {
+		this.rerunfromfs = rerunfromfs;
 	}
-	public String getMonitortime() {
-		return monitortime;
+	public Boolean getApplycompletedtask() {
+		return applycompletedtask;
 	}
-	public void setMonitortime(String monitortime) {
-		this.monitortime = monitortime;
+	public void setApplycompletedtask(Boolean applycompletedtask) {
+		this.applycompletedtask = applycompletedtask;
 	}
-	public String getCpuweight() {
-		return cpuweight;
+	public String getWaitingtime() {
+		return waitingtime;
 	}
-	public void setCpuweight(String cpuweight) {
-		this.cpuweight = cpuweight;
+	public void setWaitingtime(String waitingtime) {
+		this.waitingtime = waitingtime;
 	}
-	public String getMemweight() {
-		return memweight;
+	public Boolean getDontsavehistory() {
+		return dontsavehistory;
 	}
-	public void setMemweight(String memweight) {
-		this.memweight = memweight;
+	public void setDontsavehistory(Boolean dontsavehistory) {
+		this.dontsavehistory = dontsavehistory;
 	}
-	public String getEncoding() {
-		return encoding;
+	public Boolean getUsestepcondi() {
+		return usestepcondi;
 	}
-	public void setEncoding(String encoding) {
-		this.encoding = encoding;
+	public void setUsestepcondi(Boolean usestepcondi) {
+		this.usestepcondi = usestepcondi;
 	}
-	public String getCompresstransfer() {
-		return compresstransfer;
+	public Boolean getSkipmissingtask() {
+		return skipmissingtask;
 	}
-	public void setCompresstransfer(String compresstransfer) {
-		this.compresstransfer = compresstransfer;
+	public void setSkipmissingtask(Boolean skipmissingtask) {
+		this.skipmissingtask = skipmissingtask;
 	}
 }

@@ -232,98 +232,273 @@ public class FileSourceService {
 	}
 	
 	public FileSource add(FileSource filesource) throws IllegalArgumentException, Exception{
-//		agent.setAgentuid(UUID.randomUUID().toString());
-//		
-//		String agentname = agent.getAgentname();
-//		if(null == agentname || agentname.trim().length() <= 0)
-//			throw new IllegalArgumentException("JCSAgent Name can not be empty!");
-//		agent.setAgentname(agentname.toUpperCase());
-//		
-//		if(this.dao.existByName(agent.getAgentname()))
-//			throw new IllegalArgumentException("Duplicate Agent Name!");
-//		
-//		String activate = agent.getActivate();
-//		if(null == activate || (!activate.equals("1") && !activate.equals("0")))
-//			throw new IllegalArgumentException("JCSAgent activate value can only be 1 or 0!");
-//		
-//		agent.setAgentstatus("0");
-//		
-//		String compresstransfer = agent.getCompresstransfer();
-//		if(null == compresstransfer || (!compresstransfer.equals("1") && !compresstransfer.equals("0")))
-//			throw new IllegalArgumentException("JCSAgent compresstransfer value can only be 1 or 0!");
-//		
-//		try{
-//			Integer.valueOf(agent.getCpuweight());
-//		}catch(Exception e){
-//			throw new IllegalArgumentException("JCSAgent cpuweight value can only be integer!");
-//		}
-//		
-//		try{
-//			Integer.valueOf(agent.getDeadperiod());
-//		}catch(Exception e){
-//			throw new IllegalArgumentException("JCSAgent deadperiod value can only be integer!");
-//		}
-//		
-//		if(null == agent.getDescription())
-//			agent.setDescription("");
-//		
-//		if(null == agent.getEncoding())
-//			agent.setEncoding("");
-//		
-//		String host = agent.getHost();
-//		if(null == host || host.trim().length()<=0)
-//			throw new IllegalArgumentException("JCSAgent Host can not be empty!");
-//		
-//		if(null == agent.getPort())
-//			throw new IllegalArgumentException("JCSAgent Port value can only be small integer!");
-//		
-//		if(null == agent.getMaximumjob())
-//			throw new IllegalArgumentException("JCSAgent Maximum Job value can only be small integer!");
-//		
-//		try{
-//			Integer.valueOf(agent.getMemweight());
-//		}catch(Exception e){
-//			throw new IllegalArgumentException("JCSAgent memweight value can only be integer!");
-//		}
-//		
-//		try{
-//			Integer.valueOf(agent.getMonitortime());
-//		}catch(Exception e){
-//			throw new IllegalArgumentException("JCSAgent monitortime value can only be integer!");
-//		}
-//		
-//		if(null == agent.getOsname())
-//			agent.setOsname("");
-//		
-//		if(null == agent.getOstype())
-//			agent.setOstype("");
-//		
-//		Map<String, String> xmlMap = new HashMap<String, String>();
-//		xmlMap.put("deadperiod", agent.getDeadperiod());
-//		xmlMap.put("memweight", agent.getMemweight());
-//		xmlMap.put("compresstransfer", agent.getCompresstransfer());
-//		xmlMap.put("encoding", agent.getEncoding());
-//		xmlMap.put("monitortime", agent.getMonitortime());
-//		xmlMap.put("cpuweight", agent.getCpuweight());
-//		String xmldata = xmlUtil.parseHashMapToXMLString(xmlMap, false);
-//		agent.setXmldata(xmldata);
-//		
-//		/*
-//		 * because lastupdatetime column is auto created value, it can not be reload new value.
-//		 * here, we force to give value to lastupdatetime column.
-//		 */
-//		agent.setLastupdatetime(new Date());
-//		
-//		JCSAgent new_agent = this.dao.save(agent);
-//		new_agent.setCompresstransfer(compresstransfer);
-//		
-//		/*
-//		 * Because All fields associated with xml are defined by @Transient, it can not be reload new value.
-//		 * The fields associated with xml is very suck design!
-//		 */
-//		setExtraXmlProp(new_agent);
+		String newUid = UUID.randomUUID().toString();
+		String filesourcename = filesource.getFilesourcename();
+		if(null == filesourcename || filesourcename.length() <= 0)
+			throw new IllegalArgumentException("File Source Name can not be empty!");
+		filesourcename = filesourcename.toUpperCase();
 		
-		return filesource;
+		if(this.dao.existByName(filesourcename))
+			throw new IllegalArgumentException("Duplicate File Source Name!");
+		
+		String description = filesource.getDescription();
+		if(null == description)
+			description = "";
+		
+		String root_dir = filesource.getRootdir();
+		if(null == root_dir)
+			root_dir = "";
+		
+		String receive_dir = filesource.getReceivedir();
+		if(null == receive_dir || receive_dir.length() <= 0)
+			throw new IllegalArgumentException("Receive Directory can not be empty!");
+		
+		String target_dir = filesource.getTargetdir();
+		if(null == target_dir || target_dir.length() <= 0)
+			throw new IllegalArgumentException("Target Directory can not be empty!");
+		
+		String complete_dir = filesource.getCompletedir();
+		if(null == complete_dir || complete_dir.length() <= 0)
+			throw new IllegalArgumentException("Complete Directory can not be empty!");
+		
+		String corrupt_dir = filesource.getCorruptdir();
+		if(null == corrupt_dir || corrupt_dir.length() <= 0)
+			throw new IllegalArgumentException("Corrupt Directory can not be empty!");
+		
+		String duplicate_dir = filesource.getDuplicatedir();
+		if(null == duplicate_dir || duplicate_dir.length() <= 0)
+			throw new IllegalArgumentException("Duplicate Directory can not be empty!");
+		
+		String error_dir = filesource.getErrordir();
+		if(null == error_dir || error_dir.length() <= 0)
+			throw new IllegalArgumentException("Error Directory can not be empty!");
+		
+		String filename = filesource.getFilename();
+		if(null == filename || filename.length() <= 0)
+			throw new IllegalArgumentException("File Name Pattern can not be empty!");
+		
+		String pattern = filesource.getPattern();
+		if(null == pattern || (!pattern.equals("1") && !pattern.equals("2") && !pattern.equals("3") && !pattern.equals("4")))
+			pattern = "1";
+		
+		Integer start_position = filesource.getStartposition();
+		if(null == start_position || start_position < 0)
+			start_position = 0;
+		
+		Integer end_position = filesource.getEndposition();
+		if(null == end_position || end_position < 0)
+			end_position = 0;
+		
+		if(pattern.equals("3")) {
+			if(end_position <= start_position)
+				throw new IllegalArgumentException("End Position can not be equals or smaller than Start Position!");
+		}
+		
+		String filetype = filesource.getFiletype();
+		if(null == filetype || (!filetype.equals("D") && !filetype.equals("C")))
+			filetype = "D";
+		
+		String datafilecountmode = filesource.getDatafilecountmode();
+		if(null == datafilecountmode || (!datafilecountmode.equals("R") && !datafilecountmode.equals("C")))
+			datafilecountmode = "R";
+		
+		String cfImpClass = filesource.getCfImpClass();
+		if(null == cfImpClass)
+			cfImpClass = "com.netpro.filesource.ctrl.MatchFileSizeCtrlFileHandler";
+		
+		//如果是選擇Regular Data時, 則cfImpClass及datafilecountmode一律代回預設值
+		if(filetype.equals("D")){
+			datafilecountmode = "R";
+            cfImpClass = "com.netpro.filesource.ctrl.MatchFileSizeCtrlFileHandler";
+        }
+		
+		String check_duplicate = filesource.getCheckduplicate();
+		if(null == check_duplicate || (!check_duplicate.equals("1") && !check_duplicate.equals("0")))
+			check_duplicate = "0";
+		
+		String filter_duplicate = filesource.getFilterduplicate();
+		if(null == filter_duplicate || (!filter_duplicate.equals("1") && !filter_duplicate.equals("0")) || check_duplicate.equals("0"))
+			filter_duplicate = "0";
+		
+		String filetrigger = filesource.getFiletrigger();
+		if(null == filetrigger || (!filetrigger.equals("1") && !filetrigger.equals("0")))
+			filetrigger = "0";
+		
+		String trigger_job_uid = filesource.getTriggerjobuid();
+		if(null == trigger_job_uid || trigger_job_uid.trim().length() <= 0){
+			if(filetrigger.equals("1")){
+				throw new IllegalArgumentException("When Choose 'File Trigger', must be select one job uid!");
+			}else{
+				trigger_job_uid = "";
+			}
+		}
+		
+		String txdate__format = filesource.getTxdateformat();
+		if(null == txdate__format)
+			txdate__format = "";
+		
+		Integer txdate_start_pos = filesource.getTxdatestartpos();
+		if(null == txdate_start_pos || txdate_start_pos < 0)
+			txdate_start_pos = 0;
+		
+		Integer txdate_end_pos = filesource.getTxdateendpos();
+		if(null == txdate_end_pos || txdate_end_pos < 0)
+			txdate_end_pos = 0;
+		
+		//當沒有勾選filetrigger時, 要強制讓txdateformat='',txdatestartpos=0,txdateendpos=0
+        if(filetrigger.equals("0")){
+        	txdate__format = "";
+        	txdate_start_pos = 0;
+        	txdate_end_pos = 0;
+        }
+		
+		String checksum = filesource.getChecksum();
+		if(null == checksum || (!checksum.equals("1") && !checksum.equals("0")))
+			checksum = "0";
+		
+		String checksum_fe = filesource.getChecksumfe();
+		if(null == checksum_fe || checksum_fe.trim().length() <= 0)
+			checksum_fe = ".checksum";
+		
+		String checksum_alg = filesource.getChecksumalg();
+		if(null == checksum_alg || (!checksum_alg.equals("M") && !checksum_alg.equals("S")))
+			checksum_alg = "M";
+		
+		//如果不勾選check sum時, 則checksumalg及checksumfe一律代回預設值
+		if(checksum.equals("0")) {
+			checksum_fe = ".checksum";
+			checksum_alg = "M";
+		}
+			
+		Integer min_file = filesource.getMinfile();
+		if(null == min_file || min_file < 0)
+			min_file = 1;
+		
+		Integer max_file = filesource.getMaxfile();
+		if(null == max_file || max_file < 0)
+			max_file = 5;
+		
+		Integer timeout = filesource.getTimeout();
+		if(null == timeout || timeout < 0)
+			timeout = 3;
+		
+		String bypass_zero = filesource.getBypasszero();
+		if(null == bypass_zero || (!bypass_zero.equals("1") && !bypass_zero.equals("0")))
+			bypass_zero = "0";
+		
+		String appendUid = filesource.getAppendUid();
+		if(null == appendUid || (!appendUid.equals("1") && !appendUid.equals("0")))
+			bypass_zero = "0";
+		
+		String ftpget = filesource.getFtpget();
+		if(null == ftpget || (!ftpget.equals("1") && !ftpget.equals("0")))
+			ftpget = "0";
+		
+		String sftp = filesource.getSftp();
+		if(null == sftp || (!sftp.equals("1") && !sftp.equals("0")))
+			sftp = "0";
+		
+		String ftp_binary = filesource.getFtpbinary();
+		if(null == ftp_binary || (!ftp_binary.equals("1") && !ftp_binary.equals("0")))
+			ftp_binary = "0";
+		
+		String passive = filesource.getPassive();
+		if(null == passive || (!passive.equals("1") && !passive.equals("0")))
+			passive = "0";
+		
+		String ftp_connection_uid = filesource.getFtpconnectionuid();
+		if(null == ftp_connection_uid || ftp_connection_uid.length() <= 0){
+			if(ftpget.equals("1")){
+				throw new Exception("When Choose 'FTP Get', must be select one FTP Connection uid!");
+			}else{
+				ftp_connection_uid = "";
+			}
+		}
+		
+		String ftp_remote_dir = filesource.getFtpremotedir();
+		if(null == ftp_remote_dir || ftp_remote_dir.length() <= 0){
+			if(ftpget.equals("1")){
+				throw new Exception("When Choose 'FTP Get', must be have FTP Remote Directory!");
+			}else{
+				ftp_remote_dir = "";
+			}
+		}
+		
+		String ftp_post_action = filesource.getFtppostaction();
+		if(null == ftp_post_action || (!ftp_post_action.equals("0") && !ftp_post_action.equals("1") && !ftp_post_action.equals("2")))
+			ftp_post_action = "0";
+			
+		String ftp_move_dir = filesource.getFtpmovedir();
+		if(null == ftp_move_dir || ftp_move_dir.length() <= 0){
+			if(ftp_post_action.equals("1")){
+				throw new Exception("When 'ftp_post_action=1', must be have FTP Move Directory!");
+			}else{
+				ftp_move_dir = "";
+			}
+		}
+		
+		String checkrow = "0";
+		
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("txdateendpos", txdate_end_pos.toString());
+		map.put("ftpconnectionuid", ftp_connection_uid);
+		map.put("ftppostaction", ftp_post_action);
+		map.put("triggerjobuid", trigger_job_uid);
+		map.put("sftp", sftp);
+		map.put("checksum", checksum);
+		map.put("ftpmovedir", ftp_move_dir);
+		map.put("txdateformat", txdate__format);
+		map.put("checksumfe", checksum_fe);
+		map.put("passive", passive);
+		map.put("ftpbinary", ftp_binary);
+		map.put("txdatestartpos", txdate_start_pos.toString());
+		map.put("checksumalg", checksum_alg);
+		map.put("ftpremotedir", ftp_remote_dir);
+		map.put("appendUid", appendUid);
+		map.put("rootdir", root_dir);
+		map.put("cfImpClass", cfImpClass);
+		map.put("datafilecountmode", datafilecountmode);
+		String xmldata = xmlUtil.parseHashMapToXMLString(map, false);
+		
+		filesource.setFilesourceuid(newUid);
+		filesource.setFilesourcename(filesourcename);
+		filesource.setDescription(description);
+		filesource.setFiletrigger(filetrigger);
+		filesource.setReceivedir(receive_dir);
+		filesource.setTargetdir(target_dir);
+		filesource.setCompletedir(complete_dir);
+		filesource.setCorruptdir(corrupt_dir);
+		filesource.setDuplicatedir(duplicate_dir);
+		filesource.setErrordir(error_dir);
+		filesource.setFilename(filename);
+		filesource.setPattern(pattern);
+		filesource.setStartposition(start_position);
+		filesource.setEndposition(end_position);
+		filesource.setFiletype(filetype);
+		filesource.setMinfile(min_file);
+		filesource.setMaxfile(max_file);
+		filesource.setTimeout(timeout);
+		filesource.setCheckduplicate(check_duplicate);
+		filesource.setFilterduplicate(filter_duplicate);
+		filesource.setCheckrow(checkrow);
+		filesource.setBypasszero(bypass_zero);
+		filesource.setFtpget(ftpget);
+		filesource.setXmldata(xmldata);
+		
+		/*
+		 * because lastupdatetime column is auto created value, it can not be reload new value.
+		 * here, we force to give value to lastupdatetime column.
+		 */
+		filesource.setLastupdatetime(new Date());
+		
+		FileSource new_filesource = this.dao.save(filesource);
+		/*
+		 * Because All fields associated with xml are defined by @Transient, it can not be reload new value.
+		 * The fields associated with xml is very suck design!
+		 */
+		setExtraXmlProp(new_filesource);
+	
+		return new_filesource;
 	}
 	
 	public FileSource edit(FileSource filesource) throws IllegalArgumentException, Exception{
@@ -478,7 +653,6 @@ public class FileSourceService {
 			filesource.setPassive(map.get("passive"));
 			filesource.setTriggerjobuid(map.get("triggerjobuid"));
 			filesource.setChecksumalg(map.get("checksumalg"));
-			filesource.setTxdateendpos(map.get("txdateendpos"));
 			filesource.setFtpmovedir(map.get("ftpmovedir"));
 			filesource.setDatafilecountmode(map.get("datafilecountmode"));
 			filesource.setChecksumfe(map.get("checksumfe"));
@@ -486,7 +660,20 @@ public class FileSourceService {
 			filesource.setFtpremotedir(map.get("ftpremotedir"));
 			filesource.setChecksum(map.get("checksum"));
 			filesource.setSftp(map.get("sftp"));
-			filesource.setTxdatestartpos(map.get("txdatestartpos"));
+			
+			String txdatestartpos =  map.get("txdatestartpos");
+			Integer txdatestartpos_int = 0;
+			try {
+				txdatestartpos_int = Integer.valueOf(txdatestartpos);
+			}catch(Exception e) {}
+			String txdateendpos= map.get("txdateendpos");
+			Integer txdateendpos_int = 0;
+			try {
+				txdateendpos_int = Integer.valueOf(txdateendpos);
+			}catch(Exception e) {}
+			
+			filesource.setTxdatestartpos(txdatestartpos_int);
+			filesource.setTxdateendpos(txdateendpos_int);
 			filesource.setFtpbinary(map.get("ftpbinary"));
 		}
 	}
