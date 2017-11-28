@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.netpro.trinity.repository.jpa.entity.JCSAgent;
 
 @Repository  //宣告這是一個DAO類別
-public interface JCSAgentDao extends JpaRepository<JCSAgent, String> {
+public interface JCSAgentJPADao extends JpaRepository<JCSAgent, String> {
 	@Query("select count(agent)>0 from JCSAgent agent where agent.agentname=:agentname")
 	Boolean existByName(@Param("agentname") String agentname);
 	

@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.jdbc.dao.FilesourceRelationDao;
-import com.netpro.trinity.repository.jdbc.dao.VRAgentListDao;
+import com.netpro.trinity.repository.jdbc.dao.FilesourceRelationJDBCDao;
+import com.netpro.trinity.repository.jdbc.dao.VRAgentListJDBCDao;
 import com.netpro.trinity.repository.jdbc.entity.VRAgentList;
 import com.netpro.trinity.repository.jpa.entity.FileSource;
 
@@ -18,7 +18,7 @@ public class FilesourceRelationService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FilesourceRelationService.class);
 	
 	@Autowired
-	private FilesourceRelationDao dao;
+	private FilesourceRelationJDBCDao dao;
 	
 	@Autowired
 	private JCSAgentService agentService;

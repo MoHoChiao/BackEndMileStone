@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.jdbc.dao.VRAgentListDao;
+import com.netpro.trinity.repository.jdbc.dao.VRAgentListJDBCDao;
 import com.netpro.trinity.repository.jdbc.entity.VRAgentList;
 
 @Service
@@ -16,7 +16,7 @@ public class VRAgentListService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(VRAgentListService.class);
 	
 	@Autowired
-	private VRAgentListDao dao;
+	private VRAgentListJDBCDao dao;
 	
 	@Autowired
 	private JCSAgentService agentService;

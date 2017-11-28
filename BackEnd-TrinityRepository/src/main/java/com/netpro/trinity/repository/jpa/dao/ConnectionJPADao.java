@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.netpro.trinity.repository.jpa.entity.Connection;
 
 @Repository  //宣告這是一個DAO類別
-public interface ConnectionDao extends JpaRepository<Connection, String> {
+public interface ConnectionJPADao extends JpaRepository<Connection, String> {
 	@Query("select count(conn)>0 from Connection conn where conn.connectionname=:connectionname")
 	Boolean existByName(@Param("connectionname") String connectionname);
 	

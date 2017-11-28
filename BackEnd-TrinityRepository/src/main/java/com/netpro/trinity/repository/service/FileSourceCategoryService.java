@@ -24,7 +24,7 @@ import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.jpa.dao.FileSourceCategoryDao;
+import com.netpro.trinity.repository.jpa.dao.FileSourceCategoryJPADao;
 import com.netpro.trinity.repository.jpa.entity.FileSourceCategory;
 import com.netpro.trinity.repository.util.Constant;
 
@@ -34,7 +34,7 @@ public class FileSourceCategoryService {
 	public static final Set<String> FS_CATEGORY_FIELD_SET = new HashSet<>(Arrays.asList(FS_CATEGORY_FIELD_VALUES));
 	
 	@Autowired
-	private FileSourceCategoryDao dao;
+	private FileSourceCategoryJPADao dao;
 	
 	@Autowired
 	private FilesourceRelationService relService;

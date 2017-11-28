@@ -42,6 +42,19 @@ public class BusentityCategoryController {
 		}
 	}
 	
+	@GetMapping("/findByCategoryUid")
+	public ResponseEntity<?> findRelationsByCategoryUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.getByCategoryUid(uid));
+		}catch(IllegalArgumentException e) {
+			BusentityCategoryController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			BusentityCategoryController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/isExistByEntityUid")
 	public ResponseEntity<?> isRelationExistByEntityUid(String uid) {
 		try {

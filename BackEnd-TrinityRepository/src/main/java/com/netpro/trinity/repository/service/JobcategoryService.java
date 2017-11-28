@@ -22,7 +22,7 @@ import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.jpa.dao.JobcategoryDao;
+import com.netpro.trinity.repository.jpa.dao.JobcategoryJPADao;
 import com.netpro.trinity.repository.jpa.entity.Jobcategory;
 import com.netpro.trinity.repository.util.Constant;
 
@@ -32,7 +32,7 @@ public class JobcategoryService {
 	public static final Set<String> JOB_CATEGORY_FIELD_SET = new HashSet<>(Arrays.asList(JOB_CATEGORY_FIELD_VALUES));
 	
 	@Autowired
-	private JobcategoryDao dao;
+	private JobcategoryJPADao dao;
 	
 	@Autowired
 	private BusentityCategoryService relService;

@@ -5,13 +5,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.jdbc.dao.BusentityCategoryDao;
+import com.netpro.trinity.repository.jdbc.dao.BusentityCategoryJDBCDao;
 
 @Service
 public class BusentityCategoryService {
 	
 	@Autowired
-	private BusentityCategoryDao dao;
+	private BusentityCategoryJDBCDao dao;
 	
 	public List<String> getAll() throws Exception{
 		return this.dao.findAll();
@@ -22,6 +22,13 @@ public class BusentityCategoryService {
 			throw new IllegalArgumentException("Entity UID can not be empty!");
 				
 		return this.dao.findByEntityUid(uid);
+	}
+	
+	public List<String> getByCategoryUid(String uid) throws IllegalArgumentException, Exception{
+		if(uid == null || uid.isEmpty())
+			throw new IllegalArgumentException("Job Category UID can not be empty!");
+				
+		return this.dao.findByCategoryUid(uid);
 	}
 	
 	public Boolean exitByEntityUid(String uid) throws IllegalArgumentException, Exception{

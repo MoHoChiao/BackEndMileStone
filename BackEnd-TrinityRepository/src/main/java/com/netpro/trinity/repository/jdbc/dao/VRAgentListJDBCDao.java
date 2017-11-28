@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 import com.netpro.trinity.repository.jdbc.entity.VRAgentList;
 
 @Repository  //宣告這是一個DAO類別
-public class VRAgentListDao {
+public class VRAgentListJDBCDao {
 	public static final String insert_sql = "INSERT INTO jcsvirtualagentlist "
 							+ "(virtualagentuid, agentuid, activate, description, seq) "
 							+ "VALUES (?, ?, ?, ?, ?)";

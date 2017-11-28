@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.netpro.trinity.repository.jpa.entity.FileSourceCategory;
 
 @Repository  //宣告這是一個DAO類別
-public interface FileSourceCategoryDao extends JpaRepository<FileSourceCategory, String> {
+public interface FileSourceCategoryJPADao extends JpaRepository<FileSourceCategory, String> {
 	@Query("select count(category)>0 from Filesourcecategory category where category.fscategoryname=:fscategoryname")
 	Boolean existByName(@Param("fscategoryname") String fscategoryname);
 	

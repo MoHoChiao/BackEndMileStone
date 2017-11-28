@@ -27,9 +27,9 @@ import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.jpa.dao.FileSourceDao;
-import com.netpro.trinity.repository.jpa.dao.JCSAgentDao;
-import com.netpro.trinity.repository.jpa.dao.JobDao;
+import com.netpro.trinity.repository.jpa.dao.FileSourceJPADao;
+import com.netpro.trinity.repository.jpa.dao.JCSAgentJPADao;
+import com.netpro.trinity.repository.jpa.dao.JobJPADao;
 import com.netpro.trinity.repository.jpa.entity.FileSource;
 import com.netpro.trinity.repository.jpa.entity.JCSAgent;
 import com.netpro.trinity.repository.jpa.entity.Job;
@@ -45,7 +45,11 @@ public class JobService {
 	private XMLDataUtility xmlUtil;
 	
 	@Autowired
-	private JobDao dao;
+	private JobJPADao dao;
+	
+	@Autowired
+	private JobcategoryService categoryService;
+	private BusentityCategoryService entityCategoryService;
 	
 	public List<Job> getAll() throws Exception{
 		List<Job> jobs = this.dao.findAll();
@@ -84,6 +88,27 @@ public class JobService {
 		List<Job> jobs = this.dao.findByCategoryuid(uid, new Sort(new Order("jobname")));
 		setExtraXmlProp(jobs);
 		return jobs;
+	}
+	
+	public Job getJobFullPathByUid(String uid) throws IllegalArgumentException, Exception{
+		if(uid == null || uid.isEmpty())
+			throw new IllegalArgumentException("Job UID can not be empty!");
+		
+		Job job = this.dao.findOne(uid);
+		if(job == null)
+			throw new IllegalArgumentException("Job UID does not exist!(" + uid + ")");
+		
+		String jobUid = job.getJobuid();
+		String jobName = job.getJobname();
+		String categoryUid = job.getCategoryuid();
+		
+		if(null == categoryUid || categoryUid.isEmpty())
+			throw new IllegalArgumentException("Job Category UID can not be found!(" + categoryUid + ")");
+		
+		String categoryName = categoryService.getByUid(categoryUid).getCategoryname();
+		
+		
+		return job;
 	}
 	
 	@SuppressWarnings("unchecked")

@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository  //宣告這是一個DAO類別
-public class BusentityCategoryDao {
+public class BusentityCategoryJDBCDao {
 	public static final String insert_sql = "INSERT INTO busentitycategory "
 							+ "(busentityuid, categoryuid) "
 							+ "VALUES (?, ?)";
@@ -32,6 +32,17 @@ public class BusentityCategoryDao {
         		+ "FROM busentitycategory bec "
 				+ "WHERE bec.busentityuid = ? "
         		+ "ORDER BY bec.lastupdatetime DESC";
+        Object[] param = new Object[] {uid};
+
+        List<String> lists = (List<String>) jtm.queryForList(sql, param, String.class);
+        return lists;
+    }
+	
+	public List<String> findByCategoryUid(String uid) throws DataAccessException{
+
+        String sql = "SELECT bec.busentityuid "
+        		+ "FROM busentitycategory bec "
+				+ "WHERE bec.categoryuid = ? ";
         Object[] param = new Object[] {uid};
 
         List<String> lists = (List<String>) jtm.queryForList(sql, param, String.class);

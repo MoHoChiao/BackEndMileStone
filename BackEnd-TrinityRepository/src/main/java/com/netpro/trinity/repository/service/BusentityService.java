@@ -23,7 +23,7 @@ import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.jpa.dao.BusentityDao;
+import com.netpro.trinity.repository.jpa.dao.BusentityJPADao;
 import com.netpro.trinity.repository.jpa.entity.Busentity;
 import com.netpro.trinity.repository.util.Constant;
 
@@ -33,7 +33,7 @@ public class BusentityService {
 	public static final Set<String> BUSENTITY_FIELD_SET = new HashSet<>(Arrays.asList(BUSENTITY_FIELD_VALUES));
 	
 	@Autowired
-	private BusentityDao dao;
+	private BusentityJPADao dao;
 	
 	public List<Busentity> getAll() throws Exception{
 		return this.dao.findAll();

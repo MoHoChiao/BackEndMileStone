@@ -24,7 +24,7 @@ import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.jpa.dao.VRAgentDao;
+import com.netpro.trinity.repository.jpa.dao.VRAgentJPADao;
 import com.netpro.trinity.repository.jpa.entity.VRAgent;
 import com.netpro.trinity.repository.util.Constant;
 
@@ -34,7 +34,7 @@ public class VRAgentService {
 	public static final Set<String> VR_AGENT_FIELD_SET = new HashSet<>(Arrays.asList(VR_AGENT_FIELD_VALUES));
 	
 	@Autowired
-	private VRAgentDao dao;
+	private VRAgentJPADao dao;
 	
 	@Autowired
 	private VRAgentListService listService;

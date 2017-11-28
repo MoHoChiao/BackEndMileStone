@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.netpro.trinity.repository.jpa.entity.VRAgent;
 
 @Repository  //宣告這是一個DAO類別
-public interface VRAgentDao extends JpaRepository<VRAgent, String> {
+public interface VRAgentJPADao extends JpaRepository<VRAgent, String> {
 	@Query("select count(vr)>0 from jcsvirtualagent vr where vr.virtualagentname=:virtualagentname")
 	Boolean existByName(@Param("virtualagentname") String virtualagentname);
 	

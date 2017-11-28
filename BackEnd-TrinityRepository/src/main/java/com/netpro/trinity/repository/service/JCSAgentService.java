@@ -26,7 +26,7 @@ import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.jpa.dao.JCSAgentDao;
+import com.netpro.trinity.repository.jpa.dao.JCSAgentJPADao;
 import com.netpro.trinity.repository.jpa.entity.JCSAgent;
 import com.netpro.trinity.repository.util.Constant;
 import com.netpro.trinity.repository.util.XMLDataUtility;
@@ -40,7 +40,7 @@ public class JCSAgentService {
 	private XMLDataUtility xmlUtil;
 	
 	@Autowired
-	private JCSAgentDao dao;
+	private JCSAgentJPADao dao;
 	
 	public List<JCSAgent> getAll() throws Exception{
 		List<JCSAgent> agents = this.dao.findAll();

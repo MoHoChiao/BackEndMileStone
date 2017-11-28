@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.netpro.trinity.repository.jdbc.entity.VRAgentList;
 
 @Repository  //宣告這是一個DAO類別
-public class FilesourceRelationDao {
+public class FilesourceRelationJDBCDao {
 	public static final String insert_sql = "INSERT INTO filesourcerelation "
 							+ "(fscategoryuid, filesourceuid) "
 							+ "VALUES (?, ?)";

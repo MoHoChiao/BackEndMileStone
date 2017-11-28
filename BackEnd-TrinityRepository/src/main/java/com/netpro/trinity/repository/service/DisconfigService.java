@@ -5,14 +5,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.jpa.dao.DisconfigDao;
+import com.netpro.trinity.repository.jpa.dao.DisconfigJPADao;
 import com.netpro.trinity.repository.jpa.entity.Disconfig;
 import com.netpro.trinity.repository.jpa.entity.DisconfigPKs;
 
 @Service
 public class DisconfigService {
 	@Autowired
-	private DisconfigDao dao;
+	private DisconfigJPADao dao;
 	
 	public Disconfig getByUid(DisconfigPKs pks) throws IllegalArgumentException, Exception{
 		if(pks == null || pks.getModule().isEmpty() || pks.getConfigname().isEmpty())

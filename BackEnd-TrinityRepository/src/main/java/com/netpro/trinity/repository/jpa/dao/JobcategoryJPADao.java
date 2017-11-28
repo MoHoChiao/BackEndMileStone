@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.netpro.trinity.repository.jpa.entity.Jobcategory;
 
 @Repository  //宣告這是一個DAO類別
-public interface JobcategoryDao extends JpaRepository<Jobcategory, String> {
+public interface JobcategoryJPADao extends JpaRepository<Jobcategory, String> {
 	@Query("select count(category)>0 from Jobcategory category where category.categoryname=:categoryname")
 	Boolean existByName(@Param("categoryname") String categoryname);
 	

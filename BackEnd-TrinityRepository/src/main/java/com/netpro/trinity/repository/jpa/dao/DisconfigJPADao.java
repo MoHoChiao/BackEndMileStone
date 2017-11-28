@@ -11,7 +11,7 @@ import com.netpro.trinity.repository.jpa.entity.Disconfig;
 import com.netpro.trinity.repository.jpa.entity.DisconfigPKs;
 
 @Repository  //宣告這是一個DAO類別
-public interface DisconfigDao extends JpaRepository<Disconfig, DisconfigPKs> {  //自動繼承JapRepository下的所有方法
+public interface DisconfigJPADao extends JpaRepository<Disconfig, DisconfigPKs> {  //自動繼承JapRepository下的所有方法
 //	List<Disconfig_Entity> findByAge(Integer age); //自定義一個根據User的屬性及方法名稱查詢
 //	Disconfig_Entity findByIdAndName(Long id, String name);	//自定義一個根據User的屬性及方法名稱查詢
 //	

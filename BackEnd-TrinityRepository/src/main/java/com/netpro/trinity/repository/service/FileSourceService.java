@@ -27,8 +27,8 @@ import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.jpa.dao.FileSourceDao;
-import com.netpro.trinity.repository.jpa.dao.JCSAgentDao;
+import com.netpro.trinity.repository.jpa.dao.FileSourceJPADao;
+import com.netpro.trinity.repository.jpa.dao.JCSAgentJPADao;
 import com.netpro.trinity.repository.jpa.entity.FileSource;
 import com.netpro.trinity.repository.jpa.entity.JCSAgent;
 import com.netpro.trinity.repository.util.Constant;
@@ -43,7 +43,7 @@ public class FileSourceService {
 	private XMLDataUtility xmlUtil;
 	
 	@Autowired
-	private FileSourceDao dao;
+	private FileSourceJPADao dao;
 	
 	@Autowired
 	private FilesourceRelationService relService;

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.netpro.trinity.repository.jpa.entity.Busentity;
 
 @Repository  //宣告這是一個DAO類別
-public interface BusentityDao extends JpaRepository<Busentity, String> {
+public interface BusentityJPADao extends JpaRepository<Busentity, String> {
 	@Query("select count(entity)>0 from Busentity entity where entity.busentityname=:busentityname")
 	Boolean existByName(@Param("busentityname") String busentityname);
 	

@@ -22,7 +22,7 @@ import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.jpa.dao.ConnectionDao;
+import com.netpro.trinity.repository.jpa.dao.ConnectionJPADao;
 import com.netpro.trinity.repository.jpa.entity.Connection;
 import com.netpro.trinity.repository.util.Constant;
 import com.netpro.trinity.repository.util.XMLDataUtility;
@@ -49,7 +49,7 @@ public class ConnectionService {
 	private XMLDataUtility xmlUtil;
 	
 	@Autowired
-	private ConnectionDao dao;
+	private ConnectionJPADao dao;
 	
 	public List<Connection> getAll() throws Exception{
 		return this.dao.findAll();
