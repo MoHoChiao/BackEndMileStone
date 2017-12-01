@@ -19,20 +19,20 @@ public class BusentityCategoryController {
 	@Autowired
 	private BusentityCategoryService service;
 	
-	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllRelations() {
+	@GetMapping("/findAllCategoryUids")
+	public ResponseEntity<?> findAllCategoryUids() {
 		try {
-			return ResponseEntity.ok(this.service.getAll());
+			return ResponseEntity.ok(this.service.getAllCategoryUids());
 		}catch(Exception e) {
 			BusentityCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
-	@GetMapping("/findByEntityUid")
-	public ResponseEntity<?> findRelationsByEntityUid(String uid) {
+	@GetMapping("/findCategoryUidsByEntityUid")
+	public ResponseEntity<?> findCategoryUidsByEntityUid(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByEntityUid(uid));
+			return ResponseEntity.ok(this.service.getCategoryUidsByEntityUid(uid));
 		}catch(IllegalArgumentException e) {
 			BusentityCategoryController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -42,10 +42,23 @@ public class BusentityCategoryController {
 		}
 	}
 	
-	@GetMapping("/findByCategoryUid")
-	public ResponseEntity<?> findRelationsByCategoryUid(String uid) {
+	@GetMapping("/findEntityUidsByCategoryUid")
+	public ResponseEntity<?> findEntityUidsByCategoryUid(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByCategoryUid(uid));
+			return ResponseEntity.ok(this.service.getEntityUidsByCategoryUid(uid));
+		}catch(IllegalArgumentException e) {
+			BusentityCategoryController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			BusentityCategoryController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/findViewEntityCategoryByCategoryUid")
+	public ResponseEntity<?> findViewEntityCategoryByCategoryUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.getViewEntityCategoryByCategoryUid(uid));
 		}catch(IllegalArgumentException e) {
 			BusentityCategoryController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

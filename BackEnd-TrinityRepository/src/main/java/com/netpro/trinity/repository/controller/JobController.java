@@ -34,16 +34,6 @@ public class JobController {
 		}
 	}
 	
-	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isJobExistByUid(String uid) {
-		try {
-			return ResponseEntity.ok(this.service.existByUid(uid));
-		}catch(Exception e) {
-			JobController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
 	@GetMapping("/findByUid")
 	public ResponseEntity<?> findJobByUid(String uid) {
 		try {
@@ -74,6 +64,19 @@ public class JobController {
 	public ResponseEntity<?> findJobsByCategoryUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.getByCategoryUid(uid));
+		}catch(IllegalArgumentException e) {
+			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			JobController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/findJobFullPathByUid")
+	public ResponseEntity<?> findJobFullPathByUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.getJobFullPathByUid(uid));
 		}catch(IllegalArgumentException e) {
 			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -147,4 +150,34 @@ public class JobController {
 //		}
 //		return ResponseEntity.ok(uid);
 //	}
+	
+	@GetMapping("/isExistByUid")
+	public ResponseEntity<?> isJobExistByUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.existByUid(uid));
+		}catch(Exception e) {
+			JobController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/isExistByName")
+	public ResponseEntity<?> isJobExistByName(String name) {
+		try {
+			return ResponseEntity.ok(this.service.existByName(name));
+		}catch(Exception e) {
+			JobController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/isExistByFilesourceuid")
+	public ResponseEntity<?> isJobExistByFilesourceuid(String filesourceuid) {
+		try {
+			return ResponseEntity.ok(this.service.existByFilesourceuid(filesourceuid));
+		}catch(Exception e) {
+			JobController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
 }

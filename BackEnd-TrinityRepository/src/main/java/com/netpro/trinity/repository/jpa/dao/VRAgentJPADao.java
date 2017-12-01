@@ -14,7 +14,7 @@ import com.netpro.trinity.repository.jpa.entity.VRAgent;
 
 @Repository  //宣告這是一個DAO類別
 public interface VRAgentJPADao extends JpaRepository<VRAgent, String> {
-	@Query("select count(vr)>0 from jcsvirtualagent vr where vr.virtualagentname=:virtualagentname")
+	@Query("select count(vr)>0 from jcsvirtualagent vr where vr.virtualagentname=:virtualagentname AND 1=1")
 	Boolean existByName(@Param("virtualagentname") String virtualagentname);
 	
 	//vr-agentname field

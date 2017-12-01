@@ -14,8 +14,11 @@ import com.netpro.trinity.repository.jpa.entity.Job;
 
 @Repository  //宣告這是一個DAO類別
 public interface JobJPADao extends JpaRepository<Job, String> {
-	@Query("select count(job)>0 from Job job where job.jobname=:jobname")
+	@Query("select count(job)>0 from Job job where job.jobname=:jobname AND 1=1")
 	Boolean existByName(@Param("jobname") String jobname);
+	
+	@Query("select count(job)>0 from Job job where job.filesourceuid=:filesourceuid AND 1=1")
+	Boolean existByFilesourceuid(@Param("filesourceuid") String filesourceuid);
 	
 	//category uid field
 	List<Job> findByCategoryuid(String uid);

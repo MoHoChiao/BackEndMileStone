@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.repository.jdbc.dao.BusentityCategoryJDBCDao;
+import com.netpro.trinity.repository.jdbc.entity.JobFullPath;
 
 @Service
 public class BusentityCategoryService {
@@ -13,22 +14,29 @@ public class BusentityCategoryService {
 	@Autowired
 	private BusentityCategoryJDBCDao dao;
 	
-	public List<String> getAll() throws Exception{
-		return this.dao.findAll();
+	public List<String> getAllCategoryUids() throws Exception{
+		return this.dao.findAllCategoryUids();
 	}
 	
-	public List<String> getByEntityUid(String uid) throws IllegalArgumentException, Exception{
+	public List<String> getCategoryUidsByEntityUid(String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Entity UID can not be empty!");
 				
-		return this.dao.findByEntityUid(uid);
+		return this.dao.findCategoryUidsByEntityUid(uid);
 	}
 	
-	public List<String> getByCategoryUid(String uid) throws IllegalArgumentException, Exception{
+	public List<String> getEntityUidsByCategoryUid(String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Job Category UID can not be empty!");
 				
-		return this.dao.findByCategoryUid(uid);
+		return this.dao.findEntityUidsByCategoryUid(uid);
+	}
+	
+	public List<JobFullPath> getViewEntityCategoryByCategoryUid(String uid) throws IllegalArgumentException, Exception{
+		if(uid == null || uid.isEmpty())
+			throw new IllegalArgumentException("Job Category UID can not be empty!");
+				
+		return this.dao.findViewEntityCategoryByCategoryUid(uid);
 	}
 	
 	public Boolean exitByEntityUid(String uid) throws IllegalArgumentException, Exception{

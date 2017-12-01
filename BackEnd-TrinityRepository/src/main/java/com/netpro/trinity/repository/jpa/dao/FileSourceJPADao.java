@@ -14,14 +14,17 @@ import com.netpro.trinity.repository.jpa.entity.FileSource;
 
 @Repository  //宣告這是一個DAO類別
 public interface FileSourceJPADao extends JpaRepository<FileSource, String> {
-	@Query("select count(filesource)>0 from Filesource filesource where filesource.filesourcename=:filesourcename")
+	@Query("select count(filesource)>0 from Filesource filesource where filesource.filesourcename=:filesourcename AND 1=1")
 	Boolean existByName(@Param("filesourcename") String filesourcename);
 	
-	//file source uid field
+	//file source uid field with In
 	List<FileSource> findByFilesourceuidIn(List<String> uids);
 	List<FileSource> findByFilesourceuidIn(List<String> uids, Sort sort);
-	List<FileSource> findByFilesourceuidNotIn(List<String> uids, Sort sort);
 	Page<FileSource> findByFilesourceuidIn(List<String> uids, Pageable pageable);
+	//file source uid field with Not In
+	List<FileSource> findByFilesourceuidNotIn(List<String> uids);
+	List<FileSource> findByFilesourceuidNotIn(List<String> uids, Sort sort);
+	Page<FileSource> findByFilesourceuidNotIn(List<String> uids, Pageable pageable);
 	
 	
 	//file source name field
@@ -37,7 +40,7 @@ public interface FileSourceJPADao extends JpaRepository<FileSource, String> {
 	List<FileSource> findByfilesourcenameLikeIgnoreCase(String name);
 	List<FileSource> findByfilesourcenameLikeIgnoreCase(String name, Sort sort);
 	Page<FileSource> findByfilesourcenameLikeIgnoreCase(String name, Pageable pageable);
-	//file source name field with Filesourceuid constraints
+	//file source name field with In Filesourceuid constraints
 	List<FileSource> findByfilesourcenameAndFilesourceuidIn(String name, List<String> uids);
 	List<FileSource> findByfilesourcenameAndFilesourceuidIn(String name, Sort sort, List<String> uids);
 	Page<FileSource> findByfilesourcenameAndFilesourceuidIn(String name, Pageable pageable, List<String> uids);
@@ -50,6 +53,19 @@ public interface FileSourceJPADao extends JpaRepository<FileSource, String> {
 	List<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidIn(String name, List<String> uids);
 	List<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidIn(String name, Sort sort, List<String> uids);
 	Page<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidIn(String name, Pageable pageable, List<String> uids);
+	//file source name field with Not In Filesourceuid constraints
+	List<FileSource> findByfilesourcenameAndFilesourceuidNotIn(String name, List<String> uids);
+	List<FileSource> findByfilesourcenameAndFilesourceuidNotIn(String name, Sort sort, List<String> uids);
+	Page<FileSource> findByfilesourcenameAndFilesourceuidNotIn(String name, Pageable pageable, List<String> uids);
+	List<FileSource> findByfilesourcenameIgnoreCaseAndFilesourceuidNotIn(String name, List<String> uids);
+	List<FileSource> findByfilesourcenameIgnoreCaseAndFilesourceuidNotIn(String name, Sort sort, List<String> uids);
+	Page<FileSource> findByfilesourcenameIgnoreCaseAndFilesourceuidNotIn(String name, Pageable pageable, List<String> uids);
+	List<FileSource> findByfilesourcenameLikeAndFilesourceuidNotIn(String name, List<String> uids);
+	List<FileSource> findByfilesourcenameLikeAndFilesourceuidNotIn(String name, Sort sort, List<String> uids);
+	Page<FileSource> findByfilesourcenameLikeAndFilesourceuidNotIn(String name, Pageable pageable, List<String> uids);
+	List<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidNotIn(String name, List<String> uids);
+	List<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidNotIn(String name, Sort sort, List<String> uids);
+	Page<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidNotIn(String name, Pageable pageable, List<String> uids);
 	
 	
 	//description field
@@ -65,7 +81,7 @@ public interface FileSourceJPADao extends JpaRepository<FileSource, String> {
 	List<FileSource> findBydescriptionLikeIgnoreCase(String description);
 	List<FileSource> findBydescriptionLikeIgnoreCase(String description, Sort sort);
 	Page<FileSource> findBydescriptionLikeIgnoreCase(String description, Pageable pageable);
-	//description field with Filesourceuid constraints
+	//description field with In Filesourceuid constraints
 	List<FileSource> findBydescriptionAndFilesourceuidIn(String description, List<String> uids);
 	List<FileSource> findBydescriptionAndFilesourceuidIn(String description, Sort sort, List<String> uids);
 	Page<FileSource> findBydescriptionAndFilesourceuidIn(String description, Pageable pageable, List<String> uids);
@@ -78,5 +94,18 @@ public interface FileSourceJPADao extends JpaRepository<FileSource, String> {
 	List<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidIn(String description, List<String> uids);
 	List<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidIn(String description, Sort sort, List<String> uids);
 	Page<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidIn(String description, Pageable pageable, List<String> uids);
+	//description field with Not In Filesourceuid constraints
+	List<FileSource> findBydescriptionAndFilesourceuidNotIn(String description, List<String> uids);
+	List<FileSource> findBydescriptionAndFilesourceuidNotIn(String description, Sort sort, List<String> uids);
+	Page<FileSource> findBydescriptionAndFilesourceuidNotIn(String description, Pageable pageable, List<String> uids);
+	List<FileSource> findBydescriptionIgnoreCaseAndFilesourceuidNotIn(String description, List<String> uids);
+	List<FileSource> findBydescriptionIgnoreCaseAndFilesourceuidNotIn(String description, Sort sort, List<String> uids);
+	Page<FileSource> findBydescriptionIgnoreCaseAndFilesourceuidNotIn(String description, Pageable pageable, List<String> uids);
+	List<FileSource> findBydescriptionLikeAndFilesourceuidNotIn(String description, List<String> uids);
+	List<FileSource> findBydescriptionLikeAndFilesourceuidNotIn(String description, Sort sort, List<String> uids);
+	Page<FileSource> findBydescriptionLikeAndFilesourceuidNotIn(String description, Pageable pageable, List<String> uids);
+	List<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidNotIn(String description, List<String> uids);
+	List<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidNotIn(String description, Sort sort, List<String> uids);
+	Page<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidNotIn(String description, Pageable pageable, List<String> uids);
 }
 

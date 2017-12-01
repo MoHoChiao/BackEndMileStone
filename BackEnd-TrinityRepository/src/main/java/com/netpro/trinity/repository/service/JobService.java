@@ -1,14 +1,10 @@
 package com.netpro.trinity.repository.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,11 +23,9 @@ import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.jpa.dao.FileSourceJPADao;
-import com.netpro.trinity.repository.jpa.dao.JCSAgentJPADao;
+import com.netpro.trinity.repository.jdbc.entity.JobFullPath;
 import com.netpro.trinity.repository.jpa.dao.JobJPADao;
 import com.netpro.trinity.repository.jpa.entity.FileSource;
-import com.netpro.trinity.repository.jpa.entity.JCSAgent;
 import com.netpro.trinity.repository.jpa.entity.Job;
 import com.netpro.trinity.repository.util.Constant;
 import com.netpro.trinity.repository.util.XMLDataUtility;
@@ -48,17 +42,12 @@ public class JobService {
 	private JobJPADao dao;
 	
 	@Autowired
-	private JobcategoryService categoryService;
 	private BusentityCategoryService entityCategoryService;
 	
 	public List<Job> getAll() throws Exception{
 		List<Job> jobs = this.dao.findAll();
 		setExtraXmlProp(jobs);
 		return jobs;
-	}
-	
-	public boolean existByUid(String uid) {
-		return this.dao.exists(uid);
 	}
 	
 	public Job getByUid(String uid) throws IllegalArgumentException, Exception{
@@ -90,25 +79,37 @@ public class JobService {
 		return jobs;
 	}
 	
-	public Job getJobFullPathByUid(String uid) throws IllegalArgumentException, Exception{
+	public JobFullPath getJobFullPathByUid(String uid) throws IllegalArgumentException, Exception{
+		JobFullPath path = new JobFullPath();
+		path.setJobuid("");
+		path.setJobname("");
+		path.setBusentityuid("");
+		path.setBusentityname("");
+		path.setCategoryuid("");
+		path.setCategoryname("");
+		
 		if(uid == null || uid.isEmpty())
-			throw new IllegalArgumentException("Job UID can not be empty!");
+			return path;
 		
 		Job job = this.dao.findOne(uid);
 		if(job == null)
-			throw new IllegalArgumentException("Job UID does not exist!(" + uid + ")");
+			return path;
 		
 		String jobUid = job.getJobuid();
 		String jobName = job.getJobname();
 		String categoryUid = job.getCategoryuid();
 		
 		if(null == categoryUid || categoryUid.isEmpty())
-			throw new IllegalArgumentException("Job Category UID can not be found!(" + categoryUid + ")");
+			return path;
 		
-		String categoryName = categoryService.getByUid(categoryUid).getCategoryname();
+		List<JobFullPath> paths = entityCategoryService.getViewEntityCategoryByCategoryUid(categoryUid);
+		if(paths.size() > 0) {
+			path = paths.get(0);
+			path.setJobuid(jobUid);
+			path.setJobname(jobName);
+		}
 		
-		
-		return job;
+		return path;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -450,6 +451,18 @@ public class JobService {
 //			throw new IllegalArgumentException("Job Uid can not be empty!");
 //		
 //		this.dao.delete(uid);
+	}
+	
+	public boolean existByUid(String uid) {
+		return this.dao.exists(uid);
+	}
+	
+	public boolean existByName(String jobname) {
+		return this.dao.existByName(jobname);
+	}
+	
+	public boolean existByFilesourceuid(String filesourceuid) {
+		return this.dao.existByFilesourceuid(filesourceuid);
 	}
 	
 	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{	

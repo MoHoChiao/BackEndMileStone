@@ -14,7 +14,7 @@ import com.netpro.trinity.repository.jpa.entity.Busentity;
 
 @Repository  //宣告這是一個DAO類別
 public interface BusentityJPADao extends JpaRepository<Busentity, String> {
-	@Query("select count(entity)>0 from Busentity entity where entity.busentityname=:busentityname")
+	@Query("select count(entity)>0 from Busentity entity where entity.busentityname=:busentityname AND 1=1")
 	Boolean existByName(@Param("busentityname") String busentityname);
 	
 	//busentityname field

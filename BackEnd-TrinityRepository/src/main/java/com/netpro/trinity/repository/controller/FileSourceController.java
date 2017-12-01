@@ -45,16 +45,6 @@ public class FileSourceController {
 		}
 	}
 	
-	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isFileSourceExistByUid(String uid) {
-		try {
-			return ResponseEntity.ok(this.service.existByUid(uid));
-		}catch(Exception e) {
-			FileSourceController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
 	@GetMapping("/findByUid")
 	public ResponseEntity<?> findFileSourceByUid(String uid) {
 		try {
@@ -120,9 +110,9 @@ public class FileSourceController {
 	}
   
 	@PostMapping("/add")
-	public ResponseEntity<?> addFileSource(@RequestBody FileSource filesource) {
+	public ResponseEntity<?> addFileSource(String categoryUid, @RequestBody FileSource filesource) {
 		try {
-			return ResponseEntity.ok(this.service.add(filesource));
+			return ResponseEntity.ok(this.service.add(categoryUid, filesource));
 		}catch(IllegalArgumentException e) {
 			FileSourceController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -133,9 +123,9 @@ public class FileSourceController {
 	}
 	
 	@PostMapping("/edit")
-	public ResponseEntity<?> editFileSource(@RequestBody FileSource filesource) {
+	public ResponseEntity<?> editFileSource(String categoryUid, @RequestBody FileSource filesource) {
 		try {
-			return ResponseEntity.ok(this.service.edit(filesource));
+			return ResponseEntity.ok(this.service.edit(categoryUid, filesource));
 		}catch(IllegalArgumentException e) {
 			FileSourceController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -157,5 +147,15 @@ public class FileSourceController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 		return ResponseEntity.ok(uid);
+	}
+	
+	@GetMapping("/isExistByUid")
+	public ResponseEntity<?> isFileSourceExistByUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.existByUid(uid));
+		}catch(Exception e) {
+			FileSourceController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
 	}
 }

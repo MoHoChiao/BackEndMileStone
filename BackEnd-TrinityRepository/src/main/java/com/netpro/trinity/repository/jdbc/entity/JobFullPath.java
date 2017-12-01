@@ -1,6 +1,6 @@
-package com.netpro.trinity.repository.dto;
+package com.netpro.trinity.repository.jdbc.entity;
 
-public class JobPath {
+public class JobFullPath {
 	private String jobuid;
 	private String jobname;
 	private String categoryuid;

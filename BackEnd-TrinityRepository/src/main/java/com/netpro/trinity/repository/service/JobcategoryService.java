@@ -66,7 +66,7 @@ public class JobcategoryService {
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Business Entity UID can not be empty!");
 		
-		List<Jobcategory> categories = this.dao.findByCategoryuidIn(relService.getByEntityUid(uid), new Sort(new Order("categoryname")));
+		List<Jobcategory> categories = this.dao.findByCategoryuidIn(relService.getCategoryUidsByEntityUid(uid), new Sort(new Order("categoryname")));
 		return categories;
 	}
 	
@@ -79,7 +79,7 @@ public class JobcategoryService {
 			if(entityUid == null || entityUid.isEmpty()) {
 				categories = this.dao.findAll();
 			}else {
-				categories = this.dao.findByCategoryuidIn(relService.getByEntityUid(entityUid));
+				categories = this.dao.findByCategoryuidIn(relService.getCategoryUidsByEntityUid(entityUid));
 			}
 			return ResponseEntity.ok(categories);
 		}
@@ -93,7 +93,7 @@ public class JobcategoryService {
 			if(entityUid == null || entityUid.isEmpty()) {
 				categories = this.dao.findAll();
 			}else {
-				categories = this.dao.findByCategoryuidIn(relService.getByEntityUid(entityUid));
+				categories = this.dao.findByCategoryuidIn(relService.getCategoryUidsByEntityUid(entityUid));
 			}
 			return ResponseEntity.ok(categories);
 		}
@@ -115,7 +115,7 @@ public class JobcategoryService {
 				if(entityUid == null || entityUid.isEmpty()) {
 					page_category = this.dao.findAll(pageRequest);
 				}else {
-					page_category = this.dao.findByCategoryuidIn(relService.getByEntityUid(entityUid), pageRequest);
+					page_category = this.dao.findByCategoryuidIn(relService.getCategoryUidsByEntityUid(entityUid), pageRequest);
 				}
 				return ResponseEntity.ok(page_category);
 			}else if(sort != null) {
@@ -123,7 +123,7 @@ public class JobcategoryService {
 				if(entityUid == null || entityUid.isEmpty()) {
 					categories = this.dao.findAll(sort);
 				}else {
-					categories = this.dao.findByCategoryuidIn(relService.getByEntityUid(entityUid), sort);
+					categories = this.dao.findByCategoryuidIn(relService.getCategoryUidsByEntityUid(entityUid), sort);
 				}
 				return ResponseEntity.ok(categories);
 			}else {
@@ -136,7 +136,7 @@ public class JobcategoryService {
 				if(entityUid == null || entityUid.isEmpty()) {
 					categories = this.dao.findAll();
 				}else {
-					categories = this.dao.findByCategoryuidIn(relService.getByEntityUid(entityUid));
+					categories = this.dao.findByCategoryuidIn(relService.getCategoryUidsByEntityUid(entityUid));
 				}
 				return ResponseEntity.ok(categories);
 			}
@@ -173,7 +173,7 @@ public class JobcategoryService {
 					page_category = (Page<Jobcategory>) method.invoke(this.dao, queryString, pageRequest);
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class, List.class);
-					page_category = (Page<Jobcategory>) method.invoke(this.dao, queryString, pageRequest, relService.getByEntityUid(entityUid));
+					page_category = (Page<Jobcategory>) method.invoke(this.dao, queryString, pageRequest, relService.getCategoryUidsByEntityUid(entityUid));
 				}
 				return ResponseEntity.ok(page_category);
 			}else if(sort != null) {
@@ -183,7 +183,7 @@ public class JobcategoryService {
 					categories = (List<Jobcategory>) method.invoke(this.dao, queryString, sort);
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class, List.class);
-					categories = (List<Jobcategory>) method.invoke(this.dao, queryString, sort, relService.getByEntityUid(entityUid));
+					categories = (List<Jobcategory>) method.invoke(this.dao, queryString, sort, relService.getCategoryUidsByEntityUid(entityUid));
 				}
 				return ResponseEntity.ok(categories);
 			}else {
@@ -193,7 +193,7 @@ public class JobcategoryService {
 					categories = (List<Jobcategory>) method.invoke(this.dao, queryString);
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, List.class);
-					categories = (List<Jobcategory>) method.invoke(this.dao, queryString, relService.getByEntityUid(entityUid));
+					categories = (List<Jobcategory>) method.invoke(this.dao, queryString, relService.getCategoryUidsByEntityUid(entityUid));
 				}
 				return ResponseEntity.ok(categories);
 			}

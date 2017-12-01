@@ -4,8 +4,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import com.netpro.trinity.repository.jdbc.entity.JobFullPath;
 
 @Repository  //宣告這是一個DAO類別
 public class BusentityCategoryJDBCDao {
@@ -16,7 +19,7 @@ public class BusentityCategoryJDBCDao {
 	@Autowired
     protected JdbcTemplate jtm;
 	
-	public List<String> findAll() throws DataAccessException{
+	public List<String> findAllCategoryUids() throws DataAccessException{
 
 		String sql = "SELECT bec.categoryuid "
         		+ "FROM busentitycategory bec "
@@ -26,7 +29,7 @@ public class BusentityCategoryJDBCDao {
         return lists;
     }
 	
-	public List<String> findByEntityUid(String uid) throws DataAccessException{
+	public List<String> findCategoryUidsByEntityUid(String uid) throws DataAccessException{
 
         String sql = "SELECT bec.categoryuid "
         		+ "FROM busentitycategory bec "
@@ -38,7 +41,7 @@ public class BusentityCategoryJDBCDao {
         return lists;
     }
 	
-	public List<String> findByCategoryUid(String uid) throws DataAccessException{
+	public List<String> findEntityUidsByCategoryUid(String uid) throws DataAccessException{
 
         String sql = "SELECT bec.busentityuid "
         		+ "FROM busentitycategory bec "
@@ -49,16 +52,28 @@ public class BusentityCategoryJDBCDao {
         return lists;
     }
 	
+	public List<JobFullPath> findViewEntityCategoryByCategoryUid(String uid) throws DataAccessException{
+
+        String sql = "SELECT v_bec.busentityuid, v_bec.busentityname, v_bec.categoryuid, v_bec.categoryname "
+        		+ "FROM View_BusEntityCategory v_bec "
+				+ "WHERE v_bec.categoryuid = ? ";
+        Object[] param = new Object[] {uid};
+
+        List<JobFullPath> lists = (List<JobFullPath>) jtm.query(sql, param,
+                new BeanPropertyRowMapper<JobFullPath>(JobFullPath.class));
+        return lists;
+    }
+	
 	public Boolean exitByEntityUid(String uid) throws DataAccessException{
 
-        String sql = "SELECT COUNT(*) "
-        		+ "FROM busentitycategory "
+        String sql = "SELECT COUNT(bec) > 0 "
+        		+ "FROM busentitycategory bec "
         		+ "WHERE busentityuid=? AND 1=1";
         Object[] param = new Object[] {uid};
         
-        Integer ret = (Integer) jtm.queryForObject(sql, Integer.class, param);
+        Boolean ret = (Boolean) jtm.queryForObject(sql, Boolean.class, param);
 
-        return ret > 0 ? true : false;
+        return ret;
     }
 	
 	public int deleteByCategoryUid(String uid) throws DataAccessException{

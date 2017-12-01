@@ -14,7 +14,7 @@ import com.netpro.trinity.repository.jpa.entity.JCSAgent;
 
 @Repository  //宣告這是一個DAO類別
 public interface JCSAgentJPADao extends JpaRepository<JCSAgent, String> {
-	@Query("select count(agent)>0 from JCSAgent agent where agent.agentname=:agentname")
+	@Query("select count(agent)>0 from JCSAgent agent where agent.agentname=:agentname AND 1=1")
 	Boolean existByName(@Param("agentname") String agentname);
 	
 	//agentname field

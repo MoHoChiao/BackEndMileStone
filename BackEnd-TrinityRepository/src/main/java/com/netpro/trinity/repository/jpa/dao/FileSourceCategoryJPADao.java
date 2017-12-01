@@ -14,7 +14,7 @@ import com.netpro.trinity.repository.jpa.entity.FileSourceCategory;
 
 @Repository  //宣告這是一個DAO類別
 public interface FileSourceCategoryJPADao extends JpaRepository<FileSourceCategory, String> {
-	@Query("select count(category)>0 from Filesourcecategory category where category.fscategoryname=:fscategoryname")
+	@Query("select count(category)>0 from Filesourcecategory category where category.fscategoryname=:fscategoryname AND 1=1")
 	Boolean existByName(@Param("fscategoryname") String fscategoryname);
 	
 	//file source category name field
