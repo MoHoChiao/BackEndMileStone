@@ -1,5 +1,6 @@
 package com.netpro.trinity.repository.connection.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -80,8 +81,7 @@ public class ConnectionService {
 	
 	public List<Connection> getAll() throws Exception{
 		List<Connection> conns = this.dao.findAll();
-		setExtraXmlProp(conns);
-		return conns;
+		return setExtraXmlProp(conns);
 	}
 	
 	public List<Connection> getAllWithoutInCategory() throws Exception{
@@ -97,8 +97,8 @@ public class ConnectionService {
 		Connection conn = this.dao.findOne(uid);
 		if(conn == null)
 			throw new IllegalArgumentException("Connection UID does not exist!(" + uid + ")");
-		setExtraXmlProp(conn);
-		return conn;
+		
+		return getExtraXmlProp(conn);
 	}
 	
 	public List<Connection> getByName(String name) throws IllegalArgumentException, Exception{
@@ -885,13 +885,15 @@ public class ConnectionService {
 		return new Sort(order);
 	}
 	
-	private void setExtraXmlProp(List<Connection> conns) throws Exception{
+	private List<Connection> setExtraXmlProp(List<Connection> conns) throws Exception{
+		List<Connection> new_conns = new ArrayList<Connection>();
 		for(Connection conn : conns) {
-			setExtraXmlProp(conn);
+			new_conns.add(getExtraXmlProp(conn));
 		}
+		return new_conns;
 	}
 	
-	private Connection setExtraXmlProp(Connection conn) throws Exception{
+	private Connection getExtraXmlProp(Connection conn) throws Exception{
 		String connectionuid = conn.getConnectionuid();
 		String connectionname = conn.getConnectionname();
 		String type = conn.getConnectiontype();
@@ -984,7 +986,7 @@ public class ConnectionService {
 		}
 	}
 	
-	private void setExtraXmlPropToString(FileSource filesource) throws Exception{
+	private void getExtraXmlString(FileSource filesource) throws Exception{
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("txdateendpos",filesource.getTxdateendpos()+"");
 		map.put("ftpconnectionuid", filesource.getFtpconnectionuid());
