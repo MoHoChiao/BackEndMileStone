@@ -1,0 +1,82 @@
+trinity-data-jdbc: 
+  info: 
+    -
+      name: 'DB2'
+      driver: 'com.ibm.db2.jcc.DB2Driver'
+      url: 'jdbc:db2://hostName:port/dbName'
+      owner: 'system'
+    -
+      name: 'SQLServer'
+      driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+      url: 'jdbc:sqlserver://hostName;databaseName=dbName;selectMethod=cursor'
+      owner: 'system'
+    -
+      name: 'MySQL'
+      driver: 'com.mysql.jdbc.Driver'
+      url: 'jdbc:mysql://hostName:port/dbName'
+      owner: 'system'
+    -
+      name: 'ORACLE'
+      driver: 'oracle.jdbc.driver.OracleDriver'
+      url: 'jdbc:oracle:thin:@hostName:1521:dbName'
+      owner: 'system'
+    -
+      name: 'ORACLE8i'
+      driver: 'oracle.jdbc.driver.OracleDriver'
+      url: 'jdbc:oracle:thin:@hostName:1521:dbName'
+      owner: 'system'
+    -
+      name: 'PostgreSQL'
+      driver: 'org.postgresql.Driver'
+      url: 'jdbc:postgresql://hostName/dbName'
+      owner: 'system'
+    -
+      name: 'SybaseDB'
+      driver: 'com.sybase.jdbc4.jdbc.SybDriver'
+      url: 'jdbc:sybase:Tds:hostName:port/dbName'
+      owner: 'system'
+    -
+      name: 'SybaseIQ'
+      driver: 'com.sybase.jdbc4.jdbc.SybDriver'
+      url: 'jdbc:sybase:Tds:hostName:port/dbName'
+      owner: 'system'
+    -
+      name: 'Teradata'
+      driver: 'com.teradata.jdbc.TeraDriver'
+      url: 'jdbc:teradata://hostName/TMODE=TERA,CHARSET=ASCII'
+      owner: 'system'
+    -
+      name: 'AS400'
+      driver: 'com.ibm.as400.access.AS400JDBCDriver'
+      url: 'jdbc:as400://host/libname'
+      owner: 'system'
+    -
+      name: 'Hive'
+      driver: 'org.apache.hadoop.hive.jdbc.HiveDriver'
+      url: 'jdbc:hive://host:10000/default'
+      owner: 'system'
+    -
+      name: 'Hive2'
+      driver: 'org.apache.hive.jdbc.HiveDriver'
+      url: 'jdbc:hive2://host:10000/default'
+      owner: 'system'
+    -
+      name: 'MSAccess'
+      driver: 'sun.jdbc.odbc.JdbcOdbcDriver'
+      url: 'jdbc:odbc:driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ='
+      owner: 'system'
+    -
+      name: 'Netezza'
+      driver: 'org.netezza.Driver'
+      url: 'jdbc:netezza://hostName:port/dbName'
+      owner: 'system'
+    -
+      name: 'Vertica'
+      driver: 'com.vertica.jdbc.Driver'
+      url: 'jdbc:vertica://VerticaHost:portNumber/databaseName'
+      owner: 'system'
+    -
+      name: 'informix'
+      driver: 'com.informix.jdbc.IfxDriver'
+      url: 'jdbc:informix-sqli://host:port/dbName'
+      owner: 'system'

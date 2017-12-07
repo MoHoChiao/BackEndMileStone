@@ -2,6 +2,8 @@ package com.netpro.trinity.repository.connection.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,6 +43,8 @@ import com.netpro.trinity.repository.filesource.entity.jpa.FileSource;
 import com.netpro.trinity.repository.filesource.service.FileSourceService;
 import com.netpro.trinity.repository.filesource.service.FilesourceRelationService;
 import com.netpro.trinity.repository.jobstep.service.JobstepService;
+import com.netpro.trinity.repository.prop.TrinityDataJDBC;
+import com.netpro.trinity.repository.prop.TrinityDataJDBC.JDBCDriverInfo;
 import com.netpro.trinity.repository.util.Constant;
 import com.netpro.trinity.repository.util.Crypto;
 import com.netpro.trinity.repository.util.XMLDataUtility;
@@ -76,18 +80,20 @@ public class ConnectionService {
 	@Autowired
 	private JobstepService jobstepService;
 	
+	@Autowired
+	private TrinityDataJDBC jdbcInfo;
+	
 	@Value("${encrypt.key}")
 	private String encryptKey;
 	
 	public List<Connection> getAll() throws Exception{
 		List<Connection> conns = this.dao.findAll();
-		return setExtraXmlProp(conns);
+		return getExtraXmlProp(conns);
 	}
 	
 	public List<Connection> getAllWithoutInCategory() throws Exception{
 		List<Connection> conns = this.dao.findByConnectionuidNotIn(relService.getAllConnectionUids(), new Sort(new Order("connectionname")));
-		setExtraXmlProp(conns);
-		return conns;
+		return getExtraXmlProp(conns);
 	}
 	
 	public Connection getByUid(String uid) throws IllegalArgumentException, Exception{
@@ -106,8 +112,7 @@ public class ConnectionService {
 			throw new IllegalArgumentException("Connection Name can not be empty!");
 		
 		List<Connection> conns = this.dao.findByconnectionname(name.toUpperCase());
-		setExtraXmlProp(conns);
-		return conns;
+		return getExtraXmlProp(conns);
 	}
 	
 	public List<Connection> getByType(String type) throws IllegalArgumentException, Exception{
@@ -129,7 +134,9 @@ public class ConnectionService {
 		if(!CONNECTION_TYPE_SET.contains(type))
 				throw new IllegalArgumentException("Illegal connection type! "+ CONNECTION_TYPE_SET.toString());
 		
-		return this.dao.findByconnectiontype(type);
+		List<Connection> conns = this.dao.findByconnectiontype(type);
+		
+		return getExtraXmlProp(conns);
 	}
 	
 	public List<Connection> getByCategoryUid(String uid) throws IllegalArgumentException, Exception{
@@ -137,14 +144,12 @@ public class ConnectionService {
 			throw new IllegalArgumentException("Connection Category UID can not be empty!");
 		
 		List<Connection> conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(uid), new Sort(new Order("connectionname")));
-		setExtraXmlProp(conns);
-		return conns;
+		return getExtraXmlProp(conns);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public ResponseEntity<?> getByFilter(String categoryUid, FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
-		
 		if(filter == null) {
 			List<Connection> conns;
 			if(categoryUid == null) {
@@ -156,8 +161,7 @@ public class ConnectionService {
 					conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid));
 				}
 			}
-			setExtraXmlProp(conns);
-			return ResponseEntity.ok(conns);
+			return ResponseEntity.ok(getExtraXmlProp(conns));
 		}
 		
 		Paging paging = filter.getPaging();
@@ -175,8 +179,7 @@ public class ConnectionService {
 					conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid));
 				}
 			}
-			setExtraXmlProp(conns);
-			return ResponseEntity.ok(conns);
+			return ResponseEntity.ok(getExtraXmlProp(conns));
 		}
 		
 		PageRequest pageRequest = null;
@@ -202,8 +205,7 @@ public class ConnectionService {
 						page_conn = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid), pageRequest);
 					}
 				}
-				setExtraXmlProp(page_conn.getContent());
-				return ResponseEntity.ok(page_conn);
+				return ResponseEntity.ok(getExtraXmlProp(page_conn.getContent()));
 			}else if(sort != null) {
 				List<Connection> conns;
 				if(categoryUid == null) {
@@ -215,8 +217,7 @@ public class ConnectionService {
 						conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid), sort);
 					}
 				}
-				setExtraXmlProp(conns);
-				return ResponseEntity.ok(conns);
+				return ResponseEntity.ok(getExtraXmlProp(conns));
 			}else {
 				/*
 				 * The paging and ordering both objects are null.
@@ -233,8 +234,7 @@ public class ConnectionService {
 						conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid));
 					}
 				}
-				setExtraXmlProp(conns);
-				return ResponseEntity.ok(conns);
+				return ResponseEntity.ok(getExtraXmlProp(conns));
 			}
 		}else {
 			if(querying.getQueryType() == null || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
@@ -279,8 +279,7 @@ public class ConnectionService {
 						page_conn = (Page<Connection>) method.invoke(this.dao, queryString, pageRequest, relService.getConnectionUidsByCategoryUid(categoryUid));
 					}
 				}
-				setExtraXmlProp(page_conn.getContent());
-				return ResponseEntity.ok(page_conn);
+				return ResponseEntity.ok(getExtraXmlProp(page_conn.getContent()));
 			}else if(sort != null) {
 				List<Connection> conns;
 				if(categoryUid == null) {
@@ -294,8 +293,7 @@ public class ConnectionService {
 						conns = (List<Connection>) method.invoke(this.dao, queryString, sort, relService.getConnectionUidsByCategoryUid(categoryUid));
 					}
 				}
-				setExtraXmlProp(conns);
-				return ResponseEntity.ok(conns);
+				return ResponseEntity.ok(getExtraXmlProp(conns));
 			}else {
 				List<Connection> conns;
 				if(categoryUid == null) {
@@ -309,8 +307,7 @@ public class ConnectionService {
 						conns = (List<Connection>) method.invoke(this.dao, queryString, relService.getConnectionUidsByCategoryUid(categoryUid));
 					}
 				}
-				setExtraXmlProp(conns);
-				return ResponseEntity.ok(conns);
+				return ResponseEntity.ok(getExtraXmlProp(conns));
 			}
 		}
 	}
@@ -859,6 +856,12 @@ public class ConnectionService {
 		return this.dao.exists(uid);
 	}
 	
+	public List<JDBCDriverInfo> getJDBCDriverInfo() throws Exception {
+		List<JDBCDriverInfo> info = this.jdbcInfo.getInfo();
+		Collections.sort(info, new JDBCDriverNameComparator());
+		return info;
+	}
+	
 	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{	
 		if(paging.getNumber() == null)
 			paging.setNumber(0);
@@ -885,7 +888,7 @@ public class ConnectionService {
 		return new Sort(order);
 	}
 	
-	private List<Connection> setExtraXmlProp(List<Connection> conns) throws Exception{
+	private List<Connection> getExtraXmlProp(List<Connection> conns) throws Exception{
 		List<Connection> new_conns = new ArrayList<Connection>();
 		for(Connection conn : conns) {
 			new_conns.add(getExtraXmlProp(conn));
@@ -898,6 +901,11 @@ public class ConnectionService {
 		String connectionname = conn.getConnectionname();
 		String type = conn.getConnectiontype();
 		String description = conn.getDescription();
+		String withpim = conn.getWithpim();
+		String pimendpointtype = conn.getPimendpointtype();
+		String pimendpointname = conn.getPimendpointname();
+		String pimaccountcontainer = conn.getPimaccountcontainer();
+		String pimaccountname = conn.getPimaccountname();
 		String xmldata = conn.getXmldata();
 		Map<String, String> map = xmlUtil.parseXMLDataToHashMap(xmldata);
 		if("J".equalsIgnoreCase(type)){
@@ -906,6 +914,11 @@ public class ConnectionService {
 			jdbc.setConnectionname(connectionname);
 			jdbc.setDescription(description);
 			jdbc.setConnectiontype(type);
+			jdbc.setWithpim(withpim);
+			jdbc.setPimendpointtype(pimendpointtype);
+			jdbc.setPimendpointname(pimendpointname);
+			jdbc.setPimaccountcontainer(pimaccountcontainer);
+			jdbc.setPimaccountname(pimaccountname);
 			jdbc.setJdbc_dbType(map.get("jdbc_dbType"));
 			jdbc.setJdbc_driver(map.get("jdbc_driver"));
 			jdbc.setJdbc_password(Crypto.getDecryptString(map.get("jdbc_password"), encryptKey));
@@ -918,6 +931,11 @@ public class ConnectionService {
 			database.setConnectionname(connectionname);
 			database.setDescription(description);
 			database.setConnectiontype(type);
+			database.setWithpim(withpim);
+			database.setPimendpointtype(pimendpointtype);
+			database.setPimendpointname(pimendpointname);
+			database.setPimaccountcontainer(pimaccountcontainer);
+			database.setPimaccountname(pimaccountname);
 			database.setUserid(map.get("userid"));
 			database.setServer(map.get("server"));
 			database.setPassword(Crypto.getDecryptString(map.get("password"), encryptKey));
@@ -928,6 +946,11 @@ public class ConnectionService {
 			ftp.setConnectionname(connectionname);
 			ftp.setDescription(description);
 			ftp.setConnectiontype(type);
+			ftp.setWithpim(withpim);
+			ftp.setPimendpointtype(pimendpointtype);
+			ftp.setPimendpointname(pimendpointname);
+			ftp.setPimaccountcontainer(pimaccountcontainer);
+			ftp.setPimaccountname(pimaccountname);
 			ftp.setUserid(map.get("userid"));
 			ftp.setTargetdir(map.get("targetdir"));
 			ftp.setServer(map.get("server"));
@@ -939,9 +962,19 @@ public class ConnectionService {
 			mail.setConnectionname(connectionname);
 			mail.setDescription(description);
 			mail.setConnectiontype(type);
-			mail.setUserid(map.get("userid"));
-			mail.setServer(map.get("server"));
+			mail.setWithpim(withpim);
+			mail.setPimendpointtype(pimendpointtype);
+			mail.setPimendpointname(pimendpointname);
+			mail.setPimaccountcontainer(pimaccountcontainer);
+			mail.setPimaccountname(pimaccountname);
+			mail.setUser(map.get("user"));
+			mail.setHost(map.get("host"));
+			try {
+				mail.setPort(Integer.valueOf(map.get("port")));
+			}catch(Exception e) {}
 			mail.setPassword(Crypto.getDecryptString(map.get("password"), encryptKey));
+			mail.setMailssl(map.get("mailssl"));
+			mail.setMailtls(map.get("mailtls"));
 			return mail;
 		}else if("N".equalsIgnoreCase(type)){
 			NotesConnection notes = new NotesConnection();
@@ -949,6 +982,11 @@ public class ConnectionService {
 			notes.setConnectionname(connectionname);
 			notes.setDescription(description);
 			notes.setConnectiontype(type);
+			notes.setWithpim(withpim);
+			notes.setPimendpointtype(pimendpointtype);
+			notes.setPimendpointname(pimendpointname);
+			notes.setPimaccountcontainer(pimaccountcontainer);
+			notes.setPimaccountname(pimaccountname);
 			notes.setNotesHostIP(map.get("notesHostIP"));
 			notes.setNotesIor(map.get("notesIor"));
 			notes.setUserid(map.get("userid"));
@@ -962,6 +1000,11 @@ public class ConnectionService {
 			os.setConnectionname(connectionname);
 			os.setDescription(description);
 			os.setConnectiontype(type);
+			os.setWithpim(withpim);
+			os.setPimendpointtype(pimendpointtype);
+			os.setPimendpointname(pimendpointname);
+			os.setPimaccountcontainer(pimaccountcontainer);
+			os.setPimaccountname(pimaccountname);
 			os.setPort(map.get("port"));
 			os.setUserid(map.get("userid"));
 			os.setPassword(Crypto.getDecryptString(map.get("password"), encryptKey));
@@ -972,6 +1015,11 @@ public class ConnectionService {
 			sap.setConnectionname(connectionname);
 			sap.setDescription(description);
 			sap.setConnectiontype(type);
+			sap.setWithpim(withpim);
+			sap.setPimendpointtype(pimendpointtype);
+			sap.setPimendpointname(pimendpointname);
+			sap.setPimaccountcontainer(pimaccountcontainer);
+			sap.setPimaccountname(pimaccountname);
 			sap.setSAPLANGUAGE(map.get("SAPLANGUAGE"));
 			sap.setSapSystemName(map.get("sapSystemName"));
 			sap.setSapSystemNumber(map.get("sapSystemNumber"));
@@ -1008,5 +1056,13 @@ public class ConnectionService {
 		map.put("datafilecountmode", filesource.getDatafilecountmode());
 		String xmldata = xmlUtil.parseHashMapToXMLString(map, false);
 		filesource.setXmldata(xmldata);
+	}
+	
+	
+	private class JDBCDriverNameComparator implements Comparator<JDBCDriverInfo> {
+	    @Override
+	    public int compare(JDBCDriverInfo o1, JDBCDriverInfo o2) {
+	        return o1.getName().compareTo(o2.getName());
+	    }
 	}
 }

@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -27,6 +28,17 @@ public class Connection {
   	@Temporal(TemporalType.TIMESTAMP)
   	private Date lastupdatetime;
   
+  	@Transient
+  	private String pimendpointtype;
+  	@Transient
+  	private String pimendpointname;
+  	@Transient
+  	private String pimaccountcontainer;
+  	@Transient
+  	private String pimaccountname;
+  	@Transient
+  	private String withpim;
+  	
   	public String getConnectionuid() {
 		return connectionuid;
 	}
@@ -63,5 +75,37 @@ public class Connection {
 	}
 	public void setLastupdatetime(Date lastupdatetime) {
 		this.lastupdatetime = lastupdatetime;
+	}
+	
+	
+	public String getPimendpointtype() {
+		return pimendpointtype;
+	}
+	public void setPimendpointtype(String pimendpointtype) {
+		this.pimendpointtype = pimendpointtype;
+	}
+	public String getPimendpointname() {
+		return pimendpointname;
+	}
+	public void setPimendpointname(String pimendpointname) {
+		this.pimendpointname = pimendpointname;
+	}
+	public String getPimaccountcontainer() {
+		return pimaccountcontainer;
+	}
+	public void setPimaccountcontainer(String pimaccountcontainer) {
+		this.pimaccountcontainer = pimaccountcontainer;
+	}
+	public String getPimaccountname() {
+		return pimaccountname;
+	}
+	public void setPimaccountname(String pimaccountname) {
+		this.pimaccountname = pimaccountname;
+	}
+	public String getWithpim() {
+		return withpim;
+	}
+	public void setWithpim(String withpim) {
+		this.withpim = withpim;
 	}
 }

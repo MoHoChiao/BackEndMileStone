@@ -170,4 +170,17 @@ public class ConnectionController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
+	
+	@GetMapping("/findJDBCDriverInfo")
+	public ResponseEntity<?> findJDBCDriverInfo() {
+		try {
+			return ResponseEntity.ok(this.service.getJDBCDriverInfo());
+		}catch(IllegalArgumentException e) {
+			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			ConnectionController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
 }
