@@ -33,6 +33,7 @@ import com.netpro.trinity.repository.connection.entity.MailConnection;
 import com.netpro.trinity.repository.connection.entity.NotesConnection;
 import com.netpro.trinity.repository.connection.entity.OSConnection;
 import com.netpro.trinity.repository.connection.entity.SapConnection;
+import com.netpro.trinity.repository.connection.entity.jdbc.ConnectionRelation;
 import com.netpro.trinity.repository.connection.entity.jpa.Connection;
 import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
@@ -312,263 +313,49 @@ public class ConnectionService {
 		}
 	}
 	
-	public Connection add(String categoryUid, Connection conn) throws IllegalArgumentException, Exception{
-//		String newUid = UUID.randomUUID().toString();
-//		
-//		String filesourcename = filesource.getFilesourcename();
-//		if(null == filesourcename || filesourcename.length() <= 0)
-//			throw new IllegalArgumentException("File Source Name can not be empty!");
-//		filesourcename = filesourcename.toUpperCase();
-//		
-//		if(this.dao.existByName(filesourcename))
-//			throw new IllegalArgumentException("Duplicate File Source Name!");
-//		
-//		String description = filesource.getDescription();
-//		if(null == description)
-//			description = "";
-//		
-//		String root_dir = filesource.getRootdir();
-//		if(null == root_dir)
-//			root_dir = "";
-//		
-//		String receive_dir = filesource.getReceivedir();
-//		if(null == receive_dir || receive_dir.length() <= 0)
-//			throw new IllegalArgumentException("Receive Directory can not be empty!");
-//		
-//		String target_dir = filesource.getTargetdir();
-//		if(null == target_dir || target_dir.length() <= 0)
-//			throw new IllegalArgumentException("Target Directory can not be empty!");
-//		
-//		String complete_dir = filesource.getCompletedir();
-//		if(null == complete_dir || complete_dir.length() <= 0)
-//			throw new IllegalArgumentException("Complete Directory can not be empty!");
-//		
-//		String corrupt_dir = filesource.getCorruptdir();
-//		if(null == corrupt_dir || corrupt_dir.length() <= 0)
-//			throw new IllegalArgumentException("Corrupt Directory can not be empty!");
-//		
-//		String duplicate_dir = filesource.getDuplicatedir();
-//		if(null == duplicate_dir || duplicate_dir.length() <= 0)
-//			throw new IllegalArgumentException("Duplicate Directory can not be empty!");
-//		
-//		String error_dir = filesource.getErrordir();
-//		if(null == error_dir || error_dir.length() <= 0)
-//			throw new IllegalArgumentException("Error Directory can not be empty!");
-//		
-//		String filename = filesource.getFilename();
-//		if(null == filename || filename.length() <= 0)
-//			throw new IllegalArgumentException("File Name Pattern can not be empty!");
-//		
-//		String pattern = filesource.getPattern();
-//		if(null == pattern || (!pattern.equals("1") && !pattern.equals("2") && !pattern.equals("3") && !pattern.equals("4")))
-//			pattern = "1";
-//		
-//		Integer start_position = filesource.getStartposition();
-//		if(null == start_position || start_position < 0)
-//			start_position = 0;
-//		
-//		Integer end_position = filesource.getEndposition();
-//		if(null == end_position || end_position < 0)
-//			end_position = 0;
-//		
-//		if(pattern.equals("3")) {
-//			if(end_position <= start_position)
-//				throw new IllegalArgumentException("End Position can not be equals or smaller than Start Position!");
-//		}
-//		
-//		String filetype = filesource.getFiletype();
-//		if(null == filetype || (!filetype.equals("D") && !filetype.equals("C")))
-//			filetype = "D";
-//		
-//		String datafilecountmode = filesource.getDatafilecountmode();
-//		if(null == datafilecountmode || (!datafilecountmode.equals("R") && !datafilecountmode.equals("C")))
-//			datafilecountmode = "R";
-//		
-//		String cfImpClass = filesource.getCfImpClass();
-//		if(null == cfImpClass)
-//			cfImpClass = "com.netpro.filesource.ctrl.MatchFileSizeCtrlFileHandler";
-//		
-//		//如果是選擇Regular Data時, 則cfImpClass及datafilecountmode一律代回預設值
-//		if(filetype.equals("D")){
-//			datafilecountmode = "R";
-//            cfImpClass = "com.netpro.filesource.ctrl.MatchFileSizeCtrlFileHandler";
-//        }
-//		
-//		String check_duplicate = filesource.getCheckduplicate();
-//		if(null == check_duplicate || (!check_duplicate.equals("1") && !check_duplicate.equals("0")))
-//			check_duplicate = "0";
-//		
-//		String filter_duplicate = filesource.getFilterduplicate();
-//		if(null == filter_duplicate || (!filter_duplicate.equals("1") && !filter_duplicate.equals("0")) || check_duplicate.equals("0"))
-//			filter_duplicate = "0";
-//		
-//		String filetrigger = filesource.getFiletrigger();
-//		if(null == filetrigger || (!filetrigger.equals("1") && !filetrigger.equals("0")))
-//			filetrigger = "0";
-//		
-//		String trigger_job_uid = filesource.getTriggerjobuid();
-//		if(null == trigger_job_uid || trigger_job_uid.trim().length() <= 0){
-//			if(filetrigger.equals("1")){
-//				throw new IllegalArgumentException("When Choose 'File Trigger', must be select one job uid!");
-//			}else{
-//				trigger_job_uid = "";
-//			}
-//		}
-//		
-//		String txdate__format = filesource.getTxdateformat();
-//		if(null == txdate__format)
-//			txdate__format = "";
-//		
-//		Integer txdate_start_pos = filesource.getTxdatestartpos();
-//		if(null == txdate_start_pos || txdate_start_pos < 0)
-//			txdate_start_pos = 0;
-//		
-//		Integer txdate_end_pos = filesource.getTxdateendpos();
-//		if(null == txdate_end_pos || txdate_end_pos < 0)
-//			txdate_end_pos = 0;
-//		
-//		//當沒有勾選filetrigger時, 要強制讓txdateformat='',txdatestartpos=0,txdateendpos=0
-//        if(filetrigger.equals("0")){
-//        	txdate__format = "";
-//        	txdate_start_pos = 0;
-//        	txdate_end_pos = 0;
-//        }
-//		
-//		String checksum = filesource.getChecksum();
-//		if(null == checksum || (!checksum.equals("1") && !checksum.equals("0")))
-//			checksum = "0";
-//		
-//		String checksum_fe = filesource.getChecksumfe();
-//		if(null == checksum_fe || checksum_fe.trim().length() <= 0)
-//			checksum_fe = ".checksum";
-//		
-//		String checksum_alg = filesource.getChecksumalg();
-//		if(null == checksum_alg || (!checksum_alg.equals("M") && !checksum_alg.equals("S")))
-//			checksum_alg = "M";
-//		
-//		//如果不勾選check sum時, 則checksumalg及checksumfe一律代回預設值
-//		if(checksum.equals("0")) {
-//			checksum_fe = ".checksum";
-//			checksum_alg = "M";
-//		}
-//			
-//		Integer min_file = filesource.getMinfile();
-//		if(null == min_file || min_file < 0)
-//			min_file = 1;
-//		
-//		Integer max_file = filesource.getMaxfile();
-//		if(null == max_file || max_file < 0)
-//			max_file = 5;
-//		
-//		Integer timeout = filesource.getTimeout();
-//		if(null == timeout || timeout < 0)
-//			timeout = 3;
-//		
-//		String bypass_zero = filesource.getBypasszero();
-//		if(null == bypass_zero || (!bypass_zero.equals("1") && !bypass_zero.equals("0")))
-//			bypass_zero = "0";
-//		
-//		String appendUid = filesource.getAppendUid();
-//		if(null == appendUid || (!appendUid.equals("1") && !appendUid.equals("0")))
-//			appendUid = "0";
-//		
-//		String ftpget = filesource.getFtpget();
-//		if(null == ftpget || (!ftpget.equals("1") && !ftpget.equals("0")))
-//			ftpget = "0";
-//		
-//		String sftp = filesource.getSftp();
-//		if(null == sftp || (!sftp.equals("1") && !sftp.equals("0")))
-//			sftp = "0";
-//		
-//		String ftp_binary = filesource.getFtpbinary();
-//		if(null == ftp_binary || (!ftp_binary.equals("1") && !ftp_binary.equals("0")))
-//			ftp_binary = "0";
-//		
-//		String passive = filesource.getPassive();
-//		if(null == passive || (!passive.equals("1") && !passive.equals("0")))
-//			passive = "0";
-//		
-//		String ftp_connection_uid = filesource.getFtpconnectionuid();
-//		if(null == ftp_connection_uid || ftp_connection_uid.length() <= 0){
-//			if(ftpget.equals("1")){
-//				throw new Exception("When Choose 'FTP Get', must be select one FTP Connection uid!");
-//			}else{
-//				ftp_connection_uid = "";
-//			}
-//		}
-//		
-//		String ftp_remote_dir = filesource.getFtpremotedir();
-//		if(null == ftp_remote_dir || ftp_remote_dir.length() <= 0){
-//			if(ftpget.equals("1")){
-//				throw new Exception("When Choose 'FTP Get', must be have FTP Remote Directory!");
-//			}else{
-//				ftp_remote_dir = "";
-//			}
-//		}
-//		
-//		String ftp_post_action = filesource.getFtppostaction();
-//		if(null == ftp_post_action || (!ftp_post_action.equals("0") && !ftp_post_action.equals("1") && !ftp_post_action.equals("2")))
-//			ftp_post_action = "0";
-//			
-//		String ftp_move_dir = filesource.getFtpmovedir();
-//		if(null == ftp_move_dir || ftp_move_dir.length() <= 0){
-//			if(ftp_post_action.equals("1")){
-//				throw new Exception("When 'ftp_post_action=1', must be have FTP Move Directory!");
-//			}else{
-//				ftp_move_dir = "";
-//			}
-//		}
-//		
-//		String checkrow = "0";
-//		
-//		filesource.setFilesourceuid(newUid);
-//		filesource.setFilesourcename(filesourcename);
-//		filesource.setDescription(description);
-//		filesource.setFiletrigger(filetrigger);
-//		filesource.setReceivedir(receive_dir);
-//		filesource.setTargetdir(target_dir);
-//		filesource.setCompletedir(complete_dir);
-//		filesource.setCorruptdir(corrupt_dir);
-//		filesource.setDuplicatedir(duplicate_dir);
-//		filesource.setErrordir(error_dir);
-//		filesource.setFilename(filename);
-//		filesource.setPattern(pattern);
-//		filesource.setStartposition(start_position);
-//		filesource.setEndposition(end_position);
-//		filesource.setFiletype(filetype);
-//		filesource.setMinfile(min_file);
-//		filesource.setMaxfile(max_file);
-//		filesource.setTimeout(timeout);
-//		filesource.setCheckduplicate(check_duplicate);
-//		filesource.setFilterduplicate(filter_duplicate);
-//		filesource.setCheckrow(checkrow);
-//		filesource.setBypasszero(bypass_zero);
-//		filesource.setFtpget(ftpget);
-//		
-//		setExtraXmlPropToString(filesource);
-//		
-//		/*
-//		 * because lastupdatetime column is auto created value, it can not be reload new value.
-//		 * here, we force to give value to lastupdatetime column.
-//		 */
-//		filesource.setLastupdatetime(new Date());
-//		
-//		FileSource new_filesource = this.dao.save(filesource);
-//		/*
-//		 * Because All fields associated with xml are defined by @Transient, it can not be reload new value.
-//		 * The fields associated with xml is very suck design!
-//		 */
-//		setExtraXmlProp(new_filesource);
-//		
-//		//如果所附帶的url參數中有categoryUid的話, 表示是要把file source新增至某個category
-//		if(categoryUid != null && !categoryUid.trim().equals("")) {
-//			FilesourceRelation rel = new FilesourceRelation();
-//			rel.setFscategoryuid(categoryUid);
-//			rel.setFilesourceuid(new_filesource.getFilesourceuid());
-//			this.relService.add(rel);
-//		}
+	public Connection add(String categoryUid, Map<String, String> connMap) throws IllegalArgumentException, Exception{
+		if(null == connMap || connMap.size() <= 0)
+			throw new IllegalArgumentException("Connection Information can not be empty!");
 		
-		return this.dao.save(conn);
+		String newUid = UUID.randomUUID().toString();
+		
+		String connectionname = connMap.get("connectionname");
+		if(null == connectionname || connectionname.trim().length() <= 0)
+			throw new IllegalArgumentException("Connection Name can not be empty!");
+		connectionname = connectionname.toUpperCase();
+		
+		if(this.dao.existByName(connectionname))
+			throw new IllegalArgumentException("Duplicate Connection Name!");
+		
+		String description = connMap.get("description");
+		if(null == description)
+			description = "";
+		
+		String connectiontype = connMap.get("connectiontype");
+		if(null == connectiontype || connectiontype.trim().isEmpty() || !ConnectionService.CONNECTION_TYPE_SET.contains(connectiontype))
+			throw new IllegalArgumentException("Illegal connection type! "+ ConnectionService.CONNECTION_TYPE_SET.toString());
+		
+		Connection conn = new Connection();
+		conn.setConnectionuid(newUid);
+		conn.setConnectionname(connectionname);
+		conn.setConnectiontype(connectiontype);
+		conn.setDescription(description);
+		setExtraXmlProp(conn, connMap);
+		conn.setLastupdatetime(new Date());
+		
+		Connection new_conn = this.dao.save(conn);
+		
+		new_conn = getExtraXmlProp(new_conn);
+		
+		//如果所附帶的url參數中有categoryUid的話, 表示是要把file source新增至某個category
+		if(categoryUid != null && !categoryUid.trim().equals("")) {
+			ConnectionRelation rel = new ConnectionRelation();
+			rel.setConncategoryuid(categoryUid);
+			rel.setConnectionuid(new_conn.getConnectionuid());
+			this.relService.add(rel);
+		}
+		
+		return new_conn;
 	}
 	
 	public Connection edit(String categoryUid, Connection conn) throws IllegalArgumentException, Exception{
@@ -901,11 +688,7 @@ public class ConnectionService {
 		String connectionname = conn.getConnectionname();
 		String type = conn.getConnectiontype();
 		String description = conn.getDescription();
-		String withpim = conn.getWithpim();
-		String pimendpointtype = conn.getPimendpointtype();
-		String pimendpointname = conn.getPimendpointname();
-		String pimaccountcontainer = conn.getPimaccountcontainer();
-		String pimaccountname = conn.getPimaccountname();
+		Date lastupdatetime = conn.getLastupdatetime();
 		String xmldata = conn.getXmldata();
 		Map<String, String> map = xmlUtil.parseXMLDataToHashMap(xmldata);
 		if("J".equalsIgnoreCase(type)){
@@ -914,16 +697,18 @@ public class ConnectionService {
 			jdbc.setConnectionname(connectionname);
 			jdbc.setDescription(description);
 			jdbc.setConnectiontype(type);
-			jdbc.setWithpim(withpim);
-			jdbc.setPimendpointtype(pimendpointtype);
-			jdbc.setPimendpointname(pimendpointname);
-			jdbc.setPimaccountcontainer(pimaccountcontainer);
-			jdbc.setPimaccountname(pimaccountname);
+			jdbc.setWithpim(map.get("withpim"));
+			jdbc.setPimendpointtype(map.get("pimendpointtype"));
+			jdbc.setPimendpointname(map.get("pimendpointname"));
+			jdbc.setPimaccountcontainer(map.get("pimaccountcontainer"));
+			jdbc.setPimaccountname(map.get("pimaccountname"));
+			jdbc.setLastupdatetime(lastupdatetime);
 			jdbc.setJdbc_dbType(map.get("jdbc_dbType"));
 			jdbc.setJdbc_driver(map.get("jdbc_driver"));
 			jdbc.setJdbc_password(Crypto.getDecryptString(map.get("jdbc_password"), encryptKey));
 			jdbc.setJdbc_url(map.get("jdbc_url"));
 			jdbc.setJdbc_userid(map.get("jdbc_userid"));
+			jdbc.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
 			return jdbc;
 		}else if("D".equalsIgnoreCase(type)){
 			DatabaseConnection database = new DatabaseConnection();
@@ -931,14 +716,16 @@ public class ConnectionService {
 			database.setConnectionname(connectionname);
 			database.setDescription(description);
 			database.setConnectiontype(type);
-			database.setWithpim(withpim);
-			database.setPimendpointtype(pimendpointtype);
-			database.setPimendpointname(pimendpointname);
-			database.setPimaccountcontainer(pimaccountcontainer);
-			database.setPimaccountname(pimaccountname);
+			database.setWithpim(map.get("withpim"));
+			database.setPimendpointtype(map.get("pimendpointtype"));
+			database.setPimendpointname(map.get("pimendpointname"));
+			database.setPimaccountcontainer(map.get("pimaccountcontainer"));
+			database.setPimaccountname(map.get("pimaccountname"));
+			database.setLastupdatetime(lastupdatetime);
 			database.setUserid(map.get("userid"));
 			database.setServer(map.get("server"));
 			database.setPassword(Crypto.getDecryptString(map.get("password"), encryptKey));
+			database.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
 			return database;
 		}else if("F".equalsIgnoreCase(type)){
 			FTPConnection ftp = new FTPConnection();
@@ -946,15 +733,17 @@ public class ConnectionService {
 			ftp.setConnectionname(connectionname);
 			ftp.setDescription(description);
 			ftp.setConnectiontype(type);
-			ftp.setWithpim(withpim);
-			ftp.setPimendpointtype(pimendpointtype);
-			ftp.setPimendpointname(pimendpointname);
-			ftp.setPimaccountcontainer(pimaccountcontainer);
-			ftp.setPimaccountname(pimaccountname);
+			ftp.setWithpim(map.get("withpim"));
+			ftp.setPimendpointtype(map.get("pimendpointtype"));
+			ftp.setPimendpointname(map.get("pimendpointname"));
+			ftp.setPimaccountcontainer(map.get("pimaccountcontainer"));
+			ftp.setPimaccountname(map.get("pimaccountname"));
+			ftp.setLastupdatetime(lastupdatetime);
 			ftp.setUserid(map.get("userid"));
 			ftp.setTargetdir(map.get("targetdir"));
 			ftp.setServer(map.get("server"));
 			ftp.setPassword(Crypto.getDecryptString(map.get("password"), encryptKey));
+			ftp.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
 			return ftp;
 		}else if("M".equalsIgnoreCase(type)){
 			MailConnection mail = new MailConnection();
@@ -962,11 +751,12 @@ public class ConnectionService {
 			mail.setConnectionname(connectionname);
 			mail.setDescription(description);
 			mail.setConnectiontype(type);
-			mail.setWithpim(withpim);
-			mail.setPimendpointtype(pimendpointtype);
-			mail.setPimendpointname(pimendpointname);
-			mail.setPimaccountcontainer(pimaccountcontainer);
-			mail.setPimaccountname(pimaccountname);
+			mail.setWithpim(map.get("withpim"));
+			mail.setPimendpointtype(map.get("pimendpointtype"));
+			mail.setPimendpointname(map.get("pimendpointname"));
+			mail.setPimaccountcontainer(map.get("pimaccountcontainer"));
+			mail.setPimaccountname(map.get("pimaccountname"));
+			mail.setLastupdatetime(lastupdatetime);
 			mail.setUser(map.get("user"));
 			mail.setHost(map.get("host"));
 			try {
@@ -975,6 +765,7 @@ public class ConnectionService {
 			mail.setPassword(Crypto.getDecryptString(map.get("password"), encryptKey));
 			mail.setMailssl(map.get("mailssl"));
 			mail.setMailtls(map.get("mailtls"));
+			mail.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
 			return mail;
 		}else if("N".equalsIgnoreCase(type)){
 			NotesConnection notes = new NotesConnection();
@@ -982,17 +773,19 @@ public class ConnectionService {
 			notes.setConnectionname(connectionname);
 			notes.setDescription(description);
 			notes.setConnectiontype(type);
-			notes.setWithpim(withpim);
-			notes.setPimendpointtype(pimendpointtype);
-			notes.setPimendpointname(pimendpointname);
-			notes.setPimaccountcontainer(pimaccountcontainer);
-			notes.setPimaccountname(pimaccountname);
+			notes.setWithpim(map.get("withpim"));
+			notes.setPimendpointtype(map.get("pimendpointtype"));
+			notes.setPimendpointname(map.get("pimendpointname"));
+			notes.setPimaccountcontainer(map.get("pimaccountcontainer"));
+			notes.setPimaccountname(map.get("pimaccountname"));
+			notes.setLastupdatetime(lastupdatetime);
 			notes.setNotesHostIP(map.get("notesHostIP"));
 			notes.setNotesIor(map.get("notesIor"));
 			notes.setUserid(map.get("userid"));
 			notes.setPassword(Crypto.getDecryptString(map.get("password"), encryptKey));
 			notes.setNotesDBName(map.get("notesDBName"));
 			notes.setNotesServerName(map.get("notesServerName"));
+			notes.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
 			return notes;
 		}else if("O".equalsIgnoreCase(type)){
 			OSConnection os = new OSConnection();
@@ -1000,14 +793,16 @@ public class ConnectionService {
 			os.setConnectionname(connectionname);
 			os.setDescription(description);
 			os.setConnectiontype(type);
-			os.setWithpim(withpim);
-			os.setPimendpointtype(pimendpointtype);
-			os.setPimendpointname(pimendpointname);
-			os.setPimaccountcontainer(pimaccountcontainer);
-			os.setPimaccountname(pimaccountname);
+			os.setWithpim(map.get("withpim"));
+			os.setPimendpointtype(map.get("pimendpointtype"));
+			os.setPimendpointname(map.get("pimendpointname"));
+			os.setPimaccountcontainer(map.get("pimaccountcontainer"));
+			os.setPimaccountname(map.get("pimaccountname"));
+			os.setLastupdatetime(lastupdatetime);
 			os.setPort(map.get("port"));
 			os.setUserid(map.get("userid"));
 			os.setPassword(Crypto.getDecryptString(map.get("password"), encryptKey));
+			os.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
 			return os;
 		}else if("S".equalsIgnoreCase(type)){
 			SapConnection sap = new SapConnection();
@@ -1015,11 +810,12 @@ public class ConnectionService {
 			sap.setConnectionname(connectionname);
 			sap.setDescription(description);
 			sap.setConnectiontype(type);
-			sap.setWithpim(withpim);
-			sap.setPimendpointtype(pimendpointtype);
-			sap.setPimendpointname(pimendpointname);
-			sap.setPimaccountcontainer(pimaccountcontainer);
-			sap.setPimaccountname(pimaccountname);
+			sap.setWithpim(map.get("withpim"));
+			sap.setPimendpointtype(map.get("pimendpointtype"));
+			sap.setPimendpointname(map.get("pimendpointname"));
+			sap.setPimaccountcontainer(map.get("pimaccountcontainer"));
+			sap.setPimaccountname(map.get("pimaccountname"));
+			sap.setLastupdatetime(lastupdatetime);
 			sap.setSAPLANGUAGE(map.get("SAPLANGUAGE"));
 			sap.setSapSystemName(map.get("sapSystemName"));
 			sap.setSapSystemNumber(map.get("sapSystemNumber"));
@@ -1028,34 +824,223 @@ public class ConnectionService {
 			sap.setPassword(Crypto.getDecryptString(map.get("password"), encryptKey));
 			sap.setSapCodePage(map.get("sapCodePage"));
 			sap.setSapClient(map.get("sapClient"));
+			sap.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
 			return sap;
 		}else{
 			throw new Exception("No Such Connection Type = " + type);
 		}
 	}
 	
-	private void getExtraXmlString(FileSource filesource) throws Exception{
+	private void setExtraXmlProp(Connection conn, Map<String, String> connMap) throws IllegalArgumentException, Exception{
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("txdateendpos",filesource.getTxdateendpos()+"");
-		map.put("ftpconnectionuid", filesource.getFtpconnectionuid());
-		map.put("ftppostaction", filesource.getFtppostaction());
-		map.put("triggerjobuid", filesource.getTriggerjobuid());
-		map.put("sftp", filesource.getSftp());
-		map.put("checksum", filesource.getChecksum());
-		map.put("ftpmovedir", filesource.getFtpmovedir());
-		map.put("txdateformat", filesource.getTxdateformat());
-		map.put("checksumfe", filesource.getChecksumfe());
-		map.put("passive", filesource.getPassive());
-		map.put("ftpbinary", filesource.getFtpbinary());
-		map.put("txdatestartpos", filesource.getTxdatestartpos()+"");
-		map.put("checksumalg", filesource.getChecksumalg());
-		map.put("ftpremotedir", filesource.getFtpremotedir());
-		map.put("appendUid", filesource.getAppendUid());
-		map.put("rootdir", filesource.getRootdir());
-		map.put("cfImpClass", filesource.getCfImpClass());
-		map.put("datafilecountmode", filesource.getDatafilecountmode());
-		String xmldata = xmlUtil.parseHashMapToXMLString(map, false);
-		filesource.setXmldata(xmldata);
+		
+		String withpim = connMap.get("withpim");
+		if(null == withpim || withpim.trim().isEmpty())
+			withpim = "0";
+		
+		String pimendpointname = connMap.get("pimendpointname");
+		if(null == pimendpointname)
+			pimendpointname = "";
+		
+		String pimaccountcontainer = connMap.get("pimaccountcontainer");
+		if(null == pimaccountcontainer)
+			pimaccountcontainer = "";
+		
+		String pimendpointtype = connMap.get("pimendpointtype");
+		if(null == pimendpointtype)
+			pimendpointtype = "";
+		
+		String pimaccountname = connMap.get("pimaccountname");
+		if(null == pimaccountname)
+			pimaccountname = "";
+		
+		map.put("withpim", withpim);
+		map.put("pimendpointname", pimendpointname);
+		map.put("pimaccountcontainer", pimaccountcontainer);
+		map.put("pimendpointtype", pimendpointtype);
+		map.put("pimaccountname", pimaccountname);
+		
+		if(conn.getConnectiontype().equals("J")){
+			String jdbc_dbType = connMap.get("jdbc_dbType");
+			if(null == jdbc_dbType || jdbc_dbType.trim().isEmpty())
+				throw new IllegalArgumentException("JDBC Database Type can not be empty!");
+			
+			String jdbc_driver = connMap.get("jdbc_driver");
+			if(null == jdbc_driver || jdbc_driver.trim().isEmpty())
+				throw new IllegalArgumentException("JDBC Driver can not be empty!");
+			
+			String jdbc_password = connMap.get("jdbc_password");
+			if(null == jdbc_password || jdbc_password.trim().isEmpty())
+				throw new IllegalArgumentException("JDBC Password can not be empty!");
+			
+			String jdbc_url = connMap.get("jdbc_url");
+			if(null == jdbc_url || jdbc_url.trim().isEmpty())
+				throw new IllegalArgumentException("JDBC URL can not be empty!");
+			
+			String jdbc_userid = connMap.get("jdbc_userid");
+			if(null == jdbc_userid || jdbc_userid.trim().isEmpty())
+				throw new IllegalArgumentException("JDBC User ID can not be empty!");
+			
+			map.put("jdbc_dbType", jdbc_dbType);
+			map.put("jdbc_driver", jdbc_driver);
+			map.put("jdbc_password", Crypto.getEncryptString(jdbc_password, encryptKey));
+			map.put("jdbc_url", jdbc_url);
+			map.put("jdbc_userid", jdbc_userid);
+		}else if(conn.getConnectiontype().equals("D")){
+			String userid = connMap.get("userid");
+			if(null == userid || userid.trim().isEmpty())
+				throw new IllegalArgumentException("Database User ID can not be empty!");
+			
+			String server = connMap.get("server");
+			if(null == server || server.trim().isEmpty())
+				throw new IllegalArgumentException("Database Server can not be empty!");
+			
+			String password = connMap.get("password");
+			if(null == password || password.trim().isEmpty())
+				throw new IllegalArgumentException("Database Password can not be empty!");
+			
+			map.put("userid", userid);
+			map.put("server", server);
+			map.put("password", Crypto.getEncryptString(password, encryptKey));
+		}else if(conn.getConnectiontype().equals("F")){
+			String userid = connMap.get("userid");
+			if(null == userid || userid.trim().isEmpty())
+				throw new IllegalArgumentException("FTP User ID can not be empty!");
+			
+			String server = connMap.get("server");
+			if(null == server || server.trim().isEmpty())
+				throw new IllegalArgumentException("FTP Server can not be empty!");
+			
+			String password = connMap.get("password");
+			if(null == password || password.trim().isEmpty())
+				throw new IllegalArgumentException("FTP Password can not be empty!");
+			
+			String targetdir = connMap.get("targetdir");
+			if(null == targetdir)
+				targetdir = "";
+			
+			map.put("userid", userid);
+			map.put("targetdir", targetdir);
+			map.put("server", server);
+			map.put("password", Crypto.getEncryptString(password, encryptKey));
+		}else if(conn.getConnectiontype().equals("M")){
+			String user = connMap.get("user");
+			if(null == user || user.trim().isEmpty())
+				throw new IllegalArgumentException("Mail User can not be empty!");
+			
+			String password = connMap.get("password");
+			if(null == password || password.trim().isEmpty())
+				throw new IllegalArgumentException("Mail Password can not be empty!");
+			
+			String host = connMap.get("host");
+			if(null == host || host.trim().isEmpty())
+				host = "";
+			
+			String port = connMap.get("port");
+			if(null == port)
+				port = "";
+			
+			String mailssl = connMap.get("mailssl");
+			if(null == mailssl)
+				mailssl = "0";
+			
+			String mailtls = connMap.get("mailtls");
+			if(null == mailtls)
+				mailtls = "0";
+			
+			map.put("mailssl", mailssl);
+			map.put("password", Crypto.getEncryptString(password, encryptKey));
+			map.put("mailtls", mailtls);
+			map.put("port", port);
+			map.put("host", host);
+			map.put("user", user);
+		}else if(conn.getConnectiontype().equals("N")){
+			String notesIor = connMap.get("notesIor");
+			if(null == notesIor)
+				notesIor = "";
+			
+			String notesHostIP = connMap.get("notesHostIP");
+			if(null == notesHostIP || notesHostIP.trim().isEmpty())
+				throw new IllegalArgumentException("Notes Host IP can not be empty!");
+			
+			String notesServerName = connMap.get("notesServerName");
+			if(null == notesServerName)
+				notesServerName = "";
+			
+			String password = connMap.get("password");
+			if(null == password || password.trim().isEmpty())
+				throw new IllegalArgumentException("Notes Password can not be empty!");
+			
+			String notesDBName = connMap.get("notesDBName");
+			if(null == notesDBName || notesDBName.trim().isEmpty())
+				throw new IllegalArgumentException("Notes Database Name can not be empty!");
+			
+			String userid = connMap.get("userid");
+			if(null == userid || userid.trim().isEmpty())
+				throw new IllegalArgumentException("Notes User ID can not be empty!");
+			
+			map.put("notesIor", notesIor);
+			map.put("notesHostIP", notesHostIP);
+			map.put("notesServerName", notesServerName);
+			map.put("password", Crypto.getEncryptString(password, encryptKey));
+			map.put("notesDBName", notesDBName);
+			map.put("userid", userid);
+		}else if(conn.getConnectiontype().equals("O")){
+			String password = connMap.get("password");
+			if(null == password || password.trim().isEmpty())
+				throw new IllegalArgumentException("OS Password can not be empty!");
+			
+			String userid = connMap.get("userid");
+			if(null == userid || userid.trim().isEmpty())
+				throw new IllegalArgumentException("OS User ID can not be empty!");
+			
+			map.put("userid", userid);
+			map.put("port", "");
+			map.put("password", Crypto.getEncryptString(password, encryptKey));
+		}else if(conn.getConnectiontype().equals("S")){
+			String sapCodePage = connMap.get("sapCodePage");
+			if(null == sapCodePage)
+				sapCodePage = "";
+			
+			String sapSystemNumber = connMap.get("sapSystemNumber");
+			if(null == sapSystemNumber || sapSystemNumber.trim().isEmpty())
+				throw new IllegalArgumentException("Sap System Number can not be empty!");
+			
+			String sapSystemName = connMap.get("sapSystemName");
+			if(null == sapSystemName || sapSystemName.trim().isEmpty())
+				throw new IllegalArgumentException("Sap System Name can not be empty!");
+			
+			String sapHostIP = connMap.get("sapHostIP");
+			if(null == sapHostIP || sapHostIP.trim().isEmpty())
+				throw new IllegalArgumentException("Sap Host IP can not be empty!");
+			
+			String sapClient = connMap.get("sapClient");
+			if(null == sapClient || sapClient.trim().isEmpty())
+				throw new IllegalArgumentException("Sap Client can not be empty!");
+			
+			String userid = connMap.get("userid");
+			if(null == userid || userid.trim().isEmpty())
+				throw new IllegalArgumentException("OS User ID can not be empty!");
+			
+			String password = connMap.get("password");
+			if(null == password || password.trim().isEmpty())
+				throw new IllegalArgumentException("Notes Password can not be empty!");
+			
+			String SAPLANGUAGE = connMap.get("SAPLANGUAGE");
+			if(null == SAPLANGUAGE)
+				SAPLANGUAGE = "";
+			
+			map.put("sapCodePage", sapCodePage);
+			map.put("sapSystemNumber", sapSystemNumber);
+			map.put("sapSystemName", sapSystemName);
+			map.put("sapHostIP", sapHostIP);
+			map.put("sapClient", sapClient);
+			map.put("userid", userid);
+			map.put("password", Crypto.getEncryptString(password, encryptKey));
+			map.put("SAPLANGUAGE", SAPLANGUAGE);
+		}
+		
+		conn.setXmldata(xmlUtil.parseHashMapToXMLString(map, false));
 	}
 	
 	
