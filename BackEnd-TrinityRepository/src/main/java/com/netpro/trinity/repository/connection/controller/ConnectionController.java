@@ -1,10 +1,8 @@
 package com.netpro.trinity.repository.connection.controller;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.Map;
-
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,22 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.repository.connection.entity.DatabaseConnection;
-import com.netpro.trinity.repository.connection.entity.FTPConnection;
 import com.netpro.trinity.repository.connection.entity.JDBCConnection;
-import com.netpro.trinity.repository.connection.entity.MailConnection;
-import com.netpro.trinity.repository.connection.entity.jpa.Connection;
+import com.netpro.trinity.repository.connection.entity.NotesConnection;
 import com.netpro.trinity.repository.connection.service.ConnectionService;
 import com.netpro.trinity.repository.dto.FilterInfo;
-import com.netpro.trinity.repository.filesource.controller.FileSourceController;
-import com.netpro.trinity.repository.filesource.entity.jpa.FileSource;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/connection")
@@ -147,18 +138,18 @@ public class ConnectionController {
 		}
 	}
 	
-//	@PostMapping("/edit")
-//	public ResponseEntity<?> editConnection(@RequestBody JCSAgent agent) {
-//		try {
-//			return ResponseEntity.ok(this.service.edit(agent));
-//		}catch(IllegalArgumentException e) {
-//			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-//		}catch(Exception e) {
-//			ConnectionController.LOGGER.error("Exception; reason was:", e);
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-//		}
-//	}
+	@PostMapping("/edit")
+	public ResponseEntity<?> editConnection(String categoryUid, @RequestBody Map<String, String> connMap) {
+		try {
+			return ResponseEntity.ok(this.service.edit(categoryUid, connMap));
+		}catch(IllegalArgumentException e) {
+			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			ConnectionController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
   
 	@GetMapping("/delete")
 	public ResponseEntity<?> deleteConnectionByUid(String uid) {
@@ -172,6 +163,38 @@ public class ConnectionController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 		return ResponseEntity.ok(uid);
+	}
+	
+	@PostMapping("/test-jdbc-conn")
+	public ResponseEntity<?> testJDBCConnection(String schema, @RequestBody JDBCConnection jdbcConn) {
+		try {
+			return ResponseEntity.ok(this.service.testJDBCConnection(schema, jdbcConn));
+		}catch(IllegalArgumentException e) {
+			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(SQLException e) {
+			ConnectionController.LOGGER.error("SQLException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(ClassNotFoundException e) {
+			ConnectionController.LOGGER.error("ClassNotFoundException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			ConnectionController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/test-notes-conn")
+	public ResponseEntity<?> testNotesConnection(@RequestBody NotesConnection notesConn) {
+		try {
+			return ResponseEntity.ok(this.service.testNotesConnection(notesConn));
+		}catch(IllegalArgumentException e) {
+			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			ConnectionController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
 	}
 	
 	@GetMapping("/isExistByUid")

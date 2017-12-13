@@ -7,7 +7,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-		classpath files('lib/postgresql-9.2-1003-jdbc4.jar')
+		classpath files('lib/postgresql-9.2-1003-jdbc4.jar','lib/notesdriver-1.0.0.jar','lib/sapjco3.jar','lib/domingo-1.5.1.jar')
 	}
 }
 
@@ -33,7 +33,7 @@ dependencies {
 	compile('org.springframework.cloud:spring-cloud-starter-eureka')
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-web')
-	compile files('lib/postgresql-9.2-1003-jdbc4.jar')
+	compile files('lib/postgresql-9.2-1003-jdbc4.jar','lib/notesdriver-1.0.0.jar','lib/sapjco3.jar','lib/domingo-1.5.1.jar')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 

@@ -10,4 +10,9 @@ public class Constant {
 	
 	public static final String[] QUERY_TYPE_VALUES = new String[] { "equals", "like" };
 	public static final Set<String> QUERY_TYPE_SET = new HashSet<>(Arrays.asList(QUERY_TYPE_VALUES));
+	
+	public static final String JDBC_JAR			= ".jdbc.jar";
+	public static final String JDBC_DRIVER		= ".jdbc.driver";
+	public static final String JDBC_URL			= ".jdbc.url";
+	public static final String JDBC_OWNER		= ".jdbc.owner";
 }
