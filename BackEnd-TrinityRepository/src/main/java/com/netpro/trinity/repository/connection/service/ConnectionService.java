@@ -217,15 +217,21 @@ public class ConnectionService {
 					}
 				}
 				
-				page_conn.map(converter)
+				/*
+				 * 因為page_conn取出來的內容全是Connection物件, 需要視connection type來轉換為不同的connection物件
+				 * connection物件如JDBCConnection,DatabaseConnection...等等
+				 * 而page_conn的內容是不可更動的(沒有所謂setContent方法),因此只能使用下面方法來替換其內容
+				 */
+				final Page<Connection> new_page_conn = page_conn.map(source -> {
+					try {
+						return getExtraXmlProp(source);
+					} catch (Exception e) {
+						ConnectionService.LOGGER.error("Exception; reason was:", e);
+						return source;
+					}
+				});
 				
-				List<Connection> conns = getExtraXmlProp(page_conn.getContent());
-				System.out.println("1:"+page_conn.getContent());
-				page_conn.getContent().clear();
-				System.out.println("2:"+page_conn.getContent());
-				page_conn.getContent().addAll(conns);
-				System.out.println("3:"+page_conn.getContent());
-				return ResponseEntity.ok(page_conn.getContent());
+				return ResponseEntity.ok(new_page_conn);
 			}else if(sort != null) {
 				List<Connection> conns;
 				if(categoryUid == null) {
@@ -299,7 +305,21 @@ public class ConnectionService {
 						page_conn = (Page<Connection>) method.invoke(this.dao, queryString, pageRequest, relService.getConnectionUidsByCategoryUid(categoryUid));
 					}
 				}
-				return ResponseEntity.ok(getExtraXmlProp(page_conn.getContent()));
+				
+				/*
+				 * 因為page_conn取出來的內容全是Connection物件, 需要視connection type來轉換為不同的connection物件
+				 * connection物件如JDBCConnection,DatabaseConnection...等等
+				 * 而page_conn的內容是不可更動的(沒有所謂setContent方法),因此只能使用下面方法來替換其內容
+				 */
+				final Page<Connection> new_page_conn = page_conn.map(source -> {
+					try {
+						return getExtraXmlProp(source);
+					} catch (Exception e) {
+						ConnectionService.LOGGER.error("Exception; reason was:", e);
+						return source;
+					}
+				});
+				return ResponseEntity.ok(new_page_conn);
 			}else if(sort != null) {
 				List<Connection> conns;
 				if(categoryUid == null) {
@@ -604,6 +624,13 @@ public class ConnectionService {
 		}
 		return new_conns;
 	}
+	
+//	private ContactDto convertToContactDto(final Connection conn) {
+//		JDBCConnection jdbc = new JDBCConnection();
+//	    //get values from contact entity and set them in contactDto
+//	    //e.g. contactDto.setContactId(contact.getContactId());
+//	    return contactDto;
+//	}
 	
 	private Connection getExtraXmlProp(Connection conn) throws Exception{
 		String connectionuid = conn.getConnectionuid();
