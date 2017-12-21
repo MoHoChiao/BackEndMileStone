@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.dao.jdbc.workingcalendar;
+package com.netpro.trinity.repository.dao.jdbc.frequency;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.netpro.trinity.repository.entity.workingcalendar.jdbc.WorkingCalendarList;
+import com.netpro.trinity.repository.entity.frequency.jdbc.WorkingCalendarList;
 
 @Repository  //宣告這是一個DAO類別
 public class WorkingCalendarListJDBCDao {

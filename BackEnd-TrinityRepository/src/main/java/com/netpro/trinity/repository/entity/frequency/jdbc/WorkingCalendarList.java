@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.entity.workingcalendar.jdbc;
+package com.netpro.trinity.repository.entity.frequency.jdbc;
 
 public class WorkingCalendarList {
 	private String wcalendaruid;

@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.service.workingcalendar;
+package com.netpro.trinity.repository.service.frequency;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.dao.jdbc.workingcalendar.WorkingCalendarListJDBCDao;
-import com.netpro.trinity.repository.entity.workingcalendar.jdbc.WorkingCalendarList;
+import com.netpro.trinity.repository.dao.jdbc.frequency.WorkingCalendarListJDBCDao;
+import com.netpro.trinity.repository.entity.frequency.jdbc.WorkingCalendarList;
 
 @Service
 public class WorkingCalendarListService {

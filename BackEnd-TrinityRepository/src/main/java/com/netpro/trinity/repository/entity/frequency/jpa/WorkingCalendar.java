@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.entity.workingcalendar.jpa;
+package com.netpro.trinity.repository.entity.frequency.jpa;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
-import com.netpro.trinity.repository.entity.workingcalendar.jdbc.WorkingCalendarList;
+import com.netpro.trinity.repository.entity.frequency.jdbc.WorkingCalendarList;
 
 @Entity(name="workingcalendar")  //宣告這是一個實體workingcalendar的類別
 public class WorkingCalendar {	

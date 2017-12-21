@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.controller.workingcalendar;
+package com.netpro.trinity.repository.controller.frequency;
 
 import java.util.List;
 
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.repository.entity.workingcalendar.jdbc.WorkingCalendarList;
-import com.netpro.trinity.repository.service.workingcalendar.WorkingCalendarListService;
+import com.netpro.trinity.repository.entity.frequency.jdbc.WorkingCalendarList;
+import com.netpro.trinity.repository.service.frequency.WorkingCalendarListService;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/working-calendar-list")

@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.dao.jpa.workingcalendar;
+package com.netpro.trinity.repository.dao.jpa.frequency;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.netpro.trinity.repository.entity.workingcalendar.jpa.WorkingCalendar;
+import com.netpro.trinity.repository.entity.frequency.jpa.WorkingCalendar;
 
 @Repository  //宣告這是一個DAO類別
 public interface WorkingCalendarJPADao extends JpaRepository<WorkingCalendar, String> {

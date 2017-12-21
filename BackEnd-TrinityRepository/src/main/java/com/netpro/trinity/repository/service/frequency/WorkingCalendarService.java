@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.service.workingcalendar;
+package com.netpro.trinity.repository.service.frequency;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -19,12 +19,12 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.dao.jpa.workingcalendar.WorkingCalendarJPADao;
+import com.netpro.trinity.repository.dao.jpa.frequency.WorkingCalendarJPADao;
 import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.entity.workingcalendar.jpa.WorkingCalendar;
+import com.netpro.trinity.repository.entity.frequency.jpa.WorkingCalendar;
 import com.netpro.trinity.repository.util.Constant;
 
 @Service
