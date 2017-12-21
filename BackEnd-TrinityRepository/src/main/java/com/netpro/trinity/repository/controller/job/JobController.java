@@ -155,6 +155,9 @@ public class JobController {
 	public ResponseEntity<?> isJobExistByUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.existByUid(uid));
+		}catch(IllegalArgumentException e) {
+			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			JobController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -165,6 +168,9 @@ public class JobController {
 	public ResponseEntity<?> isJobExistByName(String name) {
 		try {
 			return ResponseEntity.ok(this.service.existByName(name));
+		}catch(IllegalArgumentException e) {
+			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			JobController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -175,6 +181,9 @@ public class JobController {
 	public ResponseEntity<?> isJobExistByFilesourceuid(String filesourceuid) {
 		try {
 			return ResponseEntity.ok(this.service.existByFilesourceuid(filesourceuid));
+		}catch(IllegalArgumentException e) {
+			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			JobController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

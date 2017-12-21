@@ -37,6 +37,8 @@ public class WorkingCalendarService {
 	
 	@Autowired
 	private WorkingCalendarListService listService;
+	@Autowired
+	private FrequencyService freqService;
 	
 	public List<WorkingCalendar> getAll() throws Exception{
 		List<WorkingCalendar> wcs = this.dao.findAll();
@@ -220,9 +222,16 @@ public class WorkingCalendarService {
 	public void deleteByUid(String uid) throws IllegalArgumentException, Exception{
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Working Calendar Uid can not be empty!");
+				
+		if(uid.trim().equalsIgnoreCase("SYSTEMDAY"))
+			throw new IllegalArgumentException("System day can not be removed!");
 		
-		this.listService.deleteByWCUid(uid);
-		this.dao.delete(uid);
+		if(!freqService.existByWCalendaruid(uid)) {
+			this.listService.deleteByWCUid(uid);
+			this.dao.delete(uid);
+		}else {
+			throw new IllegalArgumentException("Referenceing by frequency");
+		}
 	}
 	
 	public boolean existByUid(String uid) throws Exception {

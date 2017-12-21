@@ -453,15 +453,24 @@ public class JobService {
 //		this.dao.delete(uid);
 	}
 	
-	public boolean existByUid(String uid) throws Exception {
+	public boolean existByUid(String uid) throws IllegalArgumentException, Exception {
+		if(null == uid || uid.trim().length() <= 0)
+			throw new IllegalArgumentException("Job Uid can not be empty!");
+		
 		return this.dao.exists(uid);
 	}
 	
-	public boolean existByName(String jobname) throws Exception {
+	public boolean existByName(String jobname) throws IllegalArgumentException, Exception {
+		if(null == jobname || jobname.trim().length() <= 0)
+			throw new IllegalArgumentException("Job Name can not be empty!");
+		
 		return this.dao.existByName(jobname);
 	}
 	
-	public boolean existByFilesourceuid(String filesourceuid) throws Exception {
+	public boolean existByFilesourceuid(String filesourceuid) throws IllegalArgumentException, Exception {
+		if(null == filesourceuid || filesourceuid.trim().length() <= 0)
+			throw new IllegalArgumentException("File Source Uid can not be empty!");
+		
 		return this.dao.existByFilesourceuid(filesourceuid);
 	}
 	

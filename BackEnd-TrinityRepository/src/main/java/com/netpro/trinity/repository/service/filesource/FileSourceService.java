@@ -801,7 +801,6 @@ public class FileSourceService {
 		}else {
 			throw new IllegalArgumentException("Referenceing by job");
 		}
-		
 	}
 	
 	public boolean existByUid(String uid) throws Exception{
