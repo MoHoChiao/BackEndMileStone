@@ -30,8 +30,11 @@ public class WorkingCalendarListService {
 	
 	public WorkingCalendarList add(WorkingCalendarList list) throws IllegalArgumentException, Exception{
 		String wcalendaruid = list.getWcalendaruid();
-		if(null == wcalendaruid)
+		if(null == wcalendaruid || wcalendaruid.trim().length() <= 0)
 			throw new IllegalArgumentException("Working Calendar UID can not be empty!");
+		
+		if(wcalendaruid.trim().equalsIgnoreCase("SYSTEMDAY"))
+			throw new IllegalArgumentException("System day can not be edited!");
 		
 		if(!this.wcService.existByUid(wcalendaruid))
 			throw new IllegalArgumentException("Working Calendar UID does not exist!(" + wcalendaruid + ")");

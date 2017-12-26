@@ -192,7 +192,10 @@ public class WorkingCalendarService {
 		String wc_uid = wc.getWcalendaruid();
 		if(null == wc_uid || wc_uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Working Calendar Uid can not be empty!");
-
+		
+		if(wc_uid.trim().equalsIgnoreCase("SYSTEMDAY"))
+			throw new IllegalArgumentException("System day can not be edited!");
+		
 		WorkingCalendar old_wc = this.dao.findOne(wc_uid);
 		if(null == old_wc)
 			throw new IllegalArgumentException("Working Calendar Uid does not exist!(" + wc_uid + ")");
