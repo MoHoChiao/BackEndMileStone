@@ -1,6 +1,7 @@
 package com.netpro.trinity.repository.service.frequency;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,7 +9,10 @@ import java.util.UUID;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
+import org.hibernate.dialect.ResultColumnReferenceStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,12 +24,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.repository.dao.jpa.frequency.WorkingCalendarJPADao;
+import com.netpro.trinity.repository.dto.DatePattern;
 import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
 import com.netpro.trinity.repository.entity.frequency.jpa.WorkingCalendar;
 import com.netpro.trinity.repository.util.Constant;
+import com.netpro.trinity.repository.util.datepattern.DailyEveryDaysHandler;
+import com.netpro.trinity.repository.util.datepattern.DailyEveryWeekdayHandler;
+import com.netpro.trinity.repository.util.datepattern.EndDateHandler;
+import com.netpro.trinity.repository.util.datepattern.IRecurrenceEndDateHandler;
+import com.netpro.trinity.repository.util.datepattern.IRecurrenceHandler;
+import com.netpro.trinity.repository.util.datepattern.MonthlyEveryMonthHandler;
+import com.netpro.trinity.repository.util.datepattern.OccurencesEndDateHandler;
+import com.netpro.trinity.repository.util.datepattern.Recurrence;
+import com.netpro.trinity.repository.util.datepattern.WeeklyHandler;
 
 @Service
 public class WorkingCalendarService {
@@ -235,6 +249,89 @@ public class WorkingCalendarService {
 		}else {
 			throw new IllegalArgumentException("Referenceing by frequency");
 		}
+	}
+	
+	public void test(DatePattern dp) throws IllegalArgumentException, ParseException, NumberFormatException, Exception{
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
+		if(null == dp.getStartDate() || dp.getStartDate().trim().isEmpty())
+			throw new IllegalArgumentException("The value of startDate can not be empty!");
+		Date startDate = sdf.parse(dp.getStartDate());
+		
+		String patternType = dp.getPatternType();
+		if(null == patternType || patternType.trim().isEmpty())
+			throw new IllegalArgumentException("The value of patternType can not be empty!");
+		
+		String endDateType = dp.getEndDateType();
+		if(null == endDateType || endDateType.trim().isEmpty())
+			throw new IllegalArgumentException("The value of endDateType can not be empty!");
+		
+		IRecurrenceEndDateHandler endHandler = null;
+		if("EndBy".equalsIgnoreCase(endDateType)) {
+			if(null == dp.getEndDate() || dp.getEndDate().trim().isEmpty())
+				throw new IllegalArgumentException("endDateType = 'EndBy' - The value of endDate can not be empty!");
+			
+			Date endDate = sdf.parse(dp.getEndDate());
+			endHandler = new EndDateHandler(startDate, endDate);
+		}else if("EndAfter".equalsIgnoreCase(endDateType)) {			
+			if(null == dp.getOccurences() || dp.getOccurences() <= 0)
+				throw new IllegalArgumentException("endDateType = 'EndAfter' - The value of occurences must be greater than zero!");
+			
+			endHandler = new OccurencesEndDateHandler(dp.getOccurences());
+		}else {
+			throw new IllegalArgumentException("The value of endDateType can only be 'EndBy' or 'EndAfter'!");
+		}
+		
+		IRecurrenceHandler handler = null;
+		if("Daily".equalsIgnoreCase(patternType)){
+			String dailyType = dp.getDailyType();
+			if(null == dailyType || dailyType.trim().isEmpty())
+				throw new IllegalArgumentException("patternType = 'Daily' - The value of dailyType can not be empty!");
+			
+			if("Days".equalsIgnoreCase(dailyType)) {
+				if(null == dp.getDay() || dp.getDay() <= 0)
+					throw new IllegalArgumentException("patternType = 'Daily', dailyType = 'Days' - The value of day must be greater than zero!");
+				
+				handler = new DailyEveryDaysHandler(startDate, dp.getDay());
+			}else if("WeekDay".equalsIgnoreCase(dailyType)) {
+				handler = new DailyEveryWeekdayHandler(startDate);
+			}else {
+				throw new IllegalArgumentException("patternType = 'Daily' - The value of dailyType can only be 'Days' or 'WeekDay'!");
+			}
+		}else if("Weekly".equalsIgnoreCase(patternType)) {
+			if(null == dp.getDays() || dp.getDays().length <= 0)
+				throw new IllegalArgumentException("patternType = 'Weekly' - The value of days can not be empty!");
+			
+			if(null == dp.getWeek() || dp.getWeek() <= 0)
+				throw new IllegalArgumentException("patternType = 'Weekly' - The value of week must be greater than zero!");
+			
+			handler = new WeeklyHandler(startDate, dp.getWeek(), dp.getDays());
+		}else if("Monthly".equalsIgnoreCase(patternType)) {
+			String monthlyType = dp.getMonthlyType();
+			if(null == monthlyType || monthlyType.trim().isEmpty())
+				throw new IllegalArgumentException("patternType = 'Monthly' - The value of monthlyType can not be empty!");
+			
+			if("DayOfEveryMonth".equalsIgnoreCase(monthlyType)) {
+				if(null == dp.getDay() || dp.getDay() <= 0)
+					throw new IllegalArgumentException("patternType = 'Monthly', monthlyType = 'DayOfEveryMonth' - The value of day must be greater than zero!");
+				
+				if(null == dp.getMonth() || dp.getMonth() <= 0)
+					throw new IllegalArgumentException("patternType = 'Monthly', monthlyType = 'DayOfEveryMonth' - The value of month must be greater than zero!");
+				
+				handler = new MonthlyEveryMonthHandler(startDate, dp.getDay(), dp.getMonth());
+			}else if("TheDayOfEveryMonth".equalsIgnoreCase(monthlyType)) {
+				
+			}else {
+				throw new IllegalArgumentException("The value of monthlyType can only be 'DayOfEveryMonth' or 'TheDayOfEveryMonth' !");
+			}
+		}
+		
+		Recurrence rec = new Recurrence();
+			
+		
+		String occurences = "";
+		
+		String dateType = "";
 	}
 	
 	public boolean existByUid(String uid) throws Exception {
