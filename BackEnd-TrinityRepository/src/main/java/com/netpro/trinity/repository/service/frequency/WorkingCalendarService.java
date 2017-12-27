@@ -322,8 +322,12 @@ public class WorkingCalendarService {
 			}else if("TheDayOfEveryMonth".equalsIgnoreCase(monthlyType)) {
 				
 			}else {
-				throw new IllegalArgumentException("The value of monthlyType can only be 'DayOfEveryMonth' or 'TheDayOfEveryMonth' !");
+				throw new IllegalArgumentException("patternType = 'Monthly' - The value of monthlyType can only be 'DayOfEveryMonth' or 'TheDayOfEveryMonth' !");
 			}
+		}else if("Yearly".equalsIgnoreCase(patternType)) {
+			
+		}else {
+			throw new IllegalArgumentException("The value of patternType can only be 'Daily' or 'Weekly' or 'Monthly' or 'Yearly'!");
 		}
 		
 		Recurrence rec = new Recurrence();
