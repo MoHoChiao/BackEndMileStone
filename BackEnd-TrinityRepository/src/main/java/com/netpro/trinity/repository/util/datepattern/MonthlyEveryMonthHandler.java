@@ -4,10 +4,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class MonthlyEveryMonthHandler extends Handler{
-	private int day;
-	private int recur;
+	private Integer day;
+	private Integer recur;
 	
-	public MonthlyEveryMonthHandler(Date startDate, int day, int recur) {
+	public MonthlyEveryMonthHandler(Date startDate, Integer day, Integer recur) {
 		super(startDate);
 		this.day = day;
 		this.recur = recur;

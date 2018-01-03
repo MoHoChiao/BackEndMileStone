@@ -3,9 +3,9 @@ package com.netpro.trinity.repository.util.datepattern;
 import java.util.Date;
 
 public class DailyEveryDaysHandler extends Handler{
-	private int days;
+	private Integer days;
 	
-	public DailyEveryDaysHandler(Date startDate, int days) {
+	public DailyEveryDaysHandler(Date startDate, Integer days) {
 		super(startDate);
 		this.days = days;
 	}

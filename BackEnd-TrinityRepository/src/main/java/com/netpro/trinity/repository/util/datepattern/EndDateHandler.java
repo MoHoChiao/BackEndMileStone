@@ -27,7 +27,7 @@ public class EndDateHandler implements IRecurrenceEndDateHandler{
 	@Override
 	public boolean canAdd(List<Date> dateList, Date date) {
 		Long inDate = date.getTime();
-		if(sl <= inDate && el > inDate)
+		if(sl <= inDate && el >= inDate)
 			return true;
 		else
 			return false;

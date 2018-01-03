@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.repository.dto.FilterInfo;
+import com.netpro.trinity.repository.dto.WorkingCalendarPattern;
 import com.netpro.trinity.repository.entity.frequency.jpa.WorkingCalendar;
 import com.netpro.trinity.repository.service.frequency.WorkingCalendarService;
 
@@ -29,16 +30,6 @@ public class WorkingCalendarController {
 	public ResponseEntity<?> findAllWorkingCalendar() {
 		try {
 			return ResponseEntity.ok(this.service.getAll());
-		}catch(Exception e) {
-			WorkingCalendarController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
-	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isWorkingCalendarExistByUid(String uid) {
-		try {
-			return ResponseEntity.ok(this.service.existByUid(uid));
 		}catch(Exception e) {
 			WorkingCalendarController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -134,5 +125,28 @@ public class WorkingCalendarController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 		return ResponseEntity.ok(uid);
+	}
+	
+	@PostMapping("/getWCPattern")
+	public ResponseEntity<?> getWorkingCalendarPattern(@RequestBody WorkingCalendarPattern dp) {
+		try {
+			return ResponseEntity.ok(this.service.getWCPattern(dp));
+		}catch(IllegalArgumentException e) {
+			WorkingCalendarController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			WorkingCalendarController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/isExistByUid")
+	public ResponseEntity<?> isWorkingCalendarExistByUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.existByUid(uid));
+		}catch(Exception e) {
+			WorkingCalendarController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
 	}
 }
