@@ -338,7 +338,7 @@ public class WorkingCalendarService {
 				if(dp.getDayType() < 1 || dp.getDayType() > 10)
 					throw new IllegalArgumentException("patternType = 'Monthly', monthlyType = 'TheDayOfEveryMonth' - The value of dayType can only be 1~10!");
 				
-				if(dp.getPlusOrMinus() == null) {
+				if(null == dp.getPlusOrMinus() || dp.getPlusOrMinus() == 0) {
 					handler = new MonthlyTheMonthHandler(startDate, dp.getSeq(), dp.getDayType(), dp.getMonth());
 				}else {
 					handler = new MonthlyTheMonthHandler(startDate, dp.getSeq(), dp.getDayType(), dp.getMonth(), dp.getPlusOrMinus());
