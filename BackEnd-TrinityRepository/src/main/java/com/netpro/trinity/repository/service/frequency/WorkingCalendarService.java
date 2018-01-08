@@ -1,6 +1,5 @@
 package com.netpro.trinity.repository.service.frequency;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -254,7 +253,7 @@ public class WorkingCalendarService {
 		}
 	}
 	
-	public List<String> getWCPattern(WorkingCalendarPattern dp) throws IllegalArgumentException, ParseException, NumberFormatException, Exception{
+	public String getWCPattern(WorkingCalendarPattern dp) throws IllegalArgumentException, ParseException, NumberFormatException, Exception{
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		
 		if(null == dp.getStartDate() || dp.getStartDate().trim().isEmpty())
@@ -393,13 +392,18 @@ public class WorkingCalendarService {
 		rec.setHandler(handler);
 		rec.setEndDateHandler(endHandler);
 		
-		List<String> dateList = new ArrayList<String>();
+		StringBuffer dateBuffer = new StringBuffer("[");
 		
 		for(Date d : rec.getDate()) {
-			dateList.add(sdf.format(d));
+			dateBuffer.append("\"").append(sdf.format(d)).append("\",");
 		}
 		
-		return dateList;
+		int lastIndex = dateBuffer.lastIndexOf(",");
+		if(lastIndex != -1)
+			dateBuffer.replace(lastIndex, lastIndex+1, "");
+		dateBuffer.append("]");
+		
+		return dateBuffer.toString();
 	}
 	
 	public boolean existByUid(String uid) throws Exception {
