@@ -51,11 +51,11 @@ public class ConnectionRelationService {
 			throw new IllegalArgumentException("Add Connection Relation Fail!");
 	}
 	
-	public void deleteByConnectionUid(String uid) throws IllegalArgumentException, Exception{
+	public int deleteByConnectionUid(String uid) throws IllegalArgumentException, Exception{
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Connection Uid can not be empty!");
 		
-		this.dao.deleteByConnectionUid(uid);
+		return this.dao.deleteByConnectionUid(uid);
 	}
 	
 	public Boolean exitByCategoryUid(String uid) throws IllegalArgumentException, Exception{

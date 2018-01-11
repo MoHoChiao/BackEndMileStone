@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.controller.connection;
+package com.netpro.trinity.repository.controller.frequency;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,62 +11,62 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.repository.entity.connection.jdbc.ConnectionRelation;
-import com.netpro.trinity.repository.service.connection.ConnectionRelationService;
+import com.netpro.trinity.repository.entity.frequency.jdbc.FrequencyRelation;
+import com.netpro.trinity.repository.service.frequency.FrequencyRelationService;
 
 @RestController  //宣告一個Restful Web Service的Resource
-@RequestMapping("/connection-relation")
-public class ConnectionRelationController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionRelationController.class);
+@RequestMapping("/frequency-relation")
+public class FrequencyRelationController {
+	private static final Logger LOGGER = LoggerFactory.getLogger(FrequencyRelationController.class);
 		
 	@Autowired
-	private ConnectionRelationService service;
+	private FrequencyRelationService service;
 	
-	@GetMapping("/findAllConnectionUids")
-	public ResponseEntity<?> findAllConnectionUids() {
+	@GetMapping("/findAllFrequencyUids")
+	public ResponseEntity<?> findAllFrequencyUids() {
 		try {
-			return ResponseEntity.ok(this.service.getAllConnectionUids());
+			return ResponseEntity.ok(this.service.getAllFrequencyUids());
 		}catch(Exception e) {
-			ConnectionRelationController.LOGGER.error("Exception; reason was:", e);
+			FrequencyRelationController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
-	@GetMapping("/findConnectionUidsByCategoryUid")
-	public ResponseEntity<?> findConnectionUidsByCategoryUid(String uid) {
+	@GetMapping("/findFrequencyUidsByCategoryUid")
+	public ResponseEntity<?> findFrequencyUidsByCategoryUid(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getConnectionUidsByCategoryUid(uid));
+			return ResponseEntity.ok(this.service.getFrequencyUidsByCategoryUid(uid));
 		}catch(IllegalArgumentException e) {
-			ConnectionRelationController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FrequencyRelationController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			ConnectionRelationController.LOGGER.error("Exception; reason was:", e);
+			FrequencyRelationController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/addOne")
-	public ResponseEntity<?> addOneRelation(@RequestBody ConnectionRelation rel) {
+	public ResponseEntity<?> addOneRelation(@RequestBody FrequencyRelation rel) {
 		try {
 			return ResponseEntity.ok(this.service.add(rel));
 		}catch(IllegalArgumentException e) {
-			ConnectionRelationController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FrequencyRelationController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			ConnectionRelationController.LOGGER.error("Exception; reason was:", e);
+			FrequencyRelationController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
-	@GetMapping("/deleteByConnectionUid")
-	public ResponseEntity<?> deleteRelationByConnectionUid(String uid) {
+	@GetMapping("/deleteByFrequencyUid")
+	public ResponseEntity<?> deleteRelationByFrequencyUid(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.deleteByConnectionUid(uid));
+			return ResponseEntity.ok(this.service.deleteByFrequencyUid(uid));
 		}catch(IllegalArgumentException e) {
-			ConnectionRelationController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FrequencyRelationController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			ConnectionRelationController.LOGGER.error("Exception; reason was:", e);
+			FrequencyRelationController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
@@ -76,10 +76,10 @@ public class ConnectionRelationController {
 		try {
 			return ResponseEntity.ok(this.service.exitByCategoryUid(uid));
 		}catch(IllegalArgumentException e) {
-			ConnectionRelationController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FrequencyRelationController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			ConnectionRelationController.LOGGER.error("Exception; reason was:", e);
+			FrequencyRelationController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}

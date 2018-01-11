@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -33,6 +34,9 @@ public class Frequency {
   	@Column
   	@Temporal(TemporalType.TIMESTAMP)
   	private Date lastupdatetime;
+  	
+  	@Transient
+  	private String frequencytype;
   	
 	public String getFrequencyuid() {
 		return frequencyuid;
@@ -94,6 +98,12 @@ public class Frequency {
 	}
 	public void setLastupdatetime(Date lastupdatetime) {
 		this.lastupdatetime = lastupdatetime;
+	}
+	public String getFrequencytype() {
+		return frequencytype;
+	}
+	public void setFrequencytype(String frequencytype) {
+		this.frequencytype = frequencytype;
 	}
   	
   	

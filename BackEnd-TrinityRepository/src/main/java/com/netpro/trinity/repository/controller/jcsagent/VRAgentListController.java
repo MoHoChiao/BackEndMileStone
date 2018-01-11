@@ -25,7 +25,7 @@ public class VRAgentListController {
 	private VRAgentListService service;
 	
 	@GetMapping("/findByVRAgentUid")
-	public ResponseEntity<?> findVRAgentByVRAgentUid(String uid) {
+	public ResponseEntity<?> findListByVRAgentUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.getExByVRAgentUid(uid));
 		}catch(IllegalArgumentException e) {
@@ -74,7 +74,7 @@ public class VRAgentListController {
 	}
 	
 	@GetMapping("/deleteByVRAgentUid")
-	public ResponseEntity<?> deleteVRAgentByVRAgentUid(String uid) {
+	public ResponseEntity<?> deleteListByVRAgentUid(String uid) {
 		try {
 			this.service.deleteByVRAgentUid(uid);
 		}catch(IllegalArgumentException e) {

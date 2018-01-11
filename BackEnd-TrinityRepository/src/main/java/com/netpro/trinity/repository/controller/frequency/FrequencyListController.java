@@ -13,75 +13,75 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.repository.entity.frequency.jdbc.WorkingCalendarList;
-import com.netpro.trinity.repository.service.frequency.WorkingCalendarListService;
+import com.netpro.trinity.repository.entity.frequency.jdbc.FrequencyList;
+import com.netpro.trinity.repository.service.frequency.FrequencyListService;
 
 @RestController  //宣告一個Restful Web Service的Resource
-@RequestMapping("/working-calendar-list")
-public class WorkingCalendarListController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(WorkingCalendarListController.class);
+@RequestMapping("/frequency-list")
+public class FrequencyListController {
+	private static final Logger LOGGER = LoggerFactory.getLogger(FrequencyListController.class);
 		
 	@Autowired
-	private WorkingCalendarListService service;
+	private FrequencyListService service;
 	
-	@GetMapping("/findByWorkingCalendarUid")
-	public ResponseEntity<?> findListByWCUid(String uid) {
+	@GetMapping("/findByFrequencyUid")
+	public ResponseEntity<?> findListByFreqUid(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByWCUid(uid));
+			return ResponseEntity.ok(this.service.getByFrequencyUid(uid));
 		}catch(IllegalArgumentException e) {
-			WorkingCalendarListController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FrequencyListController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			WorkingCalendarListController.LOGGER.error("Exception; reason was:", e);
+			FrequencyListController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/addOne")
-	public ResponseEntity<?> addOneWorkingCalendarList(@RequestBody WorkingCalendarList list) {
+	public ResponseEntity<?> addOneFrequencyList(@RequestBody FrequencyList list) {
 		try {
 			return ResponseEntity.ok(this.service.add(list));
 		}catch(IllegalArgumentException e) {
-			WorkingCalendarListController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FrequencyListController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			WorkingCalendarListController.LOGGER.error("Exception; reason was:", e);
+			FrequencyListController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/addMany")
-	public ResponseEntity<?> addManyWorkingCalendarList(String wCalendarUid, @RequestBody List<WorkingCalendarList> lists) {
+	public ResponseEntity<?> addManyFrequencyList(String freqUid, @RequestBody List<FrequencyList> lists) {
 		try {
-			return ResponseEntity.ok(this.service.add(wCalendarUid, lists));
+			return ResponseEntity.ok(this.service.add(freqUid, lists));
 		}catch(IllegalArgumentException e) {
-			WorkingCalendarListController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FrequencyListController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			WorkingCalendarListController.LOGGER.error("Exception; reason was:", e);
+			FrequencyListController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/addBatch")
-	public ResponseEntity<?> addBatchWorkingCalendarList(@RequestBody List<WorkingCalendarList> lists) {
+	public ResponseEntity<?> addBatchFrequencyList(@RequestBody List<FrequencyList> lists) {
 		try {
 			return ResponseEntity.ok(this.service.addBatch(lists));
 		}catch(Exception e) {
-			WorkingCalendarListController.LOGGER.error("Exception; reason was:", e);
+			FrequencyListController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
-	@GetMapping("/deleteByWorkingCalendarUid")
-	public ResponseEntity<?> deleteListByWCUid(String uid) {
+	@GetMapping("/deleteByFrequencyUid")
+	public ResponseEntity<?> deleteListByFreqUid(String uid) {
 		try {
-			this.service.deleteByWCUid(uid);
+			this.service.deleteByFrequencyUid(uid);
 		}catch(IllegalArgumentException e) {
-			WorkingCalendarListController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			FrequencyListController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			WorkingCalendarListController.LOGGER.error("Exception; reason was:", e);
+			FrequencyListController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 		return ResponseEntity.ok(uid);

@@ -1,5 +1,6 @@
 package com.netpro.trinity.repository.service.frequency;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -28,6 +29,7 @@ import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
 import com.netpro.trinity.repository.dto.WorkingCalendarPattern;
+import com.netpro.trinity.repository.entity.frequency.jdbc.WorkingCalendarList;
 import com.netpro.trinity.repository.entity.frequency.jpa.WorkingCalendar;
 import com.netpro.trinity.repository.util.Constant;
 import com.netpro.trinity.repository.util.datepattern.DailyEveryDaysHandler;
@@ -199,8 +201,14 @@ public class WorkingCalendarService {
 		
 		this.dao.save(wc);
 		this.listService.deleteByWCUid(wc.getWcalendaruid());
-		wc.setWcalendarlist(this.listService.add(wc.getWcalendaruid(), wc.getWcalendarlist())); //重設working calendar list, 只有插入成功的會留下來
-		
+		List<WorkingCalendarList> wcList = wc.getWcalendarlist();
+		int[] returnValue = this.listService.addBatch(wcList);
+		for(int i=0; i<returnValue.length; i++) {//重設working calendar list, 只有插入成功的會留下來傳回前端
+			if(returnValue[i] == 0) {
+				wcList.remove(i);
+			}
+		}
+		wc.setWcalendarlist(wcList);
 		return wc;
 	}
 	
@@ -233,8 +241,14 @@ public class WorkingCalendarService {
 		
 		this.dao.save(wc);
 		this.listService.deleteByWCUid(wc.getWcalendaruid());
-		wc.setWcalendarlist(this.listService.add(wc.getWcalendaruid(), wc.getWcalendarlist())); //重設working calendar list, 只有插入成功的會留下來
-		
+		List<WorkingCalendarList> wcList = wc.getWcalendarlist();
+		int[] returnValue = this.listService.addBatch(wcList);
+		for(int i=0; i<returnValue.length; i++) {//重設working calendar list, 只有插入成功的會留下來傳回前端
+			if(returnValue[i] == 0) {
+				wcList.remove(i);
+			}
+		}
+		wc.setWcalendarlist(wcList);
 		return wc;
 	}
 	
@@ -253,7 +267,7 @@ public class WorkingCalendarService {
 		}
 	}
 	
-	public String getWCPattern(WorkingCalendarPattern dp) throws IllegalArgumentException, ParseException, NumberFormatException, Exception{
+	public List<String> getWCPattern(WorkingCalendarPattern dp) throws IllegalArgumentException, ParseException, NumberFormatException, Exception{
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		
 		if(null == dp.getStartDate() || dp.getStartDate().trim().isEmpty())
@@ -391,19 +405,17 @@ public class WorkingCalendarService {
 		Recurrence rec = new Recurrence();
 		rec.setHandler(handler);
 		rec.setEndDateHandler(endHandler);
+		List<Date> dates = rec.getDate();
+		if(dates.size() > 2000)
+			throw new IllegalArgumentException("The total number of days selected by pattern can not exceed 2000 days!");
 		
-		StringBuffer dateBuffer = new StringBuffer("[");
+		List<String> dateList = new ArrayList<String>();
 		
-		for(Date d : rec.getDate()) {
-			dateBuffer.append("\"").append(sdf.format(d)).append("\",");
+		for(Date d : dates) {
+			dateList.add(sdf.format(d));
 		}
 		
-		int lastIndex = dateBuffer.lastIndexOf(",");
-		if(lastIndex != -1)
-			dateBuffer.replace(lastIndex, lastIndex+1, "");
-		dateBuffer.append("]");
-		
-		return dateBuffer.toString();
+		return dateList;
 	}
 	
 	public boolean existByUid(String uid) throws Exception {
