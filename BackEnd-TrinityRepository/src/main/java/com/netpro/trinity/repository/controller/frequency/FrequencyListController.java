@@ -37,6 +37,32 @@ public class FrequencyListController {
 		}
 	}
 	
+	@GetMapping("/findDistinctDateByFrequencyUid")
+	public ResponseEntity<?> findDistinctDateListByFreqUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.getDistinctDateByFrequencyUid(uid));
+		}catch(IllegalArgumentException e) {
+			FrequencyListController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			FrequencyListController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/findDistinctTimeByFrequencyUid")
+	public ResponseEntity<?> findDistinctTimeListByFreqUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.getDistinctTimeByFrequencyUid(uid));
+		}catch(IllegalArgumentException e) {
+			FrequencyListController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			FrequencyListController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@PostMapping("/addOne")
 	public ResponseEntity<?> addOneFrequencyList(@RequestBody FrequencyList list) {
 		try {

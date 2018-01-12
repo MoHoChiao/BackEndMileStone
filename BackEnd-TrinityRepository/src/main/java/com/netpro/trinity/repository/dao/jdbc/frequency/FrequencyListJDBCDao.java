@@ -37,6 +37,34 @@ public class FrequencyListJDBCDao {
         return lists;
     }
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<FrequencyList> findDistinctDateByFrequencyUid(String uid) throws DataAccessException{
+
+        String sql = "SELECT DISTINCT f.yearnum, f.monthnum, f.daynum, f.weekdaynum "
+        		+ "FROM frequencylist f "
+        		+ "WHERE f.frequencyuid = ?";
+        Object[] param = new Object[] {uid};
+
+        List<FrequencyList> lists = (List<FrequencyList>) jtm.query(sql, param,
+                new BeanPropertyRowMapper(FrequencyList.class));
+
+        return lists;
+    }
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<FrequencyList> findDistinctTimeByFrequencyUid(String uid) throws DataAccessException{
+
+        String sql = "SELECT DISTINCT f.hour, f.minute "
+        		+ "FROM frequencylist f "
+        		+ "WHERE f.frequencyuid = ?";
+        Object[] param = new Object[] {uid};
+
+        List<FrequencyList> lists = (List<FrequencyList>) jtm.query(sql, param,
+                new BeanPropertyRowMapper(FrequencyList.class));
+
+        return lists;
+    }
+	
 	public Boolean exitByAllPKs(FrequencyList fList) throws DataAccessException{
 
         String sql = "SELECT COUNT(list) > 0 "

@@ -24,8 +24,31 @@ public class FrequencyListService {
 	public List<FrequencyList> getByFrequencyUid(String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Frequency UID can not be empty!");
-				
+		
+		if(!this.freqService.existByUid(uid))
+			throw new IllegalArgumentException("Frequency UID does not exist!(" + uid + ")");
+		
 		return this.dao.findByFrequencyUid(uid);
+	}
+	
+	public List<FrequencyList> getDistinctDateByFrequencyUid(String uid) throws IllegalArgumentException, Exception{
+		if(uid == null || uid.isEmpty())
+			throw new IllegalArgumentException("Frequency UID can not be empty!");
+		
+		if(!this.freqService.existByUid(uid))
+			throw new IllegalArgumentException("Frequency UID does not exist!(" + uid + ")");
+		
+		return this.dao.findDistinctDateByFrequencyUid(uid);
+	}
+	
+	public List<FrequencyList> getDistinctTimeByFrequencyUid(String uid) throws IllegalArgumentException, Exception{
+		if(uid == null || uid.isEmpty())
+			throw new IllegalArgumentException("Frequency UID can not be empty!");
+		
+		if(!this.freqService.existByUid(uid))
+			throw new IllegalArgumentException("Frequency UID does not exist!(" + uid + ")");
+		
+		return this.dao.findDistinctTimeByFrequencyUid(uid);
 	}
 	
 	public FrequencyList add(FrequencyList list) throws IllegalArgumentException, Exception{
