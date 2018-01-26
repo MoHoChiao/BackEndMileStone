@@ -42,7 +42,8 @@ public class FrequencyListJDBCDao {
 
         String sql = "SELECT DISTINCT f.yearnum, f.monthnum, f.daynum, f.weekdaynum "
         		+ "FROM frequencylist f "
-        		+ "WHERE f.frequencyuid = ?";
+        		+ "WHERE f.frequencyuid = ? "
+        		+ "ORDER BY f.yearnum, f.monthnum, f.daynum";
         Object[] param = new Object[] {uid};
 
         List<FrequencyList> lists = (List<FrequencyList>) jtm.query(sql, param,
@@ -56,7 +57,8 @@ public class FrequencyListJDBCDao {
 
         String sql = "SELECT DISTINCT f.hour, f.minute "
         		+ "FROM frequencylist f "
-        		+ "WHERE f.frequencyuid = ?";
+        		+ "WHERE f.frequencyuid = ? "
+        		+ "ORDER BY f.hour, f.minute";
         Object[] param = new Object[] {uid};
 
         List<FrequencyList> lists = (List<FrequencyList>) jtm.query(sql, param,
@@ -95,11 +97,11 @@ public class FrequencyListJDBCDao {
 		return jtm.update(insert_sql, params);
 	}
 	
-	public int[] saveBatch(List<FrequencyList> lists) throws DataAccessException{
+	public int[] saveBatch(String freqUid, List<FrequencyList> lists) throws DataAccessException{
 		int[] insertCounts = jtm.batchUpdate(insert_sql, new BatchPreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				ps.setString(1, lists.get(i).getFrequencyuid());
+				ps.setString(1, freqUid);
 				ps.setInt(2, lists.get(i).getSeq());
 				ps.setInt(3, lists.get(i).getYearnum());
 				ps.setInt(4, lists.get(i).getMonthnum());

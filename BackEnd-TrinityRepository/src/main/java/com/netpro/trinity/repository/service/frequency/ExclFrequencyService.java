@@ -23,14 +23,14 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.dao.jpa.frequency.WorkingCalendarJPADao;
+import com.netpro.trinity.repository.dao.jpa.frequency.ExclFrequencyJPADao;
 import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
 import com.netpro.trinity.repository.dto.WorkingCalendarPattern;
-import com.netpro.trinity.repository.entity.frequency.jdbc.WorkingCalendarList;
-import com.netpro.trinity.repository.entity.frequency.jpa.WorkingCalendar;
+import com.netpro.trinity.repository.entity.frequency.jdbc.ExclFrequencyList;
+import com.netpro.trinity.repository.entity.frequency.jpa.ExclFrequency;
 import com.netpro.trinity.repository.util.Constant;
 import com.netpro.trinity.repository.util.datepattern.DailyEveryDaysHandler;
 import com.netpro.trinity.repository.util.datepattern.DailyEveryWeekdayHandler;
@@ -46,59 +46,59 @@ import com.netpro.trinity.repository.util.datepattern.YearlyEveryYearHandler;
 import com.netpro.trinity.repository.util.datepattern.YearlyTheYearHandler;
 
 @Service
-public class WorkingCalendarService {
-	public static final String[] WC_FIELD_VALUES = new String[] { "wcalendarname", "activate", "description"};
-	public static final Set<String> WC_FIELD_SET = new HashSet<>(Arrays.asList(WC_FIELD_VALUES));
+public class ExclFrequencyService {
+	public static final String[] EXCL_FIELD_VALUES = new String[] { "excludefrequencyname", "activate", "description"};
+	public static final Set<String> EXCL_FIELD_SET = new HashSet<>(Arrays.asList(EXCL_FIELD_VALUES));
 	
 	@Autowired
-	private WorkingCalendarJPADao dao;
+	private ExclFrequencyJPADao dao;
 	
 	@Autowired
-	private WorkingCalendarListService listService;
+	private ExclFrequencyListService listService;
 	@Autowired
 	private FrequencyService freqService;
 	
-	public List<WorkingCalendar> getAll(Boolean withoutDetail) throws Exception{
-		List<WorkingCalendar> wcs = this.dao.findAll();
+	public List<ExclFrequency> getAll(Boolean withoutDetail) throws Exception{
+		List<ExclFrequency> excls = this.dao.findAll();
 		if(null == withoutDetail || withoutDetail == false)
-			getWCList(wcs);
-		return wcs;
+			getExclFreqList(excls);
+		return excls;
 	}
 	
-	public WorkingCalendar getByUid(Boolean withoutDetail, String uid) throws IllegalArgumentException, Exception{
+	public ExclFrequency getByUid(Boolean withoutDetail, String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
-			throw new IllegalArgumentException("Working Calendar UID can not be empty!");
+			throw new IllegalArgumentException("Exclude Frequency UID can not be empty!");
 		
-		WorkingCalendar wc = this.dao.findOne(uid);
-		if(wc == null)
-			throw new IllegalArgumentException("Working Calendar UID does not exist!(" + uid + ")");
+		ExclFrequency excl = this.dao.findOne(uid);
+		if(excl == null)
+			throw new IllegalArgumentException("Exclude Frequency UID does not exist!(" + uid + ")");
 		
 		if(null == withoutDetail || withoutDetail == false)
-			getWCList(wc);
+			getExclFreqList(excl);
 		
-		return wc;
+		return excl;
 	}
 	
-	public List<WorkingCalendar> getByName(Boolean withoutDetail, String name) throws IllegalArgumentException, Exception{
+	public List<ExclFrequency> getByName(Boolean withoutDetail, String name) throws IllegalArgumentException, Exception{
 		if(name == null || name.isEmpty())
-			throw new IllegalArgumentException("Working Calendar Name can not be empty!");
+			throw new IllegalArgumentException("Exclude Frequency Name can not be empty!");
 		
-		List<WorkingCalendar> wcs = this.dao.findBywcalendarname(name.toUpperCase());
+		List<ExclFrequency> excls = this.dao.findByexcludefrequencyname(name.toUpperCase());
 		
 		if(null == withoutDetail || withoutDetail == false)
-			getWCList(wcs);
+			getExclFreqList(excls);
 		
-		return wcs;
+		return excls;
 	}
 	
 	@SuppressWarnings("unchecked")
 	public ResponseEntity<?> getByFilter(Boolean withoutDetail, FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
 		if(filter == null) {
-			List<WorkingCalendar> wcs = this.dao.findAll();
+			List<ExclFrequency> excls = this.dao.findAll();
 			if(null == withoutDetail || withoutDetail == false)
-				getWCList(wcs);
-			return ResponseEntity.ok(wcs);
+				getExclFreqList(excls);
+			return ResponseEntity.ok(excls);
 		}
 			
 		
@@ -107,10 +107,10 @@ public class WorkingCalendarService {
 		Querying querying = filter.getQuerying();
 		
 		if(paging == null && ordering == null && querying == null) {
-			List<WorkingCalendar> wcs = this.dao.findAll();
+			List<ExclFrequency> excls = this.dao.findAll();
 			if(null == withoutDetail || withoutDetail == false)
-				getWCList(wcs);
-			return ResponseEntity.ok(wcs);
+				getExclFreqList(excls);
+			return ResponseEntity.ok(excls);
 		}
 			
 		
@@ -127,31 +127,31 @@ public class WorkingCalendarService {
 		
 		if(querying == null) {
 			if(pageRequest != null) {
-				Page<WorkingCalendar> page_wc = this.dao.findAll(pageRequest);
+				Page<ExclFrequency> page_excl = this.dao.findAll(pageRequest);
 				if(null == withoutDetail || withoutDetail == false)
-					getWCList(page_wc.getContent());
-				return ResponseEntity.ok(page_wc);
+					getExclFreqList(page_excl.getContent());
+				return ResponseEntity.ok(page_excl);
 			}else if(sort != null) {
-				List<WorkingCalendar> wcs = this.dao.findAll(sort);
+				List<ExclFrequency> excls = this.dao.findAll(sort);
 				if(null == withoutDetail || withoutDetail == false)
-					getWCList(wcs);
-				return ResponseEntity.ok(wcs);
+					getExclFreqList(excls);
+				return ResponseEntity.ok(excls);
 			}else {
 				/*
 				 * The paging and ordering both objects are null.
 				 * it means pageRequest and sort must be null too.
 				 * then return default
 				 */
-				List<WorkingCalendar> wcs = this.dao.findAll(sort);
+				List<ExclFrequency> excls = this.dao.findAll(sort);
 				if(null == withoutDetail || withoutDetail == false)
-					getWCList(wcs);
-				return ResponseEntity.ok(wcs);
+					getExclFreqList(excls);
+				return ResponseEntity.ok(excls);
 			}
 		}else {
 			if(querying.getQueryType() == null || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
 				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
-			if(querying.getQueryField() == null || !WC_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query field! "+ WC_FIELD_SET.toString());
+			if(querying.getQueryField() == null || !EXCL_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
+				throw new IllegalArgumentException("Illegal query field! "+ EXCL_FIELD_SET.toString());
 			if(querying.getIgnoreCase() == null)
 				querying.setIgnoreCase(false);
 			
@@ -172,115 +172,108 @@ public class WorkingCalendarService {
 			Method method = null;
 			if(pageRequest != null){
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
-				Page<WorkingCalendar> page_wc = (Page<WorkingCalendar>) method.invoke(this.dao, queryString, pageRequest);
+				Page<ExclFrequency> page_excl = (Page<ExclFrequency>) method.invoke(this.dao, queryString, pageRequest);
 				if(null == withoutDetail || withoutDetail == false)
-					getWCList(page_wc.getContent());
-				return ResponseEntity.ok(page_wc);
+					getExclFreqList(page_excl.getContent());
+				return ResponseEntity.ok(page_excl);
 			}else if(sort != null) {
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
-				List<WorkingCalendar> wcs = (List<WorkingCalendar>) method.invoke(this.dao, queryString, sort);
+				List<ExclFrequency> page_excl = (List<ExclFrequency>) method.invoke(this.dao, queryString, sort);
 				if(null == withoutDetail || withoutDetail == false)
-					getWCList(wcs);
-				return ResponseEntity.ok(wcs);
+					getExclFreqList(page_excl);
+				return ResponseEntity.ok(page_excl);
 			}else {
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class);
-				List<WorkingCalendar> wcs = (List<WorkingCalendar>) method.invoke(this.dao, queryString);
+				List<ExclFrequency> page_excl = (List<ExclFrequency>) method.invoke(this.dao, queryString);
 				if(null == withoutDetail || withoutDetail == false)
-					getWCList(wcs);
-				return ResponseEntity.ok(wcs);
+					getExclFreqList(page_excl);
+				return ResponseEntity.ok(page_excl);
 			}
 		}
 	}
 	
-	public WorkingCalendar add(WorkingCalendar wc) throws IllegalArgumentException, Exception{
-		wc.setWcalendaruid(UUID.randomUUID().toString());
+	public ExclFrequency add(ExclFrequency excl) throws IllegalArgumentException, Exception{
+		excl.setExcludefrequencyuid(UUID.randomUUID().toString());
 		
-		String wc_name = wc.getWcalendarname();
-		if(null == wc_name || wc_name.trim().length() <= 0)
-			throw new IllegalArgumentException("Working Calendar Name can not be empty!");
-		wc.setWcalendarname(wc_name.toUpperCase());
+		String excludefrequencyname = excl.getExcludefrequencyname();
+		if(null == excludefrequencyname || excludefrequencyname.trim().length() <= 0)
+			throw new IllegalArgumentException("Exclude Frequency Name can not be empty!");
+		excl.setExcludefrequencyname(excludefrequencyname.toUpperCase());
 		
-		if(this.dao.existByName(wc.getWcalendarname()))
-			throw new IllegalArgumentException("Duplicate Working Calendar Name!");
+		if(this.dao.existByName(excl.getExcludefrequencyname()))
+			throw new IllegalArgumentException("Duplicate Exclude Frequency Name!");
 		
-		String activate = wc.getActivate();
+		String activate = excl.getActivate();
 		if(null == activate || (!activate.equals("1") && !activate.equals("0")))
-			throw new IllegalArgumentException("Working Calendar activate value can only be 1 or 0!");
+			throw new IllegalArgumentException("Exclude Frequency activate value can only be 1 or 0!");
 		
-		if(null == wc.getDescription())
-			wc.setDescription("");
+		if(null == excl.getDescription())
+			excl.setDescription("");
 		
-		this.dao.save(wc);
-		List<WorkingCalendarList> wcList = wc.getWcalendarlist();
-		if(null != wcList && wcList.size() > 0) {
-			int[] returnValue = this.listService.addBatch(wc.getWcalendaruid(), wcList);
-			for(int i=0; i<returnValue.length; i++) {//重設working calendar list, 只有插入成功的會留下來傳回前端
+		this.dao.save(excl);
+		List<ExclFrequencyList> exclFreqList = excl.getExcludefrequencylist();
+		if(null != exclFreqList && exclFreqList.size() > 0) {
+			int[] returnValue = this.listService.addBatch(excl.getExcludefrequencyuid(), exclFreqList);
+			for(int i=0; i<returnValue.length; i++) {//重設exclude frequency list, 只有插入成功的會留下來傳回前端
 				if(returnValue[i] == 0) {
-					wcList.remove(i);
+					exclFreqList.remove(i);
 				}
 			}
-			wc.setWcalendarlist(wcList);
+			excl.setExcludefrequencylist(exclFreqList);
 		}
-		
-		return wc;
+		return excl;
 	}
 	
-	public WorkingCalendar edit(WorkingCalendar wc) throws IllegalArgumentException, Exception{		
-		String wc_uid = wc.getWcalendaruid();
-		if(null == wc_uid || wc_uid.trim().length() <= 0)
-			throw new IllegalArgumentException("Working Calendar Uid can not be empty!");
+	public ExclFrequency edit(ExclFrequency excl) throws IllegalArgumentException, Exception{		
+		String excludefrequencyuid = excl.getExcludefrequencyuid();
+		if(null == excludefrequencyuid || excludefrequencyuid.trim().length() <= 0)
+			throw new IllegalArgumentException("Exclude Frequency Uid can not be empty!");
 		
-		if(wc_uid.trim().equalsIgnoreCase("SYSTEMDAY"))
-			throw new IllegalArgumentException("System day can not be edited!");
+		ExclFrequency old_excl = this.dao.findOne(excludefrequencyuid);
+		if(null == old_excl)
+			throw new IllegalArgumentException("Exclude Frequency Uid does not exist!(" + excludefrequencyuid + ")");
 		
-		WorkingCalendar old_wc = this.dao.findOne(wc_uid);
-		if(null == old_wc)
-			throw new IllegalArgumentException("Working Calendar Uid does not exist!(" + wc_uid + ")");
+		String excludefrequencyname = excl.getExcludefrequencyname();
+		if(null == excludefrequencyname || excludefrequencyname.trim().length() <= 0)
+			throw new IllegalArgumentException("Exclude Frequency Name can not be empty!");
+		excl.setExcludefrequencyname(excludefrequencyname.toUpperCase());
 		
-		String wc_name = wc.getWcalendarname();
-		if(null == wc_name || wc_name.trim().length() <= 0)
-			throw new IllegalArgumentException("Working Calendar Name can not be empty!");
-		wc.setWcalendarname(wc_name.toUpperCase());
+		if(this.dao.existByName(excl.getExcludefrequencyname()) && 
+				!old_excl.getExcludefrequencyname().equalsIgnoreCase(old_excl.getExcludefrequencyname()))
+			throw new IllegalArgumentException("Duplicate Exclude Frequency Name!");
 		
-		if(this.dao.existByName(wc.getWcalendarname()) && !old_wc.getWcalendarname().equalsIgnoreCase(wc.getWcalendarname()))
-			throw new IllegalArgumentException("Duplicate Working Calendar Name!");
-		
-		String activate = wc.getActivate();
+		String activate = excl.getActivate();
 		if(null == activate || (!activate.equals("1") && !activate.equals("0")))
-			throw new IllegalArgumentException("Working Calendar activate value can only be 1 or 0!");
+			throw new IllegalArgumentException("Exclude Frequency activate value can only be 1 or 0!");
 		
-		if(null == wc.getDescription())
-			wc.setDescription("");
+		if(null == excl.getDescription())
+			excl.setDescription("");
 		
-		this.dao.save(wc);
-		List<WorkingCalendarList> wcList = wc.getWcalendarlist();
-		if(null != wcList && wcList.size() > 0) {
-			this.listService.deleteByWCUid(wc.getWcalendaruid());
-			int[] returnValue = this.listService.addBatch(wc.getWcalendaruid(), wcList);
-			for(int i=0; i<returnValue.length; i++) {//重設working calendar list, 只有插入成功的會留下來傳回前端
+		this.dao.save(excl);
+		List<ExclFrequencyList> exclFreqList = excl.getExcludefrequencylist();
+		if(null != exclFreqList && exclFreqList.size() > 0) {
+			this.listService.deleteByExclFreqUid(excl.getExcludefrequencyuid());
+			int[] returnValue = this.listService.addBatch(excl.getExcludefrequencyuid(), exclFreqList);
+			for(int i=0; i<returnValue.length; i++) {//重設Exclude Frequency list, 只有插入成功的會留下來傳回前端
 				if(returnValue[i] == 0) {
-					wcList.remove(i);
+					exclFreqList.remove(i);
 				}
 			}
-			wc.setWcalendarlist(wcList);
+			excl.setExcludefrequencylist(exclFreqList);
 		}
-		
-		return wc;
+		return excl;
 	}
 	
 	public void deleteByUid(String uid) throws IllegalArgumentException, Exception{
-		if(null == uid || uid.trim().length() <= 0)
-			throw new IllegalArgumentException("Working Calendar Uid can not be empty!");
-				
-		if(uid.trim().equalsIgnoreCase("SYSTEMDAY"))
-			throw new IllegalArgumentException("System day can not be removed!");
-		
-		if(!freqService.existByWCalendaruid(uid)) {
-			this.listService.deleteByWCUid(uid);
-			this.dao.delete(uid);
-		}else {
-			throw new IllegalArgumentException("Referenceing by frequency");
-		}
+//		if(null == uid || uid.trim().length() <= 0)
+//			throw new IllegalArgumentException("Exclude Frequency Uid can not be empty!");
+//				
+//		if(!freqService.existByWCalendaruid(uid)) {
+//			this.listService.deleteByExclFreqUid(uid);
+//			this.dao.delete(uid);
+//		}else {
+//			throw new IllegalArgumentException("Referenceing by frequency");
+//		}
 	}
 	
 	public List<String> getWCPattern(WorkingCalendarPattern dp) throws IllegalArgumentException, ParseException, NumberFormatException, Exception{
@@ -458,19 +451,19 @@ public class WorkingCalendarService {
 			direct = Direction.fromStringOrNull(ordering.getOrderType());
 		
 		Order order = new Order(direct, "wcalendarname");
-		if(ordering.getOrderField() != null && WC_FIELD_SET.contains(ordering.getOrderField().toLowerCase()))
+		if(ordering.getOrderField() != null && EXCL_FIELD_SET.contains(ordering.getOrderField().toLowerCase()))
 			order = new Order(direct, ordering.getOrderField());
 		
 		return new Sort(order);
 	}
 	
-	private void getWCList(List<WorkingCalendar> wcs) throws Exception {
-		for(WorkingCalendar wc : wcs) {
-			getWCList(wc);
+	private void getExclFreqList(List<ExclFrequency> excls) throws Exception {
+		for(ExclFrequency excl : excls) {
+			getExclFreqList(excl);
 		}
 	}
 	
-	private void getWCList(WorkingCalendar wc) throws Exception {
-		wc.setWcalendarlist(this.listService.getByWCUid(wc.getWcalendaruid()));
+	private void getExclFreqList(ExclFrequency excl) throws Exception {
+		excl.setExcludefrequencylist(this.listService.getByExclFreqUid(excl.getExcludefrequencyuid()));
 	}
 }

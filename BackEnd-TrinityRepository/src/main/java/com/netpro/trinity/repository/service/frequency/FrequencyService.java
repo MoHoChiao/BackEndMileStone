@@ -3,10 +3,11 @@ package com.netpro.trinity.repository.service.frequency;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,8 +24,11 @@ import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.entity.connection.jpa.Connection;
+import com.netpro.trinity.repository.entity.frequency.jdbc.FrequencyList;
+import com.netpro.trinity.repository.entity.frequency.jdbc.FrequencyRelation;
 import com.netpro.trinity.repository.entity.frequency.jpa.Frequency;
+import com.netpro.trinity.repository.service.job.JobService;
+import com.netpro.trinity.repository.service.objectalias.ObjectAliasService;
 import com.netpro.trinity.repository.util.Constant;
 
 @Service
@@ -36,14 +40,30 @@ public class FrequencyService {
 	FrequencyJPADao dao;
 	
 	@Autowired
+	private FrequencyListService listService;
+	@Autowired
 	FrequencyRelationService relService;
+	@Autowired
+	FreqExcludeService feService;
+	@Autowired
+	private JobService jobService;
+	@Autowired
+	private ObjectAliasService objectAliasService;
 	
 	public List<Frequency> getAll() throws Exception{
 		return this.dao.findAll();
 	}
 	
 	public List<Frequency> getAllWithoutInCategory() throws Exception{
-		List<Frequency> freqs = this.dao.findByFrequencyuidNotIn(relService.getAllFrequencyUids(), new Sort(new Order("frequencyname")));
+		List<String> freq_uids = relService.getAllFrequencyUids();
+		if(freq_uids.isEmpty()) {
+			/*
+			 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+			 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+			 */
+			freq_uids.add("");
+		}
+		List<Frequency> freqs = this.dao.findByFrequencyuidNotIn(freq_uids, new Sort(new Order("frequencyname")));
 		return freqs;
 	}
 	
@@ -82,7 +102,15 @@ public class FrequencyService {
 				freqs = this.dao.findAll();
 			}else {
 				if(categoryUid.trim().isEmpty()) {
-					freqs = this.dao.findByFrequencyuidNotIn(relService.getAllFrequencyUids());
+					List<String> freq_uids = relService.getAllFrequencyUids();
+					if(freq_uids.isEmpty()) {
+						/*
+						 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+						 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+						 */
+						freq_uids.add("");
+					}
+					freqs = this.dao.findByFrequencyuidNotIn(freq_uids);
 				}else {
 					freqs = this.dao.findByFrequencyuidIn(relService.getFrequencyUidsByCategoryUid(categoryUid));
 				}
@@ -100,7 +128,15 @@ public class FrequencyService {
 				freqs = this.dao.findAll();
 			}else {
 				if(categoryUid.trim().isEmpty()) {
-					freqs = this.dao.findByFrequencyuidNotIn(relService.getAllFrequencyUids());
+					List<String> freq_uids = relService.getAllFrequencyUids();
+					if(freq_uids.isEmpty()) {
+						/*
+						 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+						 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+						 */
+						freq_uids.add("");
+					}
+					freqs = this.dao.findByFrequencyuidNotIn(freq_uids);
 				}else {
 					freqs = this.dao.findByFrequencyuidIn(relService.getFrequencyUidsByCategoryUid(categoryUid));
 				}
@@ -126,7 +162,15 @@ public class FrequencyService {
 					page_freq = this.dao.findAll(pageRequest);
 				}else {
 					if(categoryUid.trim().isEmpty()) {
-						page_freq = this.dao.findByFrequencyuidNotIn(relService.getAllFrequencyUids(), pageRequest);
+						List<String> freq_uids = relService.getAllFrequencyUids();
+						if(freq_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+							 */
+							freq_uids.add("");
+						}
+						page_freq = this.dao.findByFrequencyuidNotIn(freq_uids, pageRequest);
 					}else {
 						page_freq = this.dao.findByFrequencyuidIn(relService.getFrequencyUidsByCategoryUid(categoryUid), pageRequest);
 					}
@@ -139,7 +183,15 @@ public class FrequencyService {
 					freqs = this.dao.findAll(sort);
 				}else {
 					if(categoryUid.trim().isEmpty()) {
-						freqs = this.dao.findByFrequencyuidNotIn(relService.getAllFrequencyUids(), sort);
+						List<String> freq_uids = relService.getAllFrequencyUids();
+						if(freq_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+							 */
+							freq_uids.add("");
+						}
+						freqs = this.dao.findByFrequencyuidNotIn(freq_uids, sort);
 					}else {
 						freqs = this.dao.findByFrequencyuidIn(relService.getFrequencyUidsByCategoryUid(categoryUid), sort);
 					}
@@ -156,7 +208,15 @@ public class FrequencyService {
 					freqs = this.dao.findAll();
 				}else {
 					if(categoryUid.trim().isEmpty()) {
-						freqs = this.dao.findByFrequencyuidNotIn(relService.getAllFrequencyUids());
+						List<String> freq_uids = relService.getAllFrequencyUids();
+						if(freq_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+							 */
+							freq_uids.add("");
+						}
+						freqs = this.dao.findByFrequencyuidNotIn(freq_uids);
 					}else {
 						freqs = this.dao.findByFrequencyuidIn(relService.getFrequencyUidsByCategoryUid(categoryUid));
 					}
@@ -201,7 +261,15 @@ public class FrequencyService {
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class, List.class);
 					if(categoryUid.trim().isEmpty()) {
-						page_freq = (Page<Frequency>) method.invoke(this.dao, queryString, pageRequest, relService.getAllFrequencyUids());
+						List<String> freq_uids = relService.getAllFrequencyUids();
+						if(freq_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+							 */
+							freq_uids.add("");
+						}
+						page_freq = (Page<Frequency>) method.invoke(this.dao, queryString, pageRequest, freq_uids);
 					}else {
 						page_freq = (Page<Frequency>) method.invoke(this.dao, queryString, pageRequest, relService.getFrequencyUidsByCategoryUid(categoryUid));
 					}
@@ -216,7 +284,15 @@ public class FrequencyService {
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class, List.class);
 					if(categoryUid.trim().isEmpty()) {
-						freqs = (List<Frequency>) method.invoke(this.dao, queryString, sort, relService.getAllFrequencyUids());
+						List<String> freq_uids = relService.getAllFrequencyUids();
+						if(freq_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+							 */
+							freq_uids.add("");
+						}
+						freqs = (List<Frequency>) method.invoke(this.dao, queryString, sort, freq_uids);
 					}else {
 						freqs = (List<Frequency>) method.invoke(this.dao, queryString, sort, relService.getFrequencyUidsByCategoryUid(categoryUid));
 					}
@@ -230,7 +306,15 @@ public class FrequencyService {
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, List.class);
 					if(categoryUid.trim().isEmpty()) {
-						freqs = (List<Frequency>) method.invoke(this.dao, queryString, relService.getAllFrequencyUids());
+						List<String> freq_uids = relService.getAllFrequencyUids();
+						if(freq_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+							 */
+							freq_uids.add("");
+						}
+						freqs = (List<Frequency>) method.invoke(this.dao, queryString, freq_uids);
 					}else {
 						freqs = (List<Frequency>) method.invoke(this.dao, queryString, relService.getFrequencyUidsByCategoryUid(categoryUid));
 					}
@@ -240,117 +324,149 @@ public class FrequencyService {
 		}
 	}
 	
-	public Connection add(String categoryUid, Map<String, String> connMap) throws IllegalArgumentException, Exception{
-//		if(null == connMap || connMap.size() <= 0)
-//			throw new IllegalArgumentException("Connection Information can not be empty!");
-//		
-//		String newUid = UUID.randomUUID().toString();
-//		
-//		String connectionname = connMap.get("connectionname");
-//		if(null == connectionname || connectionname.trim().length() <= 0)
-//			throw new IllegalArgumentException("Connection Name can not be empty!");
-//		connectionname = connectionname.toUpperCase();
-//		
-//		if(this.dao.existByName(connectionname))
-//			throw new IllegalArgumentException("Duplicate Connection Name!");
-//		
-//		String description = connMap.get("description");
-//		if(null == description)
-//			description = "";
-//		
-//		String connectiontype = connMap.get("connectiontype");
-//		if(null == connectiontype || connectiontype.trim().isEmpty() || !ConnectionService.CONNECTION_TYPE_SET.contains(connectiontype))
-//			throw new IllegalArgumentException("Illegal connection type! "+ ConnectionService.CONNECTION_TYPE_SET.toString());
-//		
-//		Connection conn = new Connection();
-//		conn.setConnectionuid(newUid);
-//		conn.setConnectionname(connectionname);
-//		conn.setConnectiontype(connectiontype);
-//		conn.setDescription(description);
-//		setExtraXmlProp(conn, connMap);
-//		conn.setLastupdatetime(new Date());
-//		
-//		Connection new_conn = this.dao.save(conn);
-//		
-//		new_conn = getExtraXmlProp(new_conn);
-//		
-//		//如果所附帶的url參數中有categoryUid的話, 表示是要把Connection新增至某個category
-//		if(categoryUid != null && !categoryUid.trim().equals("")) {
-//			ConnectionRelation rel = new ConnectionRelation();
-//			rel.setConncategoryuid(categoryUid);
-//			rel.setConnectionuid(new_conn.getConnectionuid());
-//			this.relService.add(rel);
-//		}
-//		
-//		return new_conn;
+	public Frequency add(String categoryUid, Frequency freq) throws IllegalArgumentException, Exception{
+		freq.setFrequencyuid(UUID.randomUUID().toString());
 		
-		return null;
+		String frequencyname = freq.getFrequencyname();
+		if(null == frequencyname || frequencyname.length() <= 0)
+			throw new IllegalArgumentException("Frequency Name can not be empty!");
+		frequencyname = frequencyname.toUpperCase();
+		
+		if(this.dao.existByName(frequencyname))
+			throw new IllegalArgumentException("Duplicate Frequency Name!");
+		
+		freq.setFrequencyname(frequencyname);
+		
+		String description = freq.getDescription();
+		if(null == description)
+			description = "";
+		
+		String activate = freq.getActivate();
+		if(null == activate || (!activate.equals("1") && !activate.equals("0")))
+			throw new IllegalArgumentException("Frequency activate value can only be 1 or 0!");
+		
+		String manuallyedit = freq.getManuallyedit();
+		if(null == manuallyedit || (!manuallyedit.equals("0") && !manuallyedit.equals("1") && !manuallyedit.equals("2")))
+			throw new IllegalArgumentException("Frequency manually edit value can only be 0, 1, or 2!");
+		
+		String bywcalendar = freq.getBywcalendar();
+		if(null == bywcalendar || (!bywcalendar.equals("0") && !bywcalendar.equals("1")))
+			throw new IllegalArgumentException("Frequency by working calendar value can only be 0 or 1!");
+		
+		if(bywcalendar.trim().equals("1")) {
+			String wcalendaruid = freq.getWcalendaruid();
+			if(null == wcalendaruid || wcalendaruid.length() <= 0)
+				throw new IllegalArgumentException("Working Calendar Uid can not be empty!");
+		}
+		
+		freq.setLastupdatetime(new Date());
+		
+		this.dao.save(freq);
+		List<FrequencyList> freqList = freq.getFreqlist();
+		if(null != freqList && freqList.size() > 0) {
+			int[] returnValue = this.listService.addBatch(freq.getFrequencyuid(), freqList);
+			for(int i=0; i<returnValue.length; i++) {//重設frequency list, 只有插入成功的會留下來傳回前端
+				if(returnValue[i] == 0) {
+					freqList.remove(i);
+				}
+			}
+			freq.setFreqlist(freqList);
+		}
+		
+		//如果所附帶的url參數中有categoryUid的話, 表示是要把frequency新增至某個category
+		if(categoryUid != null && !categoryUid.trim().equals("")) {
+			FrequencyRelation rel = new FrequencyRelation();
+			rel.setFreqcategoryuid(categoryUid);
+			rel.setFrequencyuid(freq.getFrequencyuid());
+			this.relService.add(rel);
+		}
+		
+		return freq;
 	}
 	
-	public Connection edit(String categoryUid, Map<String, String> connMap) throws IllegalArgumentException, Exception{
-//		String connectionuid = connMap.get("connectionuid");
-//		if(null == connectionuid || connectionuid.trim().length() <= 0)
-//			throw new IllegalArgumentException("Connection Uid can not be empty!");
-//		
-//		Connection old_conn = this.dao.findOne(connectionuid);
-//		if(null == old_conn)
-//			throw new IllegalArgumentException("Connection Uid does not exist!(" + connectionuid + ")");
-//		
-//		String connectionname = connMap.get("connectionname");
-//		if(null == connectionname || connectionname.trim().length() <= 0)
-//			throw new IllegalArgumentException("Connection Name can not be empty!");
-//		connectionname = connectionname.toUpperCase();
-//		
-//		if(this.dao.existByName(connectionname) && !old_conn.getConnectionname().equalsIgnoreCase(connectionname))
-//			throw new IllegalArgumentException("Duplicate Connection Name!");
-//		
-//		String description = connMap.get("description");
-//		if(null == description)
-//			description = "";
-//		
-//		String connectiontype = connMap.get("connectiontype");
-//		if(null == connectiontype || connectiontype.trim().isEmpty() || !ConnectionService.CONNECTION_TYPE_SET.contains(connectiontype))
-//			throw new IllegalArgumentException("Illegal connection type! "+ ConnectionService.CONNECTION_TYPE_SET.toString());
-//		
-//		Connection conn = new Connection();
-//		conn.setConnectionuid(connectionuid);
-//		conn.setConnectionname(connectionname);
-//		conn.setConnectiontype(connectiontype);
-//		conn.setDescription(description);
-//		setExtraXmlProp(conn, connMap);
-//		conn.setLastupdatetime(new Date());
-//		
-//		Connection new_conn = this.dao.save(conn);
-//		
-//		new_conn = getExtraXmlProp(new_conn);
-//		
-//		//如果所附帶的url參數中有categoryUid的話, 表示是要把Connection編輯至某個category或root
-//		if(categoryUid != null) {
-//			this.relService.deleteByConnectionUid(new_conn.getConnectionuid());
-//			if(!categoryUid.trim().equals("")) {	//如果categoryUid不是空值, 表示是要把Connection編輯到某一個category底下
-//				ConnectionRelation rel = new ConnectionRelation();
-//				rel.setConncategoryuid(categoryUid);
-//				rel.setConnectionuid(new_conn.getConnectionuid());
-//				this.relService.add(rel);
-//			}
-//		}
-//		
-//		return new_conn;
-		return null;
+	public Frequency edit(String categoryUid, Frequency freq) throws IllegalArgumentException, Exception{
+		String frequencyuid = freq.getFrequencyuid();
+		if(null == frequencyuid || frequencyuid.trim().length() <= 0)
+			throw new IllegalArgumentException("Frequency Uid can not be empty!");
+		
+		Frequency old_freq = this.dao.findOne(frequencyuid);
+		if(null == old_freq)
+			throw new IllegalArgumentException("Frequency Uid does not exist!(" + frequencyuid + ")");
+		
+		String frequencyname = freq.getFrequencyname();
+		if(null == frequencyname || frequencyname.trim().length() <= 0)
+			throw new IllegalArgumentException("Frequency Name can not be empty!");
+		freq.setFrequencyname(frequencyname.toUpperCase());
+		
+		if(this.dao.existByName(freq.getFrequencyname()) && !old_freq.getFrequencyname().equalsIgnoreCase(freq.getFrequencyname()))
+			throw new IllegalArgumentException("Duplicate Frequency Name!");
+		
+		String description = freq.getDescription();
+		if(null == description)
+			description = "";
+		
+		String activate = freq.getActivate();
+		if(null == activate || (!activate.equals("1") && !activate.equals("0")))
+			throw new IllegalArgumentException("Frequency activate value can only be 1 or 0!");
+		
+		String manuallyedit = freq.getManuallyedit();
+		if(null == manuallyedit || (!manuallyedit.equals("0") && !manuallyedit.equals("1") && !manuallyedit.equals("2")))
+			throw new IllegalArgumentException("Frequency manually edit value can only be 0, 1, or 2!");
+		
+		String bywcalendar = freq.getBywcalendar();
+		if(null == bywcalendar || (!bywcalendar.equals("0") && !bywcalendar.equals("1")))
+			throw new IllegalArgumentException("Frequency by working calendar value can only be 0 or 1!");
+		
+		if(bywcalendar.trim().equals("1")) {
+			String wcalendaruid = freq.getWcalendaruid();
+			if(null == wcalendaruid || wcalendaruid.length() <= 0)
+				throw new IllegalArgumentException("Working Calendar Uid can not be empty!");
+		}
+		
+		freq.setLastupdatetime(new Date());
+		
+		this.dao.save(freq);
+		
+		List<FrequencyList> freqList = freq.getFreqlist();
+		if(null != freqList && freqList.size() > 0) {
+			this.listService.deleteByFrequencyUid(freq.getFrequencyuid());
+			int[] returnValue = this.listService.addBatch(freq.getFrequencyuid(), freqList);
+			for(int i=0; i<returnValue.length; i++) {//重設frequency list, 只有插入成功的會留下來傳回前端
+				if(returnValue[i] == 0) {
+					freqList.remove(i);
+				}
+			}
+			freq.setFreqlist(freqList);
+		}
+		
+		//如果所附帶的url參數中有categoryUid的話, 表示是要把Frequency編輯至某個category或root
+		if(categoryUid != null) {
+			this.relService.deleteByFrequencyUid(freq.getFrequencyuid());
+			if(!categoryUid.trim().equals("")) {	//如果categoryUid不是空值, 表示是要把Frequency編輯到某一個category底下
+				FrequencyRelation rel = new FrequencyRelation();
+				rel.setFreqcategoryuid(categoryUid);
+				rel.setFrequencyuid(freq.getFrequencyuid());
+				this.relService.add(rel);
+			}
+		}
+		
+		return freq;
 	}
 	
 	public void deleteByUid(String uid) throws IllegalArgumentException, Exception{
-//		if(null == uid || uid.trim().length() <= 0)
-//			throw new IllegalArgumentException("Connection Uid can not be empty!");
-//		
-//		if(filesourceService.existByConnectionuid(uid))
-//			throw new IllegalArgumentException("Referenced By File Source!");
-//		
-//		if(jobstepService.existByConnectionuid(uid))
-//			throw new IllegalArgumentException("Referenced By JobStep!");
-//		
-//		this.dao.delete(uid);
-//		this.relService.deleteByConnectionUid(uid);
+		if(null == uid || uid.trim().length() <= 0)
+			throw new IllegalArgumentException("Frequency Uid can not be empty!");
+		
+		if(jobService.existByFrequencyuid(uid)) {
+			throw new IllegalArgumentException("Referenceing by job");
+		}else if(objectAliasService.existByObjectuid(uid)) {
+			throw new IllegalArgumentException("Referenceing by Object Alias");
+		}else {
+			this.relService.deleteByFrequencyUid(uid);
+			this.listService.deleteByFrequencyUid(uid);
+			this.feService.deleteByFrequencyUid(uid);
+			this.dao.delete(uid);
+		}
 	}
 	
 	public boolean existByUid(String uid) throws Exception {

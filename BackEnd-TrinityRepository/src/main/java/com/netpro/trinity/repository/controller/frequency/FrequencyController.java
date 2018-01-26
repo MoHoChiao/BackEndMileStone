@@ -1,7 +1,6 @@
 package com.netpro.trinity.repository.controller.frequency;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.repository.dto.FilterInfo;
+import com.netpro.trinity.repository.entity.frequency.jpa.Frequency;
 import com.netpro.trinity.repository.service.frequency.FrequencyService;
 
 @RestController  //宣告一個Restful Web Service的Resource
@@ -110,9 +110,9 @@ public class FrequencyController {
 	}
 	
 	@PostMapping("/add")
-	public ResponseEntity<?> addFrequency(String categoryUid, @RequestBody Map<String, String> connMap) {
+	public ResponseEntity<?> addFrequency(String categoryUid, @RequestBody Frequency freq) {
 		try {
-			return ResponseEntity.ok(this.service.add(categoryUid, connMap));
+			return ResponseEntity.ok(this.service.add(categoryUid, freq));
 		}catch(IllegalArgumentException e) {
 			FrequencyController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -123,9 +123,9 @@ public class FrequencyController {
 	}
 	
 	@PostMapping("/edit")
-	public ResponseEntity<?> editFrequency(String categoryUid, @RequestBody Map<String, String> connMap) {
+	public ResponseEntity<?> editFrequency(String categoryUid, @RequestBody Frequency freq) {
 		try {
-			return ResponseEntity.ok(this.service.edit(categoryUid, connMap));
+			return ResponseEntity.ok(this.service.edit(categoryUid, freq));
 		}catch(IllegalArgumentException e) {
 			FrequencyController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

@@ -57,7 +57,15 @@ public class FileSourceService {
 	}
 	
 	public List<FileSource> getAllWithoutInCategory() throws Exception{
-		List<FileSource> filesources = this.dao.findByFilesourceuidNotIn(relService.getAllFileSourceUids(), new Sort(new Order("filesourcename")));
+		List<String> fs_uids = relService.getAllFileSourceUids();
+		if(fs_uids.isEmpty()) {
+			/*
+			 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
+			 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
+			 */
+			fs_uids.add("");
+		}
+		List<FileSource> filesources = this.dao.findByFilesourceuidNotIn(fs_uids, new Sort(new Order("filesourcename")));
 		setExtraXmlProp(filesources);
 		return filesources;
 	}
@@ -101,7 +109,15 @@ public class FileSourceService {
 				filesources = this.dao.findAll();
 			}else {
 				if(categoryUid.trim().isEmpty()) {
-					filesources = this.dao.findByFilesourceuidNotIn(relService.getAllFileSourceUids());
+					List<String> fs_uids = relService.getAllFileSourceUids();
+					if(fs_uids.isEmpty()) {
+						/*
+						 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
+						 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
+						 */
+						fs_uids.add("");
+					}
+					filesources = this.dao.findByFilesourceuidNotIn(fs_uids);
 				}else {
 					filesources = this.dao.findByFilesourceuidIn(relService.getFileSourceUidsByCategoryUid(categoryUid));
 				}
@@ -120,7 +136,15 @@ public class FileSourceService {
 				filesources = this.dao.findAll();
 			}else {
 				if(categoryUid.trim().isEmpty()) {
-					filesources = this.dao.findByFilesourceuidNotIn(relService.getAllFileSourceUids());
+					List<String> fs_uids = relService.getAllFileSourceUids();
+					if(fs_uids.isEmpty()) {
+						/*
+						 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
+						 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
+						 */
+						fs_uids.add("");
+					}
+					filesources = this.dao.findByFilesourceuidNotIn(fs_uids);
 				}else {
 					filesources = this.dao.findByFilesourceuidIn(relService.getFileSourceUidsByCategoryUid(categoryUid));
 				}
@@ -147,7 +171,15 @@ public class FileSourceService {
 					page_filesource = this.dao.findAll(pageRequest);
 				}else {
 					if(categoryUid.trim().isEmpty()) {
-						page_filesource = this.dao.findByFilesourceuidNotIn(relService.getAllFileSourceUids(), pageRequest);
+						List<String> fs_uids = relService.getAllFileSourceUids();
+						if(fs_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
+							 */
+							fs_uids.add("");
+						}
+						page_filesource = this.dao.findByFilesourceuidNotIn(fs_uids, pageRequest);
 					}else {
 						page_filesource = this.dao.findByFilesourceuidIn(relService.getFileSourceUidsByCategoryUid(categoryUid), pageRequest);
 					}
@@ -160,7 +192,15 @@ public class FileSourceService {
 					filesources = this.dao.findAll(sort);
 				}else {
 					if(categoryUid.trim().isEmpty()) {
-						filesources = this.dao.findByFilesourceuidNotIn(relService.getAllFileSourceUids(), sort);
+						List<String> fs_uids = relService.getAllFileSourceUids();
+						if(fs_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
+							 */
+							fs_uids.add("");
+						}
+						filesources = this.dao.findByFilesourceuidNotIn(fs_uids, sort);
 					}else {
 						filesources = this.dao.findByFilesourceuidIn(relService.getFileSourceUidsByCategoryUid(categoryUid), sort);
 					}
@@ -178,7 +218,15 @@ public class FileSourceService {
 					filesources = this.dao.findAll();
 				}else {
 					if(categoryUid.trim().isEmpty()) {
-						filesources = this.dao.findByFilesourceuidNotIn(relService.getAllFileSourceUids());
+						List<String> fs_uids = relService.getAllFileSourceUids();
+						if(fs_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
+							 */
+							fs_uids.add("");
+						}
+						filesources = this.dao.findByFilesourceuidNotIn(fs_uids);
 					}else {
 						filesources = this.dao.findByFilesourceuidIn(relService.getFileSourceUidsByCategoryUid(categoryUid));
 					}
@@ -224,7 +272,15 @@ public class FileSourceService {
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class, List.class);
 					if(categoryUid.trim().isEmpty()) {
-						page_filesource = (Page<FileSource>) method.invoke(this.dao, queryString, pageRequest, relService.getAllFileSourceUids());
+						List<String> fs_uids = relService.getAllFileSourceUids();
+						if(fs_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
+							 */
+							fs_uids.add("");
+						}
+						page_filesource = (Page<FileSource>) method.invoke(this.dao, queryString, pageRequest, fs_uids);
 					}else {
 						page_filesource = (Page<FileSource>) method.invoke(this.dao, queryString, pageRequest, relService.getFileSourceUidsByCategoryUid(categoryUid));
 					}
@@ -239,7 +295,15 @@ public class FileSourceService {
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class, List.class);
 					if(categoryUid.trim().isEmpty()) {
-						filesources = (List<FileSource>) method.invoke(this.dao, queryString, sort, relService.getAllFileSourceUids());
+						List<String> fs_uids = relService.getAllFileSourceUids();
+						if(fs_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
+							 */
+							fs_uids.add("");
+						}
+						filesources = (List<FileSource>) method.invoke(this.dao, queryString, sort, fs_uids);
 					}else {
 						filesources = (List<FileSource>) method.invoke(this.dao, queryString, sort, relService.getFileSourceUidsByCategoryUid(categoryUid));
 					}
@@ -254,7 +318,15 @@ public class FileSourceService {
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, List.class);
 					if(categoryUid.trim().isEmpty()) {
-						filesources = (List<FileSource>) method.invoke(this.dao, queryString, relService.getAllFileSourceUids());
+						List<String> fs_uids = relService.getAllFileSourceUids();
+						if(fs_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
+							 */
+							fs_uids.add("");
+						}
+						filesources = (List<FileSource>) method.invoke(this.dao, queryString, fs_uids);
 					}else {
 						filesources = (List<FileSource>) method.invoke(this.dao, queryString, relService.getFileSourceUidsByCategoryUid(categoryUid));
 					}
@@ -796,8 +868,8 @@ public class FileSourceService {
 			throw new IllegalArgumentException("File Source Uid can not be empty!");
 		
 		if(!jobService.existByFilesourceuid(uid)) {
-			this.dao.delete(uid);
 			this.relService.deleteByFileSourceUid(uid);
+			this.dao.delete(uid);
 		}else {
 			throw new IllegalArgumentException("Referenceing by job");
 		}

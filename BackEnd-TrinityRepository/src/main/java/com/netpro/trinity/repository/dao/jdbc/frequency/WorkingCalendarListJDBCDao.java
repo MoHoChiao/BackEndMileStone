@@ -56,11 +56,11 @@ public class WorkingCalendarListJDBCDao {
 		return jtm.update(insert_sql, params);
 	}
 	
-	public int[] saveBatch(List<WorkingCalendarList> lists) throws DataAccessException{
+	public int[] saveBatch(String wcUid, List<WorkingCalendarList> lists) throws DataAccessException{
 		int[] insertCounts = jtm.batchUpdate(insert_sql, new BatchPreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				ps.setString(1, lists.get(i).getWcalendaruid());
+				ps.setString(1, wcUid);
 				ps.setInt(2, lists.get(i).getYearnum());
 				ps.setInt(3, lists.get(i).getMonthnum());
 				ps.setInt(4, lists.get(i).getDaynum());

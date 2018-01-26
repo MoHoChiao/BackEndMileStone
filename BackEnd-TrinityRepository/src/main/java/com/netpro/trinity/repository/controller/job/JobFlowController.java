@@ -14,74 +14,61 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.repository.dto.FilterInfo;
-import com.netpro.trinity.repository.service.job.JobService;
+import com.netpro.trinity.repository.service.job.JobFlowService;
 
 @RestController  //宣告一個Restful Web Service的Resource
-@RequestMapping("/job")
-public class JobController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(JobController.class);
+@RequestMapping("/jobflow")
+public class JobFlowController {
+	private static final Logger LOGGER = LoggerFactory.getLogger(JobFlowController.class);
 		
 	@Autowired
-	private JobService service;
+	private JobFlowService service;
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllJobs() {
+	public ResponseEntity<?> findAllJobFlows() {
 		try {
 			return ResponseEntity.ok(this.service.getAll());
 		}catch(Exception e) {
-			JobController.LOGGER.error("Exception; reason was:", e);
+			JobFlowController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@GetMapping("/findByUid")
-	public ResponseEntity<?> findJobByUid(String uid) {
+	public ResponseEntity<?> findJobFlowByUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.getByUid(uid));
 		}catch(IllegalArgumentException e) {
-			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			JobFlowController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JobController.LOGGER.error("Exception; reason was:", e);
+			JobFlowController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
   
 	@GetMapping("/findByName")
-	public ResponseEntity<?> findJobsByName(String name) {
+	public ResponseEntity<?> findJobFlowsByName(String name) {
 		try {
 			return ResponseEntity.ok(this.service.getByName(name));
 		}catch(IllegalArgumentException e) {
-			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			JobFlowController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JobController.LOGGER.error("Exception; reason was:", e);
+			JobFlowController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@GetMapping("/findByCategoryUid")
-	public ResponseEntity<?> findJobsByCategoryUid(String uid) {
+	public ResponseEntity<?> findJobFlowsByCategoryUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.getByCategoryUid(uid));
 		}catch(IllegalArgumentException e) {
-			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			JobFlowController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JobController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
-	@GetMapping("/findJobFullPathByUid")
-	public ResponseEntity<?> findJobFullPathByUid(String uid) {
-		try {
-			return ResponseEntity.ok(this.service.getJobFullPathByUid(uid));
-		}catch(IllegalArgumentException e) {
-			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			JobController.LOGGER.error("Exception; reason was:", e);
+			JobFlowController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
@@ -91,22 +78,22 @@ public class JobController {
 		try {
 			return this.service.getByFilter(categoryUid, filter);
 		}catch(SecurityException e) {
-			JobController.LOGGER.error("SecurityException; reason was:", e);
+			JobFlowController.LOGGER.error("SecurityException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(NoSuchMethodException e) {
-			JobController.LOGGER.error("NoSuchMethodException; reason was:", e);
+			JobFlowController.LOGGER.error("NoSuchMethodException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(IllegalAccessException e) {
-			JobController.LOGGER.error("IllegalAccessException; reason was:", e);
+			JobFlowController.LOGGER.error("IllegalAccessException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(InvocationTargetException e) {
-			JobController.LOGGER.error("InvocationTargetException; reason was:", e);
+			JobFlowController.LOGGER.error("InvocationTargetException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(IllegalArgumentException e) {
-			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			JobFlowController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JobController.LOGGER.error("Exception; reason was:", e);
+			JobFlowController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
@@ -152,53 +139,40 @@ public class JobController {
 //	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isJobExistByUid(String uid) {
+	public ResponseEntity<?> isJobFlowExistByUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.existByUid(uid));
 		}catch(IllegalArgumentException e) {
-			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			JobFlowController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JobController.LOGGER.error("Exception; reason was:", e);
+			JobFlowController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@GetMapping("/isExistByName")
-	public ResponseEntity<?> isJobExistByName(String name) {
+	public ResponseEntity<?> isJobFlowExistByName(String name) {
 		try {
 			return ResponseEntity.ok(this.service.existByName(name));
 		}catch(IllegalArgumentException e) {
-			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			JobFlowController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JobController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
-	@GetMapping("/isExistByFilesourceuid")
-	public ResponseEntity<?> isJobExistByFilesourceuid(String filesourceuid) {
-		try {
-			return ResponseEntity.ok(this.service.existByFilesourceuid(filesourceuid));
-		}catch(IllegalArgumentException e) {
-			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			JobController.LOGGER.error("Exception; reason was:", e);
+			JobFlowController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@GetMapping("/isExistByFrequencyuid")
-	public ResponseEntity<?> isJobExistByFrequencyuid(String frequencyuid) {
+	public ResponseEntity<?> isJobFlowExistByFrequencyuid(String frequencyuid) {
 		try {
 			return ResponseEntity.ok(this.service.existByFrequencyuid(frequencyuid));
 		}catch(IllegalArgumentException e) {
-			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			JobFlowController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			JobController.LOGGER.error("Exception; reason was:", e);
+			JobFlowController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}

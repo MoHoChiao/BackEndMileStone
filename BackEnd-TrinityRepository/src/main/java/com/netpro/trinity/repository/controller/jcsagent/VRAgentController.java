@@ -26,19 +26,9 @@ public class VRAgentController {
 	private VRAgentService service;
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllVRAgents() {
+	public ResponseEntity<?> findAllVRAgents(Boolean withoutDetail) {
 		try {
-			return ResponseEntity.ok(this.service.getAll());
-		}catch(Exception e) {
-			VRAgentController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
-	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isVRAgentExistByUid(String uid) {
-		try {
-			return ResponseEntity.ok(this.service.existByUid(uid));
+			return ResponseEntity.ok(this.service.getAll(withoutDetail));
 		}catch(Exception e) {
 			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -46,9 +36,9 @@ public class VRAgentController {
 	}
 	
 	@GetMapping("/findByUid")
-	public ResponseEntity<?> findVRAgentById(String uid) {
+	public ResponseEntity<?> findVRAgentById(Boolean withoutDetail, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByUid(uid));
+			return ResponseEntity.ok(this.service.getByUid(withoutDetail, uid));
 		}catch(IllegalArgumentException e) {
 			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -59,9 +49,9 @@ public class VRAgentController {
 	}
   
 	@GetMapping("/findByName")
-	public ResponseEntity<?> findVRAgentsByName(String name) {
+	public ResponseEntity<?> findVRAgentsByName(Boolean withoutDetail, String name) {
 		try {
-			return ResponseEntity.ok(this.service.getByName(name));
+			return ResponseEntity.ok(this.service.getByName(withoutDetail, name));
 		}catch(IllegalArgumentException e) {
 			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -72,9 +62,9 @@ public class VRAgentController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findVRAgentsByFilter(@RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findVRAgentsByFilter(Boolean withoutDetail, @RequestBody FilterInfo filter) {
 		try {
-			return this.service.getByFilter(filter);
+			return this.service.getByFilter(withoutDetail, filter);
 		}catch(SecurityException e) {
 			VRAgentController.LOGGER.error("SecurityException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -134,5 +124,15 @@ public class VRAgentController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 		return ResponseEntity.ok(uid);
+	}
+	
+	@GetMapping("/isExistByUid")
+	public ResponseEntity<?> isVRAgentExistByUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.existByUid(uid));
+		}catch(Exception e) {
+			VRAgentController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
 	}
 }

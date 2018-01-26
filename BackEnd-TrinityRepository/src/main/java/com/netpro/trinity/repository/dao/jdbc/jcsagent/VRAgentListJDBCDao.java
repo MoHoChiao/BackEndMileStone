@@ -56,11 +56,11 @@ public class VRAgentListJDBCDao {
 		return jtm.update(insert_sql, params);
 	}
 	
-	public int[] saveBatch(List<VRAgentList> lists) throws DataAccessException{
+	public int[] saveBatch(String vrAgentUid, List<VRAgentList> lists) throws DataAccessException{
 		int[] insertCounts = jtm.batchUpdate(insert_sql, new BatchPreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				ps.setString(1, lists.get(i).getVirtualagentuid());
+				ps.setString(1, vrAgentUid);
 				ps.setString(2, lists.get(i).getAgentuid());
 				ps.setString(3, lists.get(i).getActivate());
 				ps.setString(4, lists.get(i).getDescription());

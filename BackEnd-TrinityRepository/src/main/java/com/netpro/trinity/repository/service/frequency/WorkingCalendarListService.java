@@ -24,7 +24,7 @@ public class WorkingCalendarListService {
 	public List<WorkingCalendarList> getByWCUid(String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Working Calendar UID can not be empty!");
-				
+
 		return this.dao.findByWCUid(uid);
 	}
 	
@@ -78,8 +78,14 @@ public class WorkingCalendarListService {
 		return new_lists;
 	}
 	
-	public int[] addBatch(List<WorkingCalendarList> lists) throws IllegalArgumentException, Exception{
-		return this.dao.saveBatch(lists);
+	public int[] addBatch(String wcUid, List<WorkingCalendarList> lists) throws IllegalArgumentException, Exception{
+		if(null == wcUid || wcUid.trim().length() <= 0)
+			throw new IllegalArgumentException("Working Calendar UID can not be empty!");
+		
+		if(!this.wcService.existByUid(wcUid))
+			throw new IllegalArgumentException("Working Calendar UID does not exist!(" + wcUid + ")");
+		
+		return this.dao.saveBatch(wcUid, lists);
 	}
 	
 	public void deleteByWCUid(String uid) throws IllegalArgumentException, Exception{

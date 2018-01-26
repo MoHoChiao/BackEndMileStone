@@ -25,6 +25,7 @@ import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
+import com.netpro.trinity.repository.entity.jcsagent.jdbc.VRAgentList;
 import com.netpro.trinity.repository.entity.jcsagent.jpa.VRAgent;
 import com.netpro.trinity.repository.util.Constant;
 
@@ -39,13 +40,14 @@ public class VRAgentService {
 	@Autowired
 	private VRAgentListService listService;
 	
-	public List<VRAgent> getAll() throws Exception{
+	public List<VRAgent> getAll(Boolean withoutDetail) throws Exception{
 		List<VRAgent> vrAgents = this.dao.findAll();
-		getAgentList(vrAgents);
+		if(null == withoutDetail || withoutDetail == false)
+			getAgentList(vrAgents);
 		return vrAgents;
 	}
 	
-	public VRAgent getByUid(String uid) throws IllegalArgumentException, Exception{
+	public VRAgent getByUid(Boolean withoutDetail, String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Virtual Agent UID can not be empty!");
 		
@@ -53,28 +55,31 @@ public class VRAgentService {
 		if(vrAgent == null)
 			throw new IllegalArgumentException("Virtual Agent UID does not exist!(" + uid + ")");
 		
-		getAgentList(vrAgent);
+		if(null == withoutDetail || withoutDetail == false)
+			getAgentList(vrAgent);
 		
 		return vrAgent;
 	}
 	
-	public List<VRAgent> getByName(String name) throws IllegalArgumentException, Exception{
+	public List<VRAgent> getByName(Boolean withoutDetail, String name) throws IllegalArgumentException, Exception{
 		if(name == null || name.isEmpty())
 			throw new IllegalArgumentException("Virtual Agent Name can not be empty!");
 		
 		List<VRAgent> vrAgents = this.dao.findByvirtualagentname(name.toUpperCase());
 		
-		getAgentList(vrAgents);
+		if(null == withoutDetail || withoutDetail == false)
+			getAgentList(vrAgents);
 		
 		return vrAgents;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFilter(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
+	public ResponseEntity<?> getByFilter(Boolean withoutDetail, FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
 		if(filter == null) {
 			List<VRAgent> vrAgents = this.dao.findAll();
-			getAgentList(vrAgents);
+			if(null == withoutDetail || withoutDetail == false)
+				getAgentList(vrAgents);
 			return ResponseEntity.ok(vrAgents);
 		}
 			
@@ -85,7 +90,8 @@ public class VRAgentService {
 		
 		if(paging == null && ordering == null && querying == null) {
 			List<VRAgent> vrAgents = this.dao.findAll();
-			getAgentList(vrAgents);
+			if(null == withoutDetail || withoutDetail == false)
+				getAgentList(vrAgents);
 			return ResponseEntity.ok(vrAgents);
 		}
 			
@@ -104,11 +110,13 @@ public class VRAgentService {
 		if(querying == null) {
 			if(pageRequest != null) {
 				Page<VRAgent> page_vragent = this.dao.findAll(pageRequest);
-				getAgentList(page_vragent.getContent());
+				if(null == withoutDetail || withoutDetail == false)
+					getAgentList(page_vragent.getContent());
 				return ResponseEntity.ok(page_vragent);
 			}else if(sort != null) {
 				List<VRAgent> vrAgents = this.dao.findAll(sort);
-				getAgentList(vrAgents);
+				if(null == withoutDetail || withoutDetail == false)
+					getAgentList(vrAgents);
 				return ResponseEntity.ok(vrAgents);
 			}else {
 				/*
@@ -117,7 +125,8 @@ public class VRAgentService {
 				 * then return default
 				 */
 				List<VRAgent> vrAgents = this.dao.findAll(sort);
-				getAgentList(vrAgents);
+				if(null == withoutDetail || withoutDetail == false)
+					getAgentList(vrAgents);
 				return ResponseEntity.ok(vrAgents);
 			}
 		}else {
@@ -146,17 +155,20 @@ public class VRAgentService {
 			if(pageRequest != null){
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
 				Page<VRAgent> page_vragent = (Page<VRAgent>) method.invoke(this.dao, queryString, pageRequest);
-				getAgentList(page_vragent.getContent());
+				if(null == withoutDetail || withoutDetail == false)
+					getAgentList(page_vragent.getContent());
 				return ResponseEntity.ok(page_vragent);
 			}else if(sort != null) {
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
 				List<VRAgent> vragents = (List<VRAgent>) method.invoke(this.dao, queryString, sort);
-				getAgentList(vragents);
+				if(null == withoutDetail || withoutDetail == false)
+					getAgentList(vragents);
 				return ResponseEntity.ok(vragents);
 			}else {
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class);
 				List<VRAgent> vragents = (List<VRAgent>) method.invoke(this.dao, queryString);
-				getAgentList(vragents);
+				if(null == withoutDetail || withoutDetail == false)
+					getAgentList(vragents);
 				return ResponseEntity.ok(vragents);
 			}
 		}
@@ -196,8 +208,16 @@ public class VRAgentService {
 		vragent.setLastupdatetime(new Date());
 		
 		this.dao.save(vragent);
-		this.listService.deleteByVRAgentUid(vragent.getVirtualagentuid());
-		vragent.setAgentlist(this.listService.add(vragent.getVirtualagentuid(), vragent.getAgentlist())); //重設agent list, 只有插入成功的會留下來
+		List<VRAgentList> vrlist = vragent.getAgentlist();
+		if(null != vrlist && vrlist.size() > 0) {
+			int[] returnValue = this.listService.addBatch(vragent.getVirtualagentuid(), vrlist);
+			for(int i=0; i<returnValue.length; i++) {//重設working calendar list, 只有插入成功的會留下來傳回前端
+				if(returnValue[i] == 0) {
+					vrlist.remove(i);
+				}
+			}
+			vragent.setAgentlist(vrlist);
+		}
 		
 		return vragent;
 	}
@@ -242,8 +262,18 @@ public class VRAgentService {
 		vragent.setLastupdatetime(new Date());
 		
 		this.dao.save(vragent);
-		this.listService.deleteByVRAgentUid(vragent.getVirtualagentuid());
-		vragent.setAgentlist(this.listService.add(vragent.getVirtualagentuid(), vragent.getAgentlist())); //重設agent list, 只有插入成功的會留下來
+		
+		List<VRAgentList> vrlist = vragent.getAgentlist();
+		if(null != vrlist && vrlist.size() > 0) {
+			this.listService.deleteByVRAgentUid(vragent.getVirtualagentuid());
+			int[] returnValue = this.listService.addBatch(vragent.getVirtualagentuid(), vrlist);
+			for(int i=0; i<returnValue.length; i++) {//重設working calendar list, 只有插入成功的會留下來傳回前端
+				if(returnValue[i] == 0) {
+					vrlist.remove(i);
+				}
+			}
+			vragent.setAgentlist(vrlist);
+		}
 		
 		return vragent;
 	}

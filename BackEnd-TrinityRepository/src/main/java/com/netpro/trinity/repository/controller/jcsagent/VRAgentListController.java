@@ -64,9 +64,9 @@ public class VRAgentListController {
 	}
 	
 	@PostMapping("/addBatch")
-	public ResponseEntity<?> addBatchVRAgentList(@RequestBody List<VRAgentList> lists) {
+	public ResponseEntity<?> addBatchVRAgentList(String vrAgentUid, @RequestBody List<VRAgentList> lists) {
 		try {
-			return ResponseEntity.ok(this.service.addBatch(lists));
+			return ResponseEntity.ok(this.service.addBatch(vrAgentUid, lists));
 		}catch(Exception e) {
 			VRAgentListController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

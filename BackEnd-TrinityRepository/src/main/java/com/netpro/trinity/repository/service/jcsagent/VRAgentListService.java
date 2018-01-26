@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.repository.dao.jdbc.jcsagent.VRAgentListJDBCDao;
 import com.netpro.trinity.repository.entity.jcsagent.jdbc.VRAgentList;
+import com.netpro.trinity.repository.entity.jcsagent.jpa.JCSAgent;
 
 @Service
 public class VRAgentListService {
@@ -42,7 +43,8 @@ public class VRAgentListService {
 		if(null == agentuid)
 			throw new IllegalArgumentException("Agent UID can not be empty!");
 		
-		if(!this.agentService.existByUid(agentuid))
+		JCSAgent agent = agentService.getByUid(agentuid);
+		if(null == agent)
 			throw new IllegalArgumentException("Agent UID does not exist!(" + agentuid + ")");
 		
 		Integer seq = list.getSeq();
@@ -61,7 +63,7 @@ public class VRAgentListService {
 		
 		String agentname = list.getAgentname();
 		if(null ==  agentname || agentname.isEmpty()) {
-			agentname = agentService.getByUid(agentuid).getAgentname();
+			agentname = agent.getAgentname();
 			list.setAgentname(agentname);
 		}
 		
@@ -89,8 +91,14 @@ public class VRAgentListService {
 		return new_lists;
 	}
 	
-	public int[] addBatch(List<VRAgentList> lists) throws IllegalArgumentException, Exception{
-		return this.dao.saveBatch(lists);
+	public int[] addBatch(String vrAgentUid, List<VRAgentList> lists) throws IllegalArgumentException, Exception{
+		if(null == vrAgentUid)
+			throw new IllegalArgumentException("Virtual Agent UID can not be empty!");
+		
+		if(!this.vrAgentService.existByUid(vrAgentUid))
+			throw new IllegalArgumentException("Virtual Agent UID does not exist!(" + vrAgentUid + ")");
+		
+		return this.dao.saveBatch(vrAgentUid, lists);
 	}
 	
 	public void deleteByVRAgentUid(String uid) throws IllegalArgumentException, Exception{

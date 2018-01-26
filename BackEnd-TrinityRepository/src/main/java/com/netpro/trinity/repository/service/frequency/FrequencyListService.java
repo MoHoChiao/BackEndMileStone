@@ -106,8 +106,14 @@ public class FrequencyListService {
 		return new_lists;
 	}
 	
-	public int[] addBatch(List<FrequencyList> lists) throws IllegalArgumentException, Exception{
-		return this.dao.saveBatch(lists);
+	public int[] addBatch(String freqUid, List<FrequencyList> lists) throws IllegalArgumentException, Exception{
+		if(null == freqUid || freqUid.trim().length() <= 0)
+			throw new IllegalArgumentException("Frequency UID can not be empty!");
+		
+		if(!this.freqService.existByUid(freqUid))
+			throw new IllegalArgumentException("Frequency UID does not exist!(" + freqUid + ")");
+		
+		return this.dao.saveBatch(freqUid, lists);
 	}
 	
 	public void deleteByFrequencyUid(String uid) throws IllegalArgumentException, Exception{

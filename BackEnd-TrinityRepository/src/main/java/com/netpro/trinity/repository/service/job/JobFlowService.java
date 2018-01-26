@@ -1,7 +1,6 @@
 package com.netpro.trinity.repository.service.job;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,97 +18,60 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.dao.jpa.job.JobJPADao;
+import com.netpro.trinity.repository.dao.jpa.job.JobFlowJPADao;
 import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
 import com.netpro.trinity.repository.entity.filesource.jpa.FileSource;
-import com.netpro.trinity.repository.entity.job.jdbc.JobFullPath;
-import com.netpro.trinity.repository.entity.job.jpa.Job;
+import com.netpro.trinity.repository.entity.job.jpa.JobFlow;
 import com.netpro.trinity.repository.util.Constant;
 import com.netpro.trinity.repository.util.XMLDataUtility;
 
 @Service
-public class JobService {
-	public static final String[] JOB_FIELD_VALUES = new String[] {"jobname", "activate", "description"};
-	public static final Set<String> JOB_FIELD_SET = new HashSet<>(Arrays.asList(JOB_FIELD_VALUES));
+public class JobFlowService {
+	public static final String[] FLOW_FIELD_VALUES = new String[] {"flowname", "activate", "description"};
+	public static final Set<String> FLOW_FIELD_SET = new HashSet<>(Arrays.asList(FLOW_FIELD_VALUES));
 	
 	@Autowired
 	private XMLDataUtility xmlUtil;
 	
 	@Autowired
-	private JobJPADao dao;
+	private JobFlowJPADao dao;
 	
-	@Autowired
-	private BusentityCategoryService entityCategoryService;
-	
-	public List<Job> getAll() throws Exception{
-		List<Job> jobs = this.dao.findAll();
-		setExtraXmlProp(jobs);
-		return jobs;
+	public List<JobFlow> getAll() throws Exception{
+		List<JobFlow> flows = this.dao.findAll();
+		setExtraXmlProp(flows);
+		return flows;
 	}
 	
-	public Job getByUid(String uid) throws IllegalArgumentException, Exception{
+	public JobFlow getByUid(String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
-			throw new IllegalArgumentException("Job UID can not be empty!");
+			throw new IllegalArgumentException("Flow UID can not be empty!");
 		
-		Job job = this.dao.findOne(uid);
-		if(job == null)
-			throw new IllegalArgumentException("Job UID does not exist!(" + uid + ")");
-		setExtraXmlProp(job);
-		return job;
+		JobFlow flow = this.dao.findOne(uid);
+		if(flow == null)
+			throw new IllegalArgumentException("Flow UID does not exist!(" + uid + ")");
+		setExtraXmlProp(flow);
+		return flow;
 	}
 	
-	public List<Job> getByName(String name) throws IllegalArgumentException, Exception{
+	public List<JobFlow> getByName(String name) throws IllegalArgumentException, Exception{
 		if(name == null || name.isEmpty())
-			throw new IllegalArgumentException("Job Name can not be empty!");
+			throw new IllegalArgumentException("Flow Name can not be empty!");
 		
-		List<Job> jobs = this.dao.findByjobname(name.toUpperCase());
-		setExtraXmlProp(jobs);
-		return jobs;
+		List<JobFlow> flows = this.dao.findByflowname(name.toUpperCase());
+		setExtraXmlProp(flows);
+		return flows;
 	}
 	
-	public List<Job> getByCategoryUid(String uid) throws IllegalArgumentException, Exception{
+	public List<JobFlow> getByCategoryUid(String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
-			throw new IllegalArgumentException("Job Category UID can not be empty!");
+			throw new IllegalArgumentException("Flow Category UID can not be empty!");
 		
-		List<Job> jobs = this.dao.findByCategoryuid(uid, new Sort(new Order("jobname")));
-		setExtraXmlProp(jobs);
-		return jobs;
-	}
-	
-	public JobFullPath getJobFullPathByUid(String uid) throws IllegalArgumentException, Exception{
-		JobFullPath path = new JobFullPath();
-		path.setJobuid("");
-		path.setJobname("");
-		path.setBusentityuid("");
-		path.setBusentityname("");
-		path.setCategoryuid("");
-		path.setCategoryname("");
-		
-		if(uid == null || uid.isEmpty())
-			return path;
-		
-		Job job = this.dao.findOne(uid);
-		if(job == null)
-			return path;
-		
-		String jobUid = job.getJobuid();
-		String jobName = job.getJobname();
-		String categoryUid = job.getCategoryuid();
-		
-		if(null == categoryUid || categoryUid.isEmpty())
-			return path;
-		
-		List<JobFullPath> paths = entityCategoryService.getViewEntityCategoryByCategoryUid(categoryUid);
-		if(paths.size() > 0) {
-			path = paths.get(0);
-			path.setJobuid(jobUid);
-			path.setJobname(jobName);
-		}
-		
-		return path;
+		List<JobFlow> flows = this.dao.findByCategoryuid(uid, new Sort(new Order("flowname")));
+		setExtraXmlProp(flows);
+		return flows;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -117,14 +79,14 @@ public class JobService {
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
 		
 		if(filter == null) {
-			List<Job> jobs;
+			List<JobFlow> flows;
 			if(categoryUid == null || categoryUid.isEmpty()) {
-				jobs = this.dao.findAll();
+				flows = this.dao.findAll();
 			}else {
-				jobs = this.dao.findByCategoryuid(categoryUid);
+				flows = this.dao.findByCategoryuid(categoryUid);
 			}
-			setExtraXmlProp(jobs);
-			return ResponseEntity.ok(jobs);
+			setExtraXmlProp(flows);
+			return ResponseEntity.ok(flows);
 		}
 		
 		Paging paging = filter.getPaging();
@@ -132,14 +94,14 @@ public class JobService {
 		Querying querying = filter.getQuerying();
 		
 		if(paging == null && ordering == null && querying == null) {
-			List<Job> jobs;
+			List<JobFlow> flows;
 			if(categoryUid == null || categoryUid.isEmpty()) {
-				jobs = this.dao.findAll();
+				flows = this.dao.findAll();
 			}else {
-				jobs = this.dao.findByCategoryuid(categoryUid);
+				flows = this.dao.findByCategoryuid(categoryUid);
 			}
-			setExtraXmlProp(jobs);
-			return ResponseEntity.ok(jobs);
+			setExtraXmlProp(flows);
+			return ResponseEntity.ok(flows);
 		}
 		
 		PageRequest pageRequest = null;
@@ -155,43 +117,43 @@ public class JobService {
 		
 		if(querying == null) {
 			if(pageRequest != null) {
-				Page<Job> page_job;
+				Page<JobFlow> page_flow;
 				if(categoryUid == null || categoryUid.isEmpty()) {
-					page_job = this.dao.findAll(pageRequest);
+					page_flow = this.dao.findAll(pageRequest);
 				}else {
-					page_job = this.dao.findByCategoryuid(categoryUid, pageRequest);
+					page_flow = this.dao.findByCategoryuid(categoryUid, pageRequest);
 				}
-				setExtraXmlProp(page_job.getContent());
-				return ResponseEntity.ok(page_job);
+				setExtraXmlProp(page_flow.getContent());
+				return ResponseEntity.ok(page_flow);
 			}else if(sort != null) {
-				List<Job> jobs;
+				List<JobFlow> flows;
 				if(categoryUid == null || categoryUid.isEmpty()) {
-					jobs = this.dao.findAll(sort);
+					flows = this.dao.findAll(sort);
 				}else {
-					jobs = this.dao.findByCategoryuid(categoryUid, sort);
+					flows = this.dao.findByCategoryuid(categoryUid, sort);
 				}
-				setExtraXmlProp(jobs);
-				return ResponseEntity.ok(jobs);
+				setExtraXmlProp(flows);
+				return ResponseEntity.ok(flows);
 			}else {
 				/*
 				 * The paging and ordering both objects are null.
 				 * it means pageRequest and sort must be null too.
 				 * then return default
 				 */
-				List<Job> jobs;
+				List<JobFlow> flows;
 				if(categoryUid == null || categoryUid.isEmpty()) {
-					jobs = this.dao.findAll();
+					flows = this.dao.findAll();
 				}else {
-					jobs = this.dao.findByCategoryuid(categoryUid);
+					flows = this.dao.findByCategoryuid(categoryUid);
 				}
-				setExtraXmlProp(jobs);
-				return ResponseEntity.ok(jobs);
+				setExtraXmlProp(flows);
+				return ResponseEntity.ok(flows);
 			}
 		}else {
 			if(querying.getQueryType() == null || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
 				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
-			if(querying.getQueryField() == null || !JOB_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query field! "+ JOB_FIELD_SET.toString());
+			if(querying.getQueryField() == null || !FLOW_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
+				throw new IllegalArgumentException("Illegal query field! "+ FLOW_FIELD_SET.toString());
 			if(querying.getIgnoreCase() == null)
 				querying.setIgnoreCase(false);
 			
@@ -214,38 +176,38 @@ public class JobService {
 			
 			Method method = null;
 			if(pageRequest != null){
-				Page<Job> page_job;
+				Page<JobFlow> page_flow;
 				if(categoryUid == null || categoryUid.isEmpty()) {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
-					page_job = (Page<Job>) method.invoke(this.dao, queryString, pageRequest);
+					page_flow = (Page<JobFlow>) method.invoke(this.dao, queryString, pageRequest);
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class, String.class);
-					page_job = (Page<Job>) method.invoke(this.dao, queryString, pageRequest, categoryUid);
+					page_flow = (Page<JobFlow>) method.invoke(this.dao, queryString, pageRequest, categoryUid);
 				}
-				setExtraXmlProp(page_job.getContent());
-				return ResponseEntity.ok(page_job);
+				setExtraXmlProp(page_flow.getContent());
+				return ResponseEntity.ok(page_flow);
 			}else if(sort != null) {
-				List<Job> jobs;
+				List<JobFlow> flows;
 				if(categoryUid == null || categoryUid.isEmpty()) {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
-					jobs = (List<Job>) method.invoke(this.dao, queryString, sort);
+					flows = (List<JobFlow>) method.invoke(this.dao, queryString, sort);
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class, String.class);
-					jobs = (List<Job>) method.invoke(this.dao, queryString, sort, categoryUid);
+					flows = (List<JobFlow>) method.invoke(this.dao, queryString, sort, categoryUid);
 				}
-				setExtraXmlProp(jobs);
-				return ResponseEntity.ok(jobs);
+				setExtraXmlProp(flows);
+				return ResponseEntity.ok(flows);
 			}else {
-				List<Job> jobs;
+				List<JobFlow> flows;
 				if(categoryUid == null || categoryUid.isEmpty()) {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class);
-					jobs = (List<Job>) method.invoke(this.dao, queryString);
+					flows = (List<JobFlow>) method.invoke(this.dao, queryString);
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, String.class);
-					jobs = (List<Job>) method.invoke(this.dao, queryString, categoryUid);
+					flows = (List<JobFlow>) method.invoke(this.dao, queryString, categoryUid);
 				}
-				setExtraXmlProp(jobs);
-				return ResponseEntity.ok(jobs);
+				setExtraXmlProp(flows);
+				return ResponseEntity.ok(flows);
 			}
 		}
 	}
@@ -455,23 +417,16 @@ public class JobService {
 	
 	public boolean existByUid(String uid) throws IllegalArgumentException, Exception {
 		if(null == uid || uid.trim().length() <= 0)
-			throw new IllegalArgumentException("Job Uid can not be empty!");
+			throw new IllegalArgumentException("Flow Uid can not be empty!");
 		
 		return this.dao.exists(uid);
 	}
 	
-	public boolean existByName(String jobname) throws IllegalArgumentException, Exception {
-		if(null == jobname || jobname.trim().length() <= 0)
-			throw new IllegalArgumentException("Job Name can not be empty!");
+	public boolean existByName(String flowname) throws IllegalArgumentException, Exception {
+		if(null == flowname || flowname.trim().length() <= 0)
+			throw new IllegalArgumentException("Flow Name can not be empty!");
 		
-		return this.dao.existByName(jobname);
-	}
-	
-	public boolean existByFilesourceuid(String filesourceuid) throws IllegalArgumentException, Exception {
-		if(null == filesourceuid || filesourceuid.trim().length() <= 0)
-			throw new IllegalArgumentException("File Source Uid can not be empty!");
-		
-		return this.dao.existByFilesourceuid(filesourceuid);
+		return this.dao.existByName(flowname);
 	}
 	
 	public boolean existByFrequencyuid(String frequencyuid) throws IllegalArgumentException, Exception {
@@ -507,23 +462,23 @@ public class JobService {
 		return new Sort(order);
 	}
 	
-	private void setExtraXmlProp(List<Job> jobs) throws Exception{
-		for(Job job : jobs) {
-			setExtraXmlProp(job);
-		}
+	private void setExtraXmlProp(List<JobFlow> flows) throws Exception{
+//		for(JobFlow flow : flows) {
+//			setExtraXmlProp(flow);
+//		}
 	}
 	
-	private void setExtraXmlProp(Job job) throws Exception{
-		HashMap<String, String> map = xmlUtil.parseXMLDataToHashMap(job.getXmldata());
-		if(map != null) {
-			job.setRerunfromfs(Boolean.parseBoolean(map.get("rerunfromfs")));
-			job.setApplycompletedtask(Boolean.parseBoolean(map.get("applycompletedtask")));
-			job.setWaitingtime(map.get("waitingtime"));
-			job.setDontsavehistory(Boolean.parseBoolean(map.get("dontsavehistory")));
-			job.setUsestepcondi(Boolean.parseBoolean(map.get("usestepcondi")));
-			job.setSkipmissingtask(Boolean.parseBoolean(map.get("skipmissingtask")));
-			
-			job.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
-		}
+	private void setExtraXmlProp(JobFlow flow) throws Exception{
+//		HashMap<String, String> map = xmlUtil.parseXMLDataToHashMap(job.getXmldata());
+//		if(map != null) {
+//			job.setRerunfromfs(Boolean.parseBoolean(map.get("rerunfromfs")));
+//			job.setApplycompletedtask(Boolean.parseBoolean(map.get("applycompletedtask")));
+//			job.setWaitingtime(map.get("waitingtime"));
+//			job.setDontsavehistory(Boolean.parseBoolean(map.get("dontsavehistory")));
+//			job.setUsestepcondi(Boolean.parseBoolean(map.get("usestepcondi")));
+//			job.setSkipmissingtask(Boolean.parseBoolean(map.get("skipmissingtask")));
+//			
+//			job.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
+//		}
 	}
 }

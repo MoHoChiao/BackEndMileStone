@@ -1,6 +1,7 @@
 package com.netpro.trinity.repository.entity.frequency.jpa;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +11,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.netpro.trinity.repository.entity.frequency.jdbc.FrequencyList;
 
 @Entity(name="Frequency")  //宣告這是一個實體Frequency的類別
 public class Frequency {	
@@ -36,7 +38,7 @@ public class Frequency {
   	private Date lastupdatetime;
   	
   	@Transient
-  	private String frequencytype;
+  	private List<FrequencyList> freqlist;
   	
 	public String getFrequencyuid() {
 		return frequencyuid;
@@ -99,12 +101,10 @@ public class Frequency {
 	public void setLastupdatetime(Date lastupdatetime) {
 		this.lastupdatetime = lastupdatetime;
 	}
-	public String getFrequencytype() {
-		return frequencytype;
+	public List<FrequencyList> getFreqlist() {
+		return freqlist;
 	}
-	public void setFrequencytype(String frequencytype) {
-		this.frequencytype = frequencytype;
+	public void setFreqlist(List<FrequencyList> freqlist) {
+		this.freqlist = freqlist;
 	}
-  	
-  	
 }

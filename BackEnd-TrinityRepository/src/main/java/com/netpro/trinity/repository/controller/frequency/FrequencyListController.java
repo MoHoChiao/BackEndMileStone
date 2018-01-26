@@ -90,9 +90,9 @@ public class FrequencyListController {
 	}
 	
 	@PostMapping("/addBatch")
-	public ResponseEntity<?> addBatchFrequencyList(@RequestBody List<FrequencyList> lists) {
+	public ResponseEntity<?> addBatchFrequencyList(String freqUid, @RequestBody List<FrequencyList> lists) {
 		try {
-			return ResponseEntity.ok(this.service.addBatch(lists));
+			return ResponseEntity.ok(this.service.addBatch(freqUid, lists));
 		}catch(Exception e) {
 			FrequencyListController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

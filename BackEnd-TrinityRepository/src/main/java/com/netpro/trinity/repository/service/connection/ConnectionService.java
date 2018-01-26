@@ -102,7 +102,15 @@ public class ConnectionService {
 	}
 	
 	public List<Connection> getAllWithoutInCategory() throws Exception{
-		List<Connection> conns = this.dao.findByConnectionuidNotIn(relService.getAllConnectionUids(), new Sort(new Order("connectionname")));
+		List<String> conn_uids = relService.getAllConnectionUids();
+		if(conn_uids.isEmpty()) {
+			/*
+			 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+			 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+			 */
+			conn_uids.add("");
+		}
+		List<Connection> conns = this.dao.findByConnectionuidNotIn(conn_uids, new Sort(new Order("connectionname")));
 		return getExtraXmlProp(conns);
 	}
 	
@@ -166,7 +174,15 @@ public class ConnectionService {
 				conns = this.dao.findAll();
 			}else {
 				if(categoryUid.trim().isEmpty()) {
-					conns = this.dao.findByConnectionuidNotIn(relService.getAllConnectionUids());
+					List<String> conn_uids = relService.getAllConnectionUids();
+					if(conn_uids.isEmpty()) {
+						/*
+						 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+						 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+						 */
+						conn_uids.add("");
+					}
+					conns = this.dao.findByConnectionuidNotIn(conn_uids);
 				}else {
 					conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid));
 				}
@@ -184,7 +200,15 @@ public class ConnectionService {
 				conns = this.dao.findAll();
 			}else {
 				if(categoryUid.trim().isEmpty()) {
-					conns = this.dao.findByConnectionuidNotIn(relService.getAllConnectionUids());
+					List<String> conn_uids = relService.getAllConnectionUids();
+					if(conn_uids.isEmpty()) {
+						/*
+						 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+						 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+						 */
+						conn_uids.add("");
+					}
+					conns = this.dao.findByConnectionuidNotIn(conn_uids);
 				}else {
 					conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid));
 				}
@@ -210,7 +234,15 @@ public class ConnectionService {
 					page_conn = this.dao.findAll(pageRequest);
 				}else {
 					if(categoryUid.trim().isEmpty()) {
-						page_conn = this.dao.findByConnectionuidNotIn(relService.getAllConnectionUids(), pageRequest);
+						List<String> conn_uids = relService.getAllConnectionUids();
+						if(conn_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+							 */
+							conn_uids.add("");
+						}
+						page_conn = this.dao.findByConnectionuidNotIn(conn_uids, pageRequest);
 					}else {
 						page_conn = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid), pageRequest);
 					}
@@ -237,7 +269,15 @@ public class ConnectionService {
 					conns = this.dao.findAll(sort);
 				}else {
 					if(categoryUid.trim().isEmpty()) {
-						conns = this.dao.findByConnectionuidNotIn(relService.getAllConnectionUids(), sort);
+						List<String> conn_uids = relService.getAllConnectionUids();
+						if(conn_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+							 */
+							conn_uids.add("");
+						}
+						conns = this.dao.findByConnectionuidNotIn(conn_uids, sort);
 					}else {
 						conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid), sort);
 					}
@@ -254,7 +294,15 @@ public class ConnectionService {
 					conns = this.dao.findAll();
 				}else {
 					if(categoryUid.trim().isEmpty()) {
-						conns = this.dao.findByConnectionuidNotIn(relService.getAllConnectionUids());
+						List<String> conn_uids = relService.getAllConnectionUids();
+						if(conn_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+							 */
+							conn_uids.add("");
+						}
+						conns = this.dao.findByConnectionuidNotIn(conn_uids);
 					}else {
 						conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid));
 					}
@@ -299,7 +347,15 @@ public class ConnectionService {
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class, List.class);
 					if(categoryUid.trim().isEmpty()) {
-						page_conn = (Page<Connection>) method.invoke(this.dao, queryString, pageRequest, relService.getAllConnectionUids());
+						List<String> conn_uids = relService.getAllConnectionUids();
+						if(conn_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+							 */
+							conn_uids.add("");
+						}
+						page_conn = (Page<Connection>) method.invoke(this.dao, queryString, pageRequest, conn_uids);
 					}else {
 						page_conn = (Page<Connection>) method.invoke(this.dao, queryString, pageRequest, relService.getConnectionUidsByCategoryUid(categoryUid));
 					}
@@ -327,7 +383,15 @@ public class ConnectionService {
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class, List.class);
 					if(categoryUid.trim().isEmpty()) {
-						conns = (List<Connection>) method.invoke(this.dao, queryString, sort, relService.getAllConnectionUids());
+						List<String> conn_uids = relService.getAllConnectionUids();
+						if(conn_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+							 */
+							conn_uids.add("");
+						}
+						conns = (List<Connection>) method.invoke(this.dao, queryString, sort, conn_uids);
 					}else {
 						conns = (List<Connection>) method.invoke(this.dao, queryString, sort, relService.getConnectionUidsByCategoryUid(categoryUid));
 					}
@@ -341,7 +405,15 @@ public class ConnectionService {
 				}else {
 					method = this.dao.getClass().getMethod(methodName.toString(), String.class, List.class);
 					if(categoryUid.trim().isEmpty()) {
-						conns = (List<Connection>) method.invoke(this.dao, queryString, relService.getAllConnectionUids());
+						List<String> conn_uids = relService.getAllConnectionUids();
+						if(conn_uids.isEmpty()) {
+							/*
+							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+							 */
+							conn_uids.add("");
+						}
+						conns = (List<Connection>) method.invoke(this.dao, queryString, conn_uids);
 					}else {
 						conns = (List<Connection>) method.invoke(this.dao, queryString, relService.getConnectionUidsByCategoryUid(categoryUid));
 					}

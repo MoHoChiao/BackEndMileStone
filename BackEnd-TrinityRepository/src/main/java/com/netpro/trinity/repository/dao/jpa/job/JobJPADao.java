@@ -20,6 +20,9 @@ public interface JobJPADao extends JpaRepository<Job, String> {
 	@Query("select count(job)>0 from Job job where job.filesourceuid=:filesourceuid AND 1=1")
 	Boolean existByFilesourceuid(@Param("filesourceuid") String filesourceuid);
 	
+	@Query("select count(job)>0 from Job job where job.frequencyuid=:frequencyuid AND 1=1")
+	Boolean existByFrequencyuid(@Param("frequencyuid") String frequencyuid);
+	
 	//category uid field
 	List<Job> findByCategoryuid(String uid);
 	List<Job> findByCategoryuid(String uid, Sort sort);
