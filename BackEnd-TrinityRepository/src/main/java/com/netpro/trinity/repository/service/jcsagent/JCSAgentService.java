@@ -49,18 +49,18 @@ public class JCSAgentService {
 	}
 	
 	public JCSAgent getByUid(String uid) throws IllegalArgumentException, Exception{
-		if(uid == null || uid.isEmpty())
+		if(null == uid || uid.isEmpty())
 			throw new IllegalArgumentException("Agent UID can not be empty!");
 		
 		JCSAgent agent = this.dao.findOne(uid);
-		if(agent == null)
+		if(null == agent)
 			throw new IllegalArgumentException("Agent UID does not exist!(" + uid + ")");
 		setExtraXmlProp(agent);
 		return agent;
 	}
 	
 	public List<JCSAgent> getByName(String name) throws IllegalArgumentException, Exception{
-		if(name == null || name.isEmpty())
+		if(null == name || name.isEmpty())
 			throw new IllegalArgumentException("Agent Name can not be empty!");
 		
 		List<JCSAgent> agents = this.dao.findByagentname(name.toUpperCase());
@@ -71,7 +71,7 @@ public class JCSAgentService {
 	@SuppressWarnings("unchecked")
 	public ResponseEntity<?> getByFilter(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
-		if(filter == null) {
+		if(null == filter) {
 			List<JCSAgent> agents = this.dao.findAll();
 			setExtraXmlProp(agents);
 			return ResponseEntity.ok(agents);
@@ -81,7 +81,7 @@ public class JCSAgentService {
 		Ordering ordering = filter.getOrdering();
 		Querying querying = filter.getQuerying();
 		
-		if(paging == null && ordering == null && querying == null) {
+		if(null == paging && null == ordering && null == querying) {
 			List<JCSAgent> agents = this.dao.findAll();
 			setExtraXmlProp(agents);
 			return ResponseEntity.ok(agents);
@@ -98,7 +98,7 @@ public class JCSAgentService {
 			}
 		}
 		
-		if(querying == null) {
+		if(null == querying) {
 			if(pageRequest != null) {
 				Page<JCSAgent> page_agent = this.dao.findAll(pageRequest);
 				setExtraXmlProp(page_agent.getContent());
@@ -118,11 +118,11 @@ public class JCSAgentService {
 				return ResponseEntity.ok(agents);
 			}
 		}else {
-			if(querying.getQueryType() == null || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
+			if(null == querying.getQueryType() || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
 				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
-			if(querying.getQueryField() == null || !AGENT_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
+			if(null == querying.getQueryField() || !AGENT_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
 				throw new IllegalArgumentException("Illegal query field! "+ AGENT_FIELD_SET.toString());
-			if(querying.getIgnoreCase() == null)
+			if(null == querying.getIgnoreCase())
 				querying.setIgnoreCase(false);
 			
 			String queryType = querying.getQueryType().toLowerCase();

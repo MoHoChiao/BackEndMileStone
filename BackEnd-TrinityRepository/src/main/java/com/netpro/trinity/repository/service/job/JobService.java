@@ -481,6 +481,13 @@ public class JobService {
 		return this.dao.existByFrequencyuid(frequencyuid);
 	}
 	
+	public boolean existByDomainuid(String domainuid) throws IllegalArgumentException, Exception {
+		if(null == domainuid || domainuid.trim().isEmpty())
+			throw new IllegalArgumentException("Domain Uid can not be empty!");
+		
+		return this.dao.existByDomainuid(domainuid);
+	}
+	
 	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{	
 		if(paging.getNumber() == null)
 			paging.setNumber(0);

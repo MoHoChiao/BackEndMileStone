@@ -1,6 +1,5 @@
 package com.netpro.trinity.repository.service.frequency;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -10,8 +9,6 @@ import java.util.UUID;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,22 +25,11 @@ import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.dto.WorkingCalendarPattern;
 import com.netpro.trinity.repository.entity.frequency.jdbc.ExclFrequencyList;
 import com.netpro.trinity.repository.entity.frequency.jpa.ExclFrequency;
+import com.netpro.trinity.repository.service.job.JobExcludeService;
+import com.netpro.trinity.repository.service.job.JobFlowExcludeService;
 import com.netpro.trinity.repository.util.Constant;
-import com.netpro.trinity.repository.util.datepattern.DailyEveryDaysHandler;
-import com.netpro.trinity.repository.util.datepattern.DailyEveryWeekdayHandler;
-import com.netpro.trinity.repository.util.datepattern.EndDateHandler;
-import com.netpro.trinity.repository.util.datepattern.IRecurrenceEndDateHandler;
-import com.netpro.trinity.repository.util.datepattern.IRecurrenceHandler;
-import com.netpro.trinity.repository.util.datepattern.MonthlyEveryMonthHandler;
-import com.netpro.trinity.repository.util.datepattern.MonthlyTheMonthHandler;
-import com.netpro.trinity.repository.util.datepattern.OccurencesEndDateHandler;
-import com.netpro.trinity.repository.util.datepattern.Recurrence;
-import com.netpro.trinity.repository.util.datepattern.WeeklyHandler;
-import com.netpro.trinity.repository.util.datepattern.YearlyEveryYearHandler;
-import com.netpro.trinity.repository.util.datepattern.YearlyTheYearHandler;
 
 @Service
 public class ExclFrequencyService {
@@ -56,7 +42,11 @@ public class ExclFrequencyService {
 	@Autowired
 	private ExclFrequencyListService listService;
 	@Autowired
-	private FrequencyService freqService;
+	private FreqExcludeService freqExcludeService;
+	@Autowired
+	private JobExcludeService jobExcludeService;
+	@Autowired
+	private JobFlowExcludeService flowExcludeService;
 	
 	public List<ExclFrequency> getAll(Boolean withoutDetail) throws Exception{
 		List<ExclFrequency> excls = this.dao.findAll();
@@ -70,9 +60,26 @@ public class ExclFrequencyService {
 			throw new IllegalArgumentException("Exclude Frequency UID can not be empty!");
 		
 		ExclFrequency excl = this.dao.findOne(uid);
-		if(excl == null)
-			throw new IllegalArgumentException("Exclude Frequency UID does not exist!(" + uid + ")");
+		if(null == excl) {
+			if(uid.trim().equalsIgnoreCase("global")) {	//for global excl freq
+				return excl;	//null即傳空字串回前端
+			}else {
+				throw new IllegalArgumentException("Exclude Frequency UID does not exist!(" + uid + ")");
+			}
+		}
+			
+		if(null == withoutDetail || withoutDetail == false)
+			getExclFreqList(excl);
 		
+		return excl;
+	}
+	
+	public ExclFrequency getByGlobal(Boolean withoutDetail) throws IllegalArgumentException, Exception{
+		ExclFrequency excl = this.dao.findOne("global");
+		if(null == excl) {
+			return excl;
+		}
+			
 		if(null == withoutDetail || withoutDetail == false)
 			getExclFreqList(excl);
 		
@@ -210,6 +217,12 @@ public class ExclFrequencyService {
 		if(null == excl.getDescription())
 			excl.setDescription("");
 		
+		/*
+		 * because lastupdatetime column is auto created value, it can not be reload new value.
+		 * here, we force to give value to lastupdatetime column.
+		 */
+		excl.setLastupdatetime(new Date());
+		
 		this.dao.save(excl);
 		List<ExclFrequencyList> exclFreqList = excl.getExcludefrequencylist();
 		if(null != exclFreqList && exclFreqList.size() > 0) {
@@ -249,6 +262,44 @@ public class ExclFrequencyService {
 		if(null == excl.getDescription())
 			excl.setDescription("");
 		
+		/*
+		 * because lastupdatetime column is auto created value, it can not be reload new value.
+		 * here, we force to give value to lastupdatetime column.
+		 */
+		excl.setLastupdatetime(new Date());
+		
+		this.dao.save(excl);
+		List<ExclFrequencyList> exclFreqList = excl.getExcludefrequencylist();
+		if(null != exclFreqList && exclFreqList.size() > 0) {
+			this.listService.deleteByExclFreqUid(excl.getExcludefrequencyuid());
+			int[] returnValue = this.listService.addBatch(excl.getExcludefrequencyuid(), exclFreqList);
+			for(int i=0; i<returnValue.length; i++) {//重設Exclude Frequency list, 只有插入成功的會留下來傳回前端
+				if(returnValue[i] == 0) {
+					exclFreqList.remove(i);
+				}
+			}
+			excl.setExcludefrequencylist(exclFreqList);
+		}
+		return excl;
+	}
+	
+	public ExclFrequency modifyGlobal(ExclFrequency excl) throws IllegalArgumentException, Exception{		
+		excl.setExcludefrequencyuid("global");
+		excl.setExcludefrequencyname("GLOBAL");
+		
+		String activate = excl.getActivate();
+		if(null == activate || (!activate.equals("1") && !activate.equals("0")))
+			throw new IllegalArgumentException("Exclude Frequency activate value can only be 1 or 0!");
+		
+		if(null == excl.getDescription())
+			excl.setDescription("");
+		
+		/*
+		 * because lastupdatetime column is auto created value, it can not be reload new value.
+		 * here, we force to give value to lastupdatetime column.
+		 */
+		excl.setLastupdatetime(new Date());
+		
 		this.dao.save(excl);
 		List<ExclFrequencyList> exclFreqList = excl.getExcludefrequencylist();
 		if(null != exclFreqList && exclFreqList.size() > 0) {
@@ -265,166 +316,15 @@ public class ExclFrequencyService {
 	}
 	
 	public void deleteByUid(String uid) throws IllegalArgumentException, Exception{
-//		if(null == uid || uid.trim().length() <= 0)
-//			throw new IllegalArgumentException("Exclude Frequency Uid can not be empty!");
-//				
-//		if(!freqService.existByWCalendaruid(uid)) {
-//			this.listService.deleteByExclFreqUid(uid);
-//			this.dao.delete(uid);
-//		}else {
-//			throw new IllegalArgumentException("Referenceing by frequency");
-//		}
-	}
-	
-	public List<String> getWCPattern(WorkingCalendarPattern dp) throws IllegalArgumentException, ParseException, NumberFormatException, Exception{
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		if(null == uid || uid.trim().length() <= 0)
+			throw new IllegalArgumentException("Exclude Frequency Uid can not be empty!");
 		
-		if(null == dp.getStartDate() || dp.getStartDate().trim().isEmpty())
-			throw new IllegalArgumentException("The value of startDate can not be empty!");
-		Date startDate = sdf.parse(dp.getStartDate());
+		this.freqExcludeService.deleteByExcludeFrequencyUid(uid);
+		this.jobExcludeService.deleteByExcludeFrequencyUid(uid);
+		this.flowExcludeService.deleteByExcludeFrequencyUid(uid);
+		this.listService.deleteByExclFreqUid(uid);
+		this.dao.delete(uid);
 		
-		String patternType = dp.getPatternType();
-		if(null == patternType || patternType.trim().isEmpty())
-			throw new IllegalArgumentException("The value of patternType can not be empty!");
-		
-		String endDateType = dp.getEndDateType();
-		if(null == endDateType || endDateType.trim().isEmpty())
-			throw new IllegalArgumentException("The value of endDateType can not be empty!");
-		
-		IRecurrenceEndDateHandler endHandler = null;
-		if("EndBy".equalsIgnoreCase(endDateType)) {
-			if(null == dp.getEndDate() || dp.getEndDate().trim().isEmpty())
-				throw new IllegalArgumentException("endDateType = 'EndBy' - The value of endDate can not be empty!");
-			
-			Date endDate = sdf.parse(dp.getEndDate());
-			endHandler = new EndDateHandler(startDate, endDate);
-		}else if("EndAfter".equalsIgnoreCase(endDateType)) {			
-			if(null == dp.getOccurences() || dp.getOccurences() <= 0)
-				throw new IllegalArgumentException("endDateType = 'EndAfter' - The value of occurences must be greater than zero!");
-			
-			endHandler = new OccurencesEndDateHandler(dp.getOccurences());
-		}else {
-			throw new IllegalArgumentException("The value of endDateType can only be 'EndBy' or 'EndAfter'!");
-		}
-		
-		IRecurrenceHandler handler = null;
-		if("Daily".equalsIgnoreCase(patternType)){
-			String dailyType = dp.getDailyType();
-			if(null == dailyType || dailyType.trim().isEmpty())
-				throw new IllegalArgumentException("patternType = 'Daily' - The value of dailyType can not be empty!");
-			
-			if("Days".equalsIgnoreCase(dailyType)) {
-				if(null == dp.getDay() || dp.getDay() <= 0)
-					throw new IllegalArgumentException("patternType = 'Daily', dailyType = 'Days' - The value of day must be greater than zero!");
-				
-				handler = new DailyEveryDaysHandler(startDate, dp.getDay());
-			}else if("WeekDay".equalsIgnoreCase(dailyType)) {
-				handler = new DailyEveryWeekdayHandler(startDate);
-			}else {
-				throw new IllegalArgumentException("patternType = 'Daily' - The value of dailyType can only be 'Days' or 'WeekDay'!");
-			}
-		}else if("Weekly".equalsIgnoreCase(patternType)) {
-			if(null == dp.getDays() || dp.getDays().length <= 0)
-				throw new IllegalArgumentException("patternType = 'Weekly' - The value of days can not be empty!");
-			
-			if(null == dp.getWeek() || dp.getWeek() <= 0)
-				throw new IllegalArgumentException("patternType = 'Weekly' - The value of week must be greater than zero!");
-			
-			handler = new WeeklyHandler(startDate, dp.getWeek(), dp.getDays());
-		}else if("Monthly".equalsIgnoreCase(patternType)) {
-			String monthlyType = dp.getMonthlyType();
-			if(null == monthlyType || monthlyType.trim().isEmpty())
-				throw new IllegalArgumentException("patternType = 'Monthly' - The value of monthlyType can not be empty!");
-			
-			if("DayOfEveryMonth".equalsIgnoreCase(monthlyType)) {
-				if(null == dp.getDay() || dp.getDay() <= 0)
-					throw new IllegalArgumentException("patternType = 'Monthly', monthlyType = 'DayOfEveryMonth' - The value of day must be greater than zero!");
-				
-				if(null == dp.getMonth() || dp.getMonth() <= 0)
-					throw new IllegalArgumentException("patternType = 'Monthly', monthlyType = 'DayOfEveryMonth' - The value of month must be greater than zero!");
-				
-				handler = new MonthlyEveryMonthHandler(startDate, dp.getDay(), dp.getMonth());
-			}else if("TheDayOfEveryMonth".equalsIgnoreCase(monthlyType)) {
-				if(null == dp.getSeq())
-					throw new IllegalArgumentException("patternType = 'Monthly', monthlyType = 'TheDayOfEveryMonth' - The value of seq can not be null!");
-				
-				if(dp.getSeq() != -1 && dp.getSeq() != 1 && dp.getSeq() != 2 && dp.getSeq() != 3 && dp.getSeq() != 4)
-					throw new IllegalArgumentException("patternType = 'Monthly', monthlyType = 'TheDayOfEveryMonth' - The value of seq can only be -1, 1, 2, 3, or 4!");
-				
-				if(null == dp.getMonth() || dp.getMonth() <= 0)
-					throw new IllegalArgumentException("patternType = 'Monthly', monthlyType = 'TheDayOfEveryMonth' - The value of month must be greater than zero!");
-				
-				if(null == dp.getDayType())
-					throw new IllegalArgumentException("patternType = 'Monthly', monthlyType = 'TheDayOfEveryMonth' - The value of dayType can not be null!");
-				
-				if(dp.getDayType() < 1 || dp.getDayType() > 10)
-					throw new IllegalArgumentException("patternType = 'Monthly', monthlyType = 'TheDayOfEveryMonth' - The value of dayType can only be 1~10!");
-				
-				if(null == dp.getPlusOrMinus() || dp.getPlusOrMinus() == 0) {
-					handler = new MonthlyTheMonthHandler(startDate, dp.getSeq(), dp.getDayType(), dp.getMonth());
-				}else {
-					handler = new MonthlyTheMonthHandler(startDate, dp.getSeq(), dp.getDayType(), dp.getMonth(), dp.getPlusOrMinus());
-				}
-			}else {
-				throw new IllegalArgumentException("patternType = 'Monthly' - The value of monthlyType can only be 'DayOfEveryMonth' or 'TheDayOfEveryMonth' !");
-			}
-		}else if("Yearly".equalsIgnoreCase(patternType)) {
-			String yearlyType = dp.getYearlyType();
-			if(null == yearlyType || yearlyType.trim().isEmpty())
-				throw new IllegalArgumentException("patternType = 'Yearly' - The value of yearlyType can not be empty!");
-			
-			if("DayOfEveryYear".equalsIgnoreCase(yearlyType)) {
-				if(null == dp.getDay() || dp.getDay() <= 0)
-					throw new IllegalArgumentException("patternType = 'Yearly', yearlyType = 'DayOfEveryYear' - The value of day must be greater than zero!");
-				
-				if(null == dp.getMonth())
-					throw new IllegalArgumentException("patternType = 'Yearly', yearlyType = 'DayOfEveryYear' - The value of month can not be null!");
-				
-				if(dp.getMonth() < 0 || dp.getMonth() > 11)
-					throw new IllegalArgumentException("patternType = 'Yearly', yearlyType = 'DayOfEveryYear' - The value of month can only be 0~11!");
-				
-				handler = new YearlyEveryYearHandler(startDate, dp.getMonth(), dp.getDay());
-			}else if("TheDayOfEveryYear".equalsIgnoreCase(yearlyType)) {
-				if(null == dp.getSeq())
-					throw new IllegalArgumentException("patternType = 'Yearly', yearlyType = 'TheDayOfEveryYear' - The value of seq can not be null!");
-				
-				if(dp.getSeq() != -1 && dp.getSeq() != 1 && dp.getSeq() != 2 && dp.getSeq() != 3 && dp.getSeq() != 4)
-					throw new IllegalArgumentException("patternType = 'Yearly', yearlyType = 'TheDayOfEveryYear' - The value of seq can only be -1, 1, 2, 3, or 4!");
-				
-				if(null == dp.getDayType())
-					throw new IllegalArgumentException("patternType = 'Yearly', yearlyType = 'TheDayOfEveryYear' - The value of dayType can not be null!");
-				
-				if(dp.getDayType() < 1 || dp.getDayType() > 10)
-					throw new IllegalArgumentException("patternType = 'Yearly', yearlyType = 'TheDayOfEveryYear' - The value of dayType can only be 1~10!");
-				
-				if(null == dp.getMonth())
-					throw new IllegalArgumentException("patternType = 'Yearly', yearlyType = 'TheDayOfEveryYear' - The value of month can not be null!");
-			
-				if(dp.getMonth() < 0 || dp.getMonth() > 11)
-					throw new IllegalArgumentException("patternType = 'Yearly', yearlyType = 'TheDayOfEveryYear' - The value of month can only be 0~11!");
-				
-				handler = new YearlyTheYearHandler(startDate, dp.getSeq(), dp.getDayType(), dp.getMonth());
-			}else {
-				throw new IllegalArgumentException("patternType = 'Yearly' - The value of yearlyType can only be 'DayOfEveryYear' or 'TheDayOfEveryYear' !");
-			}
-		}else {
-			throw new IllegalArgumentException("The value of patternType can only be 'Daily' or 'Weekly' or 'Monthly' or 'Yearly'!");
-		}
-		
-		Recurrence rec = new Recurrence();
-		rec.setHandler(handler);
-		rec.setEndDateHandler(endHandler);
-		List<Date> dates = rec.getDate();
-		if(dates.size() > 2000)
-			throw new IllegalArgumentException("The total number of date selected by pattern can not exceed 2000!");
-		
-		List<String> dateList = new ArrayList<String>();
-		
-		for(Date d : dates) {
-			dateList.add(sdf.format(d));
-		}
-		
-		return dateList;
 	}
 	
 	public boolean existByUid(String uid) throws Exception {
@@ -450,7 +350,7 @@ public class ExclFrequencyService {
 		if(ordering.getOrderType() != null && Constant.ORDER_TYPE_SET.contains(ordering.getOrderType().toUpperCase()))
 			direct = Direction.fromStringOrNull(ordering.getOrderType());
 		
-		Order order = new Order(direct, "wcalendarname");
+		Order order = new Order(direct, "lastupdatetime");
 		if(ordering.getOrderField() != null && EXCL_FIELD_SET.contains(ordering.getOrderField().toLowerCase()))
 			order = new Order(direct, ordering.getOrderField());
 		

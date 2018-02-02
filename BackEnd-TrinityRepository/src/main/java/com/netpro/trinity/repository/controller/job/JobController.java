@@ -202,4 +202,17 @@ public class JobController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
+	
+	@GetMapping("/isExistByDomainuid")
+	public ResponseEntity<?> isJobExistByDomainuid(String domainuid) {
+		try {
+			return ResponseEntity.ok(this.service.existByDomainuid(domainuid));
+		}catch(IllegalArgumentException e) {
+			JobController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			JobController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
 }

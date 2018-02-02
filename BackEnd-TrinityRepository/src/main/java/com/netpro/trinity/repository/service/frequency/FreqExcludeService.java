@@ -72,9 +72,6 @@ public class FreqExcludeService {
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Exclude Frequency Uid can not be empty!");
 		
-		if(uid.trim().equalsIgnoreCase("global"))
-			throw new IllegalArgumentException("Exclude Frequency Uid can not be global!");
-		
 		return this.dao.deleteByExcludeFrequencyUid(uid);
 	}
 	

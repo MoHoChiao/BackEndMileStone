@@ -70,7 +70,7 @@ public class WorkingCalendarService {
 			throw new IllegalArgumentException("Working Calendar UID can not be empty!");
 		
 		WorkingCalendar wc = this.dao.findOne(uid);
-		if(wc == null)
+		if(null == wc)
 			throw new IllegalArgumentException("Working Calendar UID does not exist!(" + uid + ")");
 		
 		if(null == withoutDetail || withoutDetail == false)
@@ -80,7 +80,7 @@ public class WorkingCalendarService {
 	}
 	
 	public List<WorkingCalendar> getByName(Boolean withoutDetail, String name) throws IllegalArgumentException, Exception{
-		if(name == null || name.isEmpty())
+		if(null == name || name.isEmpty())
 			throw new IllegalArgumentException("Working Calendar Name can not be empty!");
 		
 		List<WorkingCalendar> wcs = this.dao.findBywcalendarname(name.toUpperCase());
@@ -94,7 +94,7 @@ public class WorkingCalendarService {
 	@SuppressWarnings("unchecked")
 	public ResponseEntity<?> getByFilter(Boolean withoutDetail, FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
-		if(filter == null) {
+		if(null == filter) {
 			List<WorkingCalendar> wcs = this.dao.findAll();
 			if(null == withoutDetail || withoutDetail == false)
 				getWCList(wcs);
@@ -106,7 +106,7 @@ public class WorkingCalendarService {
 		Ordering ordering = filter.getOrdering();
 		Querying querying = filter.getQuerying();
 		
-		if(paging == null && ordering == null && querying == null) {
+		if(null == paging && null == ordering && null == querying) {
 			List<WorkingCalendar> wcs = this.dao.findAll();
 			if(null == withoutDetail || withoutDetail == false)
 				getWCList(wcs);
@@ -125,7 +125,7 @@ public class WorkingCalendarService {
 			}
 		}
 		
-		if(querying == null) {
+		if(null == querying) {
 			if(pageRequest != null) {
 				Page<WorkingCalendar> page_wc = this.dao.findAll(pageRequest);
 				if(null == withoutDetail || withoutDetail == false)
@@ -148,11 +148,11 @@ public class WorkingCalendarService {
 				return ResponseEntity.ok(wcs);
 			}
 		}else {
-			if(querying.getQueryType() == null || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
+			if(null == querying.getQueryType() || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
 				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
-			if(querying.getQueryField() == null || !WC_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
+			if(null == querying.getQueryField() || !WC_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
 				throw new IllegalArgumentException("Illegal query field! "+ WC_FIELD_SET.toString());
-			if(querying.getIgnoreCase() == null)
+			if(null == querying.getIgnoreCase())
 				querying.setIgnoreCase(false);
 			
 			String queryType = querying.getQueryType().toLowerCase();

@@ -47,7 +47,20 @@ public class ExclFrequencyController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
-  
+	
+	@GetMapping("/findByGlobal")
+	public ResponseEntity<?> findExcludeFrequencyByGlobal(Boolean withoutDetail) {
+		try {
+			return ResponseEntity.ok(this.service.getByGlobal(withoutDetail));
+		}catch(IllegalArgumentException e) {
+			ExclFrequencyController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			ExclFrequencyController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/findByName")
 	public ResponseEntity<?> findExcludeFrequencyByName(Boolean withoutDetail, String name) {
 		try {
@@ -112,6 +125,19 @@ public class ExclFrequencyController {
 		}
 	}
   
+	@PostMapping("/modifyGlobal")
+	public ResponseEntity<?> modifyGlobalExcludeFrequency(@RequestBody ExclFrequency excl) {
+		try {
+			return ResponseEntity.ok(this.service.modifyGlobal(excl));
+		}catch(IllegalArgumentException e) {
+			ExclFrequencyController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			ExclFrequencyController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/delete")
 	public ResponseEntity<?> deleteExcludeFrequencyByUid(String uid) {
 		try {

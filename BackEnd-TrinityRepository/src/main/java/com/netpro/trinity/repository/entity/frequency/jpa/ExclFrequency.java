@@ -1,12 +1,16 @@
 package com.netpro.trinity.repository.entity.frequency.jpa;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.netpro.trinity.repository.entity.frequency.jdbc.ExclFrequencyList;
 
 @Entity(name="excludefrequency")  //宣告這是一個實體excludefrequency的類別
@@ -19,6 +23,9 @@ public class ExclFrequency {
   	private String description;
   	@Column(nullable=false)
   	private String activate;
+  	@Column
+  	@Temporal(TemporalType.TIMESTAMP)
+  	private Date lastupdatetime;
   	
   	@Transient
   	private List<ExclFrequencyList> excludefrequencylist;
@@ -52,5 +59,12 @@ public class ExclFrequency {
 	}
 	public void setExcludefrequencylist(List<ExclFrequencyList> excludefrequencylist) {
 		this.excludefrequencylist = excludefrequencylist;
+	}
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	public Date getLastupdatetime() {
+		return lastupdatetime;
+	}
+	public void setLastupdatetime(Date lastupdatetime) {
+		this.lastupdatetime = lastupdatetime;
 	}
 }
