@@ -73,7 +73,7 @@ public class JobExcludeJDBCDao {
 		return jtm.update(sql, param);
 	}
 	
-	public Boolean exitByExcludeFrequencyUid(String uid) throws DataAccessException{
+	public Boolean existByExcludeFrequencyUid(String uid) throws DataAccessException{
         String sql = "SELECT COUNT(je) > 0 "
         		+ "FROM jobexclude je "
         		+ "WHERE je.excludefrequencyuid=? AND 1=1";

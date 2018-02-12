@@ -45,7 +45,7 @@ public class DomainResourceService {
 		if(null == resourcevalue|| resourcevalue.trim().isEmpty())
 			throw new IllegalArgumentException("Resource Value can not be empty!!");
 		
-		if(this.dao.exitByAllPKs(resource))
+		if(this.dao.existByAllPKs(resource))
 			throw new IllegalArgumentException("Duplicate Domain Resource!");
 		
 		if(this.dao.save(resource) > 0)

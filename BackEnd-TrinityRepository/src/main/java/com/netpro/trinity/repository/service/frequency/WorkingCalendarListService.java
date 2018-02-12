@@ -51,7 +51,7 @@ public class WorkingCalendarListService {
 		if(null == daynum)
 			throw new IllegalArgumentException("Day Number must be Integer!");
 		
-		if(this.dao.exitByAllPKs(list))
+		if(this.dao.existByAllPKs(list))
 			throw new IllegalArgumentException("Duplicate Working Calendar List!");
 		
 		if(this.dao.save(list) > 0)

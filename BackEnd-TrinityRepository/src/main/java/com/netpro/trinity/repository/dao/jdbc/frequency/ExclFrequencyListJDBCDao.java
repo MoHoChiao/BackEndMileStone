@@ -49,7 +49,7 @@ public class ExclFrequencyListJDBCDao {
         return ret;
     }
 	
-	public Boolean exitByAllPKs(ExclFrequencyList exclFreqList) throws DataAccessException{
+	public Boolean existByAllPKs(ExclFrequencyList exclFreqList) throws DataAccessException{
 
         String sql = "SELECT COUNT(list) > 0 "
         		+ "FROM excludefrequencylist list "
@@ -61,7 +61,7 @@ public class ExclFrequencyListJDBCDao {
         return ret;
     }
 	
-	public Boolean exitByTime(ExclFrequencyList exclFreqList) throws DataAccessException{
+	public Boolean existByTime(ExclFrequencyList exclFreqList) throws DataAccessException{
 
         String sql = "SELECT COUNT(list) > 0 "
         		+ "FROM excludefrequencylist list "

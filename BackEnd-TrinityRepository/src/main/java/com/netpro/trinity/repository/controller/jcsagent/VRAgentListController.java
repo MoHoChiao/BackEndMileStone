@@ -24,8 +24,8 @@ public class VRAgentListController {
 	@Autowired
 	private VRAgentListService service;
 	
-	@GetMapping("/findByVRAgentUid")
-	public ResponseEntity<?> findListByVRAgentUid(String uid) {
+	@GetMapping("/findExtraByVRAgentUid")
+	public ResponseEntity<?> findListExtraInfoByVRAgentUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.getExByVRAgentUid(uid));
 		}catch(IllegalArgumentException e) {

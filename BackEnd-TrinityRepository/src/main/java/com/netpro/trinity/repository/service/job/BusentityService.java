@@ -25,6 +25,7 @@ import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
 import com.netpro.trinity.repository.entity.job.jpa.Busentity;
+import com.netpro.trinity.repository.service.objectalias.ObjectAliasService;
 import com.netpro.trinity.repository.util.Constant;
 
 @Service
@@ -35,32 +36,50 @@ public class BusentityService {
 	@Autowired
 	private BusentityJPADao dao;
 	
-	public List<Busentity> getAll() throws Exception{
-		return this.dao.findAll();
+	@Autowired
+	private ObjectAliasService oaService;
+	
+	public List<Busentity> getAll(Boolean withAlias) throws Exception{
+		List<Busentity> entities = this.dao.findAll();
+		if(null != withAlias && withAlias == true)
+			getAlias(entities);
+		return entities;
 	}
 	
-	public Busentity getByUid(String uid) throws IllegalArgumentException, Exception{
+	public Busentity getByUid(Boolean withAlias, String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Business Entity UID can not be empty!");
 		
 		Busentity entity = this.dao.findOne(uid);
 		if(entity == null)
 			throw new IllegalArgumentException("Business Entity UID does not exist!(" + uid + ")");
+		
+		if(null != withAlias && withAlias == true)
+			getAlias(entity);
+		
 		return entity;
 	}
 	
-	public List<Busentity> getByName(String name) throws IllegalArgumentException, Exception{
+	public List<Busentity> getByName(Boolean withAlias, String name) throws IllegalArgumentException, Exception{
 		if(name == null || name.isEmpty())
 			throw new IllegalArgumentException("Business Entity Name can not be empty!");
 		
-		return this.dao.findBybusentityname(name.toUpperCase());
+		List<Busentity> entities = this.dao.findBybusentityname(name.toUpperCase());
+		
+		if(null != withAlias && withAlias == true)
+			getAlias(entities);
+		
+		return entities;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFilter(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
+	public ResponseEntity<?> getByFilter(Boolean withAlias, FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
 		if(filter == null) {
-			return ResponseEntity.ok(this.dao.findAll());
+			List<Busentity> entities = this.dao.findAll();
+			if(null != withAlias && withAlias == true)
+				getAlias(entities);
+			return ResponseEntity.ok(entities);
 		}
 		
 		Paging paging = filter.getPaging();
@@ -68,7 +87,10 @@ public class BusentityService {
 		Querying querying = filter.getQuerying();
 		
 		if(paging == null && ordering == null && querying == null) {
-			return ResponseEntity.ok(this.dao.findAll());
+			List<Busentity> entities = this.dao.findAll();
+			if(null != withAlias && withAlias == true)
+				getAlias(entities);
+			return ResponseEntity.ok(entities);
 		}
 		
 		PageRequest pageRequest = null;
@@ -84,9 +106,15 @@ public class BusentityService {
 		
 		if(querying == null) {
 			if(pageRequest != null) {
-				return ResponseEntity.ok(this.dao.findAll(pageRequest));
+				Page<Busentity> page_entity = this.dao.findAll(pageRequest);
+				if(null != withAlias && withAlias == true)
+					getAlias(page_entity.getContent());
+				return ResponseEntity.ok(page_entity);
 			}else if(sort != null) {
-				return ResponseEntity.ok(this.dao.findAll(sort));
+				List<Busentity> entities = this.dao.findAll(sort);
+				if(null != withAlias && withAlias == true)
+					getAlias(entities);
+				return ResponseEntity.ok(entities);
 			}else {
 				/*
 				 * The paging and ordering both objects are null.
@@ -121,14 +149,20 @@ public class BusentityService {
 			if(pageRequest != null){
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
 				Page<Busentity> page_entity = (Page<Busentity>) method.invoke(this.dao, queryString, pageRequest);
+				if(null != withAlias && withAlias == true)
+					getAlias(page_entity.getContent());
 				return ResponseEntity.ok(page_entity);
 			}else if(sort != null) {
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
 				List<Busentity> entities = (List<Busentity>) method.invoke(this.dao, queryString, sort);
+				if(null != withAlias && withAlias == true)
+					getAlias(entities);
 				return ResponseEntity.ok(entities);
 			}else {
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class);
 				List<Busentity> entities = (List<Busentity>) method.invoke(this.dao, queryString);
+				if(null != withAlias && withAlias == true)
+					getAlias(entities);
 				return ResponseEntity.ok(entities);
 			}
 		}
@@ -225,5 +259,15 @@ public class BusentityService {
 			order = new Order(direct, ordering.getOrderField());
 		
 		return new Sort(order);
+	}
+	
+	private void getAlias(List<Busentity> entities) throws Exception {
+		for(Busentity entity : entities) {
+			getAlias(entity);
+		}
+	}
+	
+	private void getAlias(Busentity entity) throws Exception {
+		entity.setAlias(this.oaService.getExByParentUid(entity.getBusentityuid()));
 	}
 }

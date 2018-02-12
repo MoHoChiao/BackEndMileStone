@@ -100,7 +100,7 @@ public class JobExcludeController {
 	@GetMapping("/isExistByExcludeFrequencyUid")
 	public ResponseEntity<?> isJobExcludeExistExcludeFrequencyUid(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.exitByExcludeFrequencyUid(uid));
+			return ResponseEntity.ok(this.service.existByExcludeFrequencyUid(uid));
 		}catch(IllegalArgumentException e) {
 			JobExcludeController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

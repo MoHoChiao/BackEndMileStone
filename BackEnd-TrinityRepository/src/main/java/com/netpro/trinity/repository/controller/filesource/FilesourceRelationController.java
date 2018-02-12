@@ -75,7 +75,7 @@ public class FilesourceRelationController {
 	@GetMapping("/isExistByCategoryUid")
 	public ResponseEntity<?> isRelationExistByCategoryUid(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.exitByCategoryUid(uid));
+			return ResponseEntity.ok(this.service.existByCategoryUid(uid));
 		}catch(IllegalArgumentException e) {
 			FilesourceRelationController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

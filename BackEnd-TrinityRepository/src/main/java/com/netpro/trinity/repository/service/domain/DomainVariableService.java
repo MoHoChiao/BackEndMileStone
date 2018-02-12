@@ -45,7 +45,7 @@ public class DomainVariableService {
 		if(null == variablevalue)
 			var.setVariablevalue("");
 		
-		if(this.dao.exitByAllPKs(var))
+		if(this.dao.existByAllPKs(var))
 			throw new IllegalArgumentException("Duplicate Domain Variable!");
 		
 		if(this.dao.save(var) > 0)

@@ -37,7 +37,7 @@ public class VRAgentListJDBCDao {
         return lists;
     }
 	
-	public Boolean exitByVRAgentUidAndSeq(String vragentuid, Integer seq) throws DataAccessException{
+	public Boolean existByVRAgentUidAndSeq(String vragentuid, Integer seq) throws DataAccessException{
 
         String sql = "SELECT COUNT(list) > 0 "
         		+ "FROM jcsvirtualagentlist list "
@@ -80,10 +80,5 @@ public class VRAgentListJDBCDao {
 		String sql = "DELETE FROM jcsvirtualagentlist WHERE virtualagentuid = ?";
 		Object[] param = new Object[] {uid};
 		return jtm.update(sql, param);
-	}
-	
-	public static void main(String[] args) {
-		VRAgentListJDBCDao test = new VRAgentListJDBCDao();
-		test.exitByVRAgentUidAndSeq("as",1);
 	}
 }

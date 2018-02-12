@@ -100,7 +100,7 @@ public class FreqExcludeController {
 	@GetMapping("/isExistByExcludeFrequencyUid")
 	public ResponseEntity<?> isFreqExcludeExistByExcludeFrequencyUid(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.exitByExcludeFrequencyUid(uid));
+			return ResponseEntity.ok(this.service.existByExcludeFrequencyUid(uid));
 		}catch(IllegalArgumentException e) {
 			FreqExcludeController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

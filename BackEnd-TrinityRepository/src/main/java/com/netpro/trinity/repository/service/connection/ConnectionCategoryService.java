@@ -194,7 +194,7 @@ public class ConnectionCategoryService {
 	public void deleteByUid(String uid) throws IllegalArgumentException, Exception{
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Connection Category Uid can not be empty!");
-		if(relService.exitByCategoryUid(uid))
+		if(relService.existByCategoryUid(uid))
 			throw new IllegalArgumentException("Delete Connection under this category first!");
 
 		this.dao.delete(uid);

@@ -51,7 +51,7 @@ public class FilesourceRelationJDBCDao {
 		return jtm.update(sql, param);
 	}
 	
-	public Boolean exitByCategoryUid(String uid) throws DataAccessException{
+	public Boolean existByCategoryUid(String uid) throws DataAccessException{
         String sql = "SELECT COUNT(rel) > 0 "
         		+ "FROM filesourcerelation rel "
         		+ "WHERE fscategoryuid=? AND 1=1";

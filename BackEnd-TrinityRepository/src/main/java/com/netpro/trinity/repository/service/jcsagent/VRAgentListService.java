@@ -50,7 +50,7 @@ public class VRAgentListService {
 		Integer seq = list.getSeq();
 		if(null == seq)
 			throw new IllegalArgumentException("Seq Field must be Integer!");
-		if(this.dao.exitByVRAgentUidAndSeq(vragentuid, seq))
+		if(this.dao.existByVRAgentUidAndSeq(vragentuid, seq))
 			throw new IllegalArgumentException("Duplicate Seq Field!");
 		
 		String vactivate = list.getActivate();

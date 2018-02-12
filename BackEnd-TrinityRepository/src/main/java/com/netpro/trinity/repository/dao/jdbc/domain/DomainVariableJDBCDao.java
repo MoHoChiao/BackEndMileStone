@@ -37,7 +37,7 @@ public class DomainVariableJDBCDao {
         return lists;
     }
 	
-	public Boolean exitByAllPKs(DomainVariable dvList) throws DataAccessException{
+	public Boolean existByAllPKs(DomainVariable dvList) throws DataAccessException{
 
         String sql = "SELECT COUNT(list) > 0 "
         		+ "FROM domainvariable list "

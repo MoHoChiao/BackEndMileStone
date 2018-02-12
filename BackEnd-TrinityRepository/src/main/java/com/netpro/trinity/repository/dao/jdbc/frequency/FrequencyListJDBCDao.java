@@ -67,7 +67,7 @@ public class FrequencyListJDBCDao {
         return lists;
     }
 	
-	public Boolean exitByAllPKs(FrequencyList fList) throws DataAccessException{
+	public Boolean existByAllPKs(FrequencyList fList) throws DataAccessException{
 
         String sql = "SELECT COUNT(list) > 0 "
         		+ "FROM frequencylist list "

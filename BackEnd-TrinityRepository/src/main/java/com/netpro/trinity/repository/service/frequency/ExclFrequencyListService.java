@@ -43,7 +43,7 @@ public class ExclFrequencyListService {
 			seq++;
 		list.setSeq(seq);
 		
-		if(this.dao.exitByAllPKs(list))
+		if(this.dao.existByAllPKs(list))
 			throw new IllegalArgumentException("Duplicate Exclude Frequency List!");
 		
 		Long starttime = list.getStarttime();
@@ -54,7 +54,7 @@ public class ExclFrequencyListService {
 		if(null == endtime)
 			throw new IllegalArgumentException("End time must be Integer!");
 		
-		if(this.dao.exitByTime(list))
+		if(this.dao.existByTime(list))
 			throw new IllegalArgumentException("Duplicate Exclude Frequency Start Time And End Time!");
 		
 		if(this.dao.save(list) > 0)

@@ -58,10 +58,10 @@ public class ConnectionRelationService {
 		return this.dao.deleteByConnectionUid(uid);
 	}
 	
-	public Boolean exitByCategoryUid(String uid) throws IllegalArgumentException, Exception{
+	public Boolean existByCategoryUid(String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Connection Category UID can not be empty!");
 				
-		return this.dao.exitByCategoryUid(uid);
+		return this.dao.existByCategoryUid(uid);
 	}
 }

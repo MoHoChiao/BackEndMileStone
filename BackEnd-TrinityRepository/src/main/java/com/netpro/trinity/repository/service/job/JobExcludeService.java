@@ -76,10 +76,10 @@ public class JobExcludeService {
 		return this.dao.deleteByExcludeFrequencyUid(uid);
 	}
 	
-	public Boolean exitByExcludeFrequencyUid(String uid) throws IllegalArgumentException, Exception{
+	public Boolean existByExcludeFrequencyUid(String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Exclude Frequency UID can not be empty!");
 				
-		return this.dao.exitByExcludeFrequencyUid(uid);
+		return this.dao.existByExcludeFrequencyUid(uid);
 	}
 }

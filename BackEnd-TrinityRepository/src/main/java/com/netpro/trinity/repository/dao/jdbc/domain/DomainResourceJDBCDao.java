@@ -37,7 +37,7 @@ public class DomainResourceJDBCDao {
         return lists;
     }
 	
-	public Boolean exitByAllPKs(DomainResource drList) throws DataAccessException{
+	public Boolean existByAllPKs(DomainResource drList) throws DataAccessException{
 
         String sql = "SELECT COUNT(list) > 0 "
         		+ "FROM domainresource list "

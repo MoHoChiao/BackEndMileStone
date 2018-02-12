@@ -64,7 +64,7 @@ public class BusentityCategoryJDBCDao {
         return lists;
     }
 	
-	public Boolean exitByEntityUid(String uid) throws DataAccessException{
+	public Boolean existByEntityUid(String uid) throws DataAccessException{
 
         String sql = "SELECT COUNT(bec) > 0 "
         		+ "FROM busentitycategory bec "

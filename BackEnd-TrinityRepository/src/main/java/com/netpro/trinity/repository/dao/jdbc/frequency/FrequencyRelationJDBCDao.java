@@ -51,7 +51,7 @@ public class FrequencyRelationJDBCDao {
 		return jtm.update(sql, param);
 	}
 	
-	public Boolean exitByCategoryUid(String uid) throws DataAccessException{
+	public Boolean existByCategoryUid(String uid) throws DataAccessException{
         String sql = "SELECT COUNT(rel) > 0 "
         		+ "FROM frequencyrelation rel "
         		+ "WHERE freqcategoryuid=? AND 1=1";

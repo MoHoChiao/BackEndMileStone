@@ -39,11 +39,11 @@ public class BusentityCategoryService {
 		return this.dao.findViewEntityCategoryByCategoryUid(uid);
 	}
 	
-	public Boolean exitByEntityUid(String uid) throws IllegalArgumentException, Exception{
+	public Boolean existByEntityUid(String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Entity UID can not be empty!");
 				
-		return this.dao.exitByEntityUid(uid);
+		return this.dao.existByEntityUid(uid);
 	}
 	
 	public void deleteByCategoryUid(String uid) throws IllegalArgumentException, Exception{

@@ -1,6 +1,8 @@
 spring:
   application:
     name: backend-trinity-repository         # 在eureka server的應用程式名稱
+  jackson: 
+    default-property-inclusion: NON_NULL
 server:
   port: 9001                                 # Process啟動的port
 encrypt:

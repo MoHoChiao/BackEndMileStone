@@ -1,14 +1,17 @@
 package com.netpro.trinity.repository.entity.job.jpa;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.netpro.trinity.repository.entity.alias.jdbc.ObjectAlias;
 
 
 @Entity(name="Busentity")  //宣告這是一個實體Busentity的類別
@@ -24,7 +27,10 @@ public class Busentity {
   	@Column
   	@Temporal(TemporalType.TIMESTAMP)
   	private Date lastupdatetime;
-  
+  	
+  	@Transient
+  	private List<ObjectAlias> alias;
+  	
   	public String getBusentityuid() {
 		return busentityuid;
 	}
@@ -55,5 +61,11 @@ public class Busentity {
 	}
 	public void setLastupdatetime(Date lastupdatetime) {
 		this.lastupdatetime = lastupdatetime;
+	}
+	public List<ObjectAlias> getAlias() {
+		return alias;
+	}
+	public void setAlias(List<ObjectAlias> alias) {
+		this.alias = alias;
 	}
 }

@@ -26,9 +26,9 @@ public class BusentityController {
 	private BusentityService service;
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllEntities() {
+	public ResponseEntity<?> findAllEntities(Boolean withAlias) {
 		try {
-			return ResponseEntity.ok(this.service.getAll());
+			return ResponseEntity.ok(this.service.getAll(withAlias));
 		}catch(Exception e) {
 			BusentityController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -46,9 +46,9 @@ public class BusentityController {
 	}
 	
 	@GetMapping("/findByUid")
-	public ResponseEntity<?> findEntityByUid(String uid) {
+	public ResponseEntity<?> findEntityByUid(Boolean withAlias, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByUid(uid));
+			return ResponseEntity.ok(this.service.getByUid(withAlias, uid));
 		}catch(IllegalArgumentException e) {
 			BusentityController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -59,9 +59,9 @@ public class BusentityController {
 	}
   
 	@GetMapping("/findByName")
-	public ResponseEntity<?> findEntitiesByName(String name) {
+	public ResponseEntity<?> findEntitiesByName(Boolean withAlias, String name) {
 		try {
-			return ResponseEntity.ok(this.service.getByName(name));
+			return ResponseEntity.ok(this.service.getByName(withAlias, name));
 		}catch(IllegalArgumentException e) {
 			BusentityController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -72,9 +72,9 @@ public class BusentityController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findEntitiesByFilter(@RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findEntitiesByFilter(Boolean withAlias, @RequestBody FilterInfo filter) {
 		try {
-			return this.service.getByFilter(filter);
+			return this.service.getByFilter(withAlias, filter);
 		}catch(SecurityException e) {
 			BusentityController.LOGGER.error("SecurityException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

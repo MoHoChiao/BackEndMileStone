@@ -37,7 +37,7 @@ public class WorkingCalendarListJDBCDao {
         return lists;
     }
 	
-	public Boolean exitByAllPKs(WorkingCalendarList wcList) throws DataAccessException{
+	public Boolean existByAllPKs(WorkingCalendarList wcList) throws DataAccessException{
 
         String sql = "SELECT COUNT(list) > 0 "
         		+ "FROM workingcalendarlist list "

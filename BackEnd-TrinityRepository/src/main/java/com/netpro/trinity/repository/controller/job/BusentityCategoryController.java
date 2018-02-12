@@ -71,7 +71,7 @@ public class BusentityCategoryController {
 	@GetMapping("/isExistByEntityUid")
 	public ResponseEntity<?> isRelationExistByEntityUid(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.exitByEntityUid(uid));
+			return ResponseEntity.ok(this.service.existByEntityUid(uid));
 		}catch(IllegalArgumentException e) {
 			BusentityCategoryController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
