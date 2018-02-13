@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.controller.disconfig;
+package com.netpro.trinity.repository.controller.configuration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.repository.entity.disconfig.jpa.DisconfigPKs;
-import com.netpro.trinity.repository.service.disconfig.DisconfigService;
+import com.netpro.trinity.repository.entity.configuration.jpa.DisconfigPKs;
+import com.netpro.trinity.repository.service.configuration.DisconfigService;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/disconfig")

@@ -1,13 +1,13 @@
-package com.netpro.trinity.repository.service.disconfig;
+package com.netpro.trinity.repository.service.configuration;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.dao.jpa.disconfig.DisconfigJPADao;
-import com.netpro.trinity.repository.entity.disconfig.jpa.Disconfig;
-import com.netpro.trinity.repository.entity.disconfig.jpa.DisconfigPKs;
+import com.netpro.trinity.repository.dao.jpa.configuration.DisconfigJPADao;
+import com.netpro.trinity.repository.entity.configuration.jpa.Disconfig;
+import com.netpro.trinity.repository.entity.configuration.jpa.DisconfigPKs;
 
 @Service
 public class DisconfigService {

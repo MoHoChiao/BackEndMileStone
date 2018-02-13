@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.entity.disconfig.jpa;
+package com.netpro.trinity.repository.entity.configuration.jpa;
 
 import java.io.Serializable;
 
