@@ -28,7 +28,7 @@ import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.dto.WorkingCalendarPattern;
+import com.netpro.trinity.repository.entity.frequency.WorkingCalendarPattern;
 import com.netpro.trinity.repository.entity.frequency.jdbc.WorkingCalendarList;
 import com.netpro.trinity.repository.entity.frequency.jpa.WorkingCalendar;
 import com.netpro.trinity.repository.util.Constant;

@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.dto;
+package com.netpro.trinity.repository.entity.frequency;
 
 public class WorkingCalendarPattern {
 	private String startDate;	//valid format ex: 2018-03-15
