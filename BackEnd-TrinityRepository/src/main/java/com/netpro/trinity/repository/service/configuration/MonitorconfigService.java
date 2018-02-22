@@ -4,18 +4,26 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.repository.dao.jpa.configuration.MonitorconfigJPADao;
 import com.netpro.trinity.repository.entity.configuration.MonitorDisk;
 import com.netpro.trinity.repository.entity.configuration.jpa.Monitorconfig;
+import com.netpro.trinity.repository.service.jcsagent.JCSAgentService;
 import com.netpro.trinity.repository.util.Item;
 
 @Service
 public class MonitorconfigService {
+	private static final Logger LOGGER = LoggerFactory.getLogger(MonitorconfigService.class);
+	
 	@Autowired
 	private MonitorconfigJPADao dao;
+	
+	@Autowired
+	private JCSAgentService agentService;
 	
 	public List<Monitorconfig> getAll() throws Exception{
 		List<Monitorconfig> configs = this.dao.findAll();
@@ -28,22 +36,63 @@ public class MonitorconfigService {
 			throw new IllegalArgumentException("Monitor Config UID(Machine UID) can not be empty!");
 		
 		Monitorconfig config = this.dao.findOne(uid);
-		if(config == null)
-			throw new IllegalArgumentException("Monitor Config UID(Machine UID) does not exist!(" + uid + ")");
+		if(null == config) {
+			config = new Monitorconfig();
+			config.setResourcemonitor(false);
+			config.setProcessmonitor(false);
+			if(uid.trim().equals("JCSServer"))
+				config.setSuspendJob(false);
+			config.setUid(uid);
+			config.setCpu(0);
+			config.setMemory(0);
+			config.setDisk(new ArrayList<MonitorDisk>());
+		}else {
+			setExtraXmlProp(config);
+		}
 
-		setExtraXmlProp(config);
-		
 		return config;
 	}
 	
-	public Monitorconfig edit(Monitorconfig config) throws IllegalArgumentException, Exception{
+	public Monitorconfig modify(Monitorconfig config) throws IllegalArgumentException, Exception{
+		
+		Monitorconfig new_config = this.dao.save(checkConfigData(config));
+		
+		/*
+		 * Because All fields associated with xml are defined by @Transient, it can not be reload new value.
+		 * The fields associated with xml is very suck design!
+		 */
+		setExtraXmlProp(new_config);
+		
+		return new_config;
+	}
+	
+	public List<Monitorconfig> modify(List<Monitorconfig> configs) throws IllegalArgumentException, Exception{
+		List<Monitorconfig> new_configs = new ArrayList<Monitorconfig>();
+		
+		if(null == configs)
+			return new_configs;
+		
+		for(Monitorconfig config: configs) {
+			try {
+				Monitorconfig new_config = checkConfigData(config);
+				new_configs.add(new_config);
+			}catch(Exception e) {
+				MonitorconfigService.LOGGER.warn("Warning; reason was:", e);
+			}
+		}
+		this.dao.save(new_configs);
+		setExtraXmlProp(new_configs);
+		return new_configs;
+	}
+	
+	public boolean existByUid(String uid) throws Exception {
+		return this.dao.exists(uid);
+	}
+	
+	private Monitorconfig checkConfigData(Monitorconfig config) throws Exception {
 		String uid = config.getUid();
-		if(null == uid || uid.trim().length() <= 0)
+		if(null == uid || uid.trim().isEmpty())
 			throw new IllegalArgumentException("Monitor Config UID(Machine UID) can not be empty!");
-
-		Monitorconfig old_config = this.dao.findOne(uid);
-		if(null == old_config)
-			throw new IllegalArgumentException("Monitor Config UID(Machine UID) does not exist!(" + uid + ")");
 		
 		Boolean resourcemonitor = config.getResourcemonitor();
 		if(null == resourcemonitor)
@@ -52,6 +101,17 @@ public class MonitorconfigService {
 		Boolean processmonitor = config.getProcessmonitor();
 		if(null == processmonitor)
 			config.setProcessmonitor(false);
+		
+		if(uid.trim().equals("JCSServer")) {
+			config.setProcessmonitor(false);
+			
+			Boolean SuspendJob = config.getSuspendJob();
+			if(null == SuspendJob)
+				config.setSuspendJob(false);
+		}else {
+			if(!agentService.existByUid(uid))
+				throw new IllegalArgumentException("Monitor Config UID(Machine UID) does not exist!(" + uid + ")");
+		}
 		
 		if(resourcemonitor) {
 			Integer cpu = config.getCpu();
@@ -71,37 +131,28 @@ public class MonitorconfigService {
 			config.setDisk(new ArrayList<MonitorDisk>());
 		}
 		
-		if(uid.trim().equals("JCSServer")) {
-			Boolean SuspendJob = config.getSuspendJob();
-			if(null == SuspendJob)
-				config.setSuspendJob(false);
-		}
-		
 		String xmlData = parseToItemXml(config);
 		config.setXml(xmlData);
-		
+
 		/*
 		 * because lastupdatetime column is auto created value, it can not be reload new value.
 		 * here, we force to give value to lastupdatetime column.
 		 */
 		config.setLastupdatetime(new Date());
 		
-		/*
-		 * Because All fields associated with xml are defined by @Transient, it can not be reload new value.
-		 * The fields associated with xml is very suck design!
-		 */
-		setExtraXmlProp(config);
-		
-		return this.dao.save(config);
-	}
-	
-	public boolean existByUid(String uid) throws Exception {
-		return this.dao.exists(uid);
+		return config;
 	}
 	
 	private String parseToItemXml(Monitorconfig config) throws Exception{
 		Item root = new Item();
 		List<Item> rootItemList = new ArrayList<Item>();
+		
+		if(config.getUid().trim().equals("JCSServer")) {
+			Item suspendItem = new Item();
+			suspendItem.setName("SuspendJob");
+			suspendItem.setValue(String.valueOf(config.getSuspendJob()));
+			rootItemList.add(suspendItem);
+		}
 		
 		Item cpuItem = new Item();
 		cpuItem.setName("cpu");
@@ -212,7 +263,7 @@ public class MonitorconfigService {
 			}
 			
 			if(uid.trim().equals("JCSServer")) {
-				if ("false".equals(suspendJobItem.getValue())){
+				if (null == suspendJobItem || "false".equals(suspendJobItem.getValue())){
 					config.setSuspendJob(false);
 				} else {
 					config.setSuspendJob(Boolean.valueOf(suspendJobItem.getValue()));

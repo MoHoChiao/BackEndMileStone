@@ -1,5 +1,7 @@
 package com.netpro.trinity.repository.controller.configuration;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.repository.entity.configuration.jpa.Trinityconfig;
-import com.netpro.trinity.repository.service.configuration.TrinityconfigService;
+import com.netpro.trinity.repository.entity.configuration.jpa.Monitorconfig;
+import com.netpro.trinity.repository.service.configuration.MonitorconfigService;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/monitor-config")
@@ -20,7 +22,7 @@ public class MonitorconfigController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MonitorconfigController.class);
 		
 	@Autowired
-	private TrinityconfigService service;
+	private MonitorconfigService service;
 	
 	@GetMapping("/findAll")
 	public ResponseEntity<?> findAllMonitorConfigs() {
@@ -45,10 +47,23 @@ public class MonitorconfigController {
 		}
 	}
 	
-	@PostMapping("/edit")
-	public ResponseEntity<?> editMonitorConfig(@RequestBody Trinityconfig config) {
+	@PostMapping("/modify")
+	public ResponseEntity<?> modifyMonitorConfig(@RequestBody Monitorconfig config) {
 		try {
-			return ResponseEntity.ok(this.service.edit(config));
+			return ResponseEntity.ok(this.service.modify(config));
+		}catch(IllegalArgumentException e) {
+			MonitorconfigController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			MonitorconfigController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/modifyMany")
+	public ResponseEntity<?> modifyMonitorConfig(@RequestBody List<Monitorconfig> configs) {
+		try {
+			return ResponseEntity.ok(this.service.modify(configs));
 		}catch(IllegalArgumentException e) {
 			MonitorconfigController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
