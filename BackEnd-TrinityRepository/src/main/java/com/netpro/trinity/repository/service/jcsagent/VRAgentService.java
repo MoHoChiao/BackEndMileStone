@@ -52,7 +52,7 @@ public class VRAgentService {
 			throw new IllegalArgumentException("Virtual Agent UID can not be empty!");
 		
 		VRAgent vrAgent = this.dao.findOne(uid);
-		if(vrAgent == null)
+		if(null == vrAgent)
 			throw new IllegalArgumentException("Virtual Agent UID does not exist!(" + uid + ")");
 		
 		if(null == withoutDetail || withoutDetail == false)
@@ -264,8 +264,8 @@ public class VRAgentService {
 		this.dao.save(vragent);
 		
 		List<VRAgentList> vrlist = vragent.getAgentlist();
+		this.listService.deleteByVRAgentUid(vragent.getVirtualagentuid());
 		if(null != vrlist && vrlist.size() > 0) {
-			this.listService.deleteByVRAgentUid(vragent.getVirtualagentuid());
 			int[] returnValue = this.listService.addBatch(vragent.getVirtualagentuid(), vrlist);
 			for(int i=0; i<returnValue.length; i++) {//重設working calendar list, 只有插入成功的會留下來傳回前端
 				if(returnValue[i] == 0) {

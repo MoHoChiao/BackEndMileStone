@@ -44,8 +44,7 @@ public class VRAgentListService {
 			throw new IllegalArgumentException("Agent UID can not be empty!");
 		
 		JCSAgent agent = agentService.getByUid(agentuid);
-		if(null == agent)
-			throw new IllegalArgumentException("Agent UID does not exist!(" + agentuid + ")");
+		list.setAgentname(agent.getAgentname());
 		
 		Integer seq = list.getSeq();
 		if(null == seq)
@@ -60,12 +59,6 @@ public class VRAgentListService {
 		String vdescription = list.getDescription();
 		if(null == vdescription)
 			vdescription = "";
-		
-		String agentname = list.getAgentname();
-		if(null ==  agentname || agentname.isEmpty()) {
-			agentname = agent.getAgentname();
-			list.setAgentname(agentname);
-		}
 		
 		if(this.dao.save(list) > 0)
 			return list;

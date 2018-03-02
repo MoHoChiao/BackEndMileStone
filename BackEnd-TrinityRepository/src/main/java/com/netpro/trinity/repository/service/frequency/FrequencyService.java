@@ -72,7 +72,7 @@ public class FrequencyService {
 			throw new IllegalArgumentException("Frequency UID can not be empty!");
 		
 		Frequency freq = this.dao.findOne(uid);
-		if(freq == null)
+		if(null == freq)
 			throw new IllegalArgumentException("Frequency UID does not exist!(" + uid + ")");
 		
 		return freq;

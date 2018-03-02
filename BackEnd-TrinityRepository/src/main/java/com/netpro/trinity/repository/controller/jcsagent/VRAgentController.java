@@ -36,7 +36,7 @@ public class VRAgentController {
 	}
 	
 	@GetMapping("/findByUid")
-	public ResponseEntity<?> findVRAgentById(Boolean withoutDetail, String uid) {
+	public ResponseEntity<?> findVRAgentByUid(Boolean withoutDetail, String uid) {
 		try {
 			return ResponseEntity.ok(this.service.getByUid(withoutDetail, uid));
 		}catch(IllegalArgumentException e) {

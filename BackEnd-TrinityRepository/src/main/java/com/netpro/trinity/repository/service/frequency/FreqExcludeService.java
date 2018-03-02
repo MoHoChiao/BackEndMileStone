@@ -24,14 +24,14 @@ public class FreqExcludeService {
 	}
 	
 	public List<String> getFrequencyUidsByExcludeFrequencyUid(String uid) throws IllegalArgumentException, Exception{
-		if(uid == null || uid.isEmpty())
+		if(null == uid || uid.isEmpty())
 			throw new IllegalArgumentException("Exclude Frequency UID can not be empty!");
 				
 		return this.dao.findFrequencyUidsByExcludeFrequencyUid(uid);
 	}
 	
 	public List<FreqExclude> getFreqFullPathByExcludeFrequencyUid(String uid) throws IllegalArgumentException, Exception{
-		if(uid == null || uid.isEmpty())
+		if(null == uid || uid.isEmpty())
 			throw new IllegalArgumentException("Exclude Frequency UID can not be empty!");
 				
 		return this.dao.findFreqFullPathByExcludeFrequencyUid(uid);

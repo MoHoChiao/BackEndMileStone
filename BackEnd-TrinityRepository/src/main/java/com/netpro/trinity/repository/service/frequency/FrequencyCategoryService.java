@@ -44,18 +44,18 @@ public class FrequencyCategoryService {
 	}
 	
 	public FrequencyCategory getByUid(String uid) throws IllegalArgumentException, Exception{
-		if(uid == null || uid.isEmpty())
+		if(null == uid || uid.isEmpty())
 			throw new IllegalArgumentException("Frequency Category UID can not be empty!");
 		
 		FrequencyCategory category = this.dao.findOne(uid);
-		if(category == null)
+		if(null == category)
 			throw new IllegalArgumentException("Frequency Category UID does not exist!(" + uid + ")");
 
 		return category;
 	}
 	
 	public List<FrequencyCategory> getByName(String name) throws IllegalArgumentException, Exception{
-		if(name == null || name.isEmpty())
+		if(null == name || name.isEmpty())
 			throw new IllegalArgumentException("Frequency Category Name can not be empty!");
 		
 		return this.dao.findByfreqcategoryname(name.toUpperCase());
@@ -64,7 +64,7 @@ public class FrequencyCategoryService {
 	@SuppressWarnings("unchecked")
 	public ResponseEntity<?> getByFilter(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
-		if(filter == null) {
+		if(null == filter) {
 			return ResponseEntity.ok(this.dao.findAll());
 		}
 		
@@ -72,22 +72,22 @@ public class FrequencyCategoryService {
 		Ordering ordering = filter.getOrdering();
 		Querying querying = filter.getQuerying();
 		
-		if(paging == null && ordering == null && querying == null) {
+		if(paging == null && ordering == null && null == querying) {
 			return ResponseEntity.ok(this.dao.findAll());
 		}
 		
 		PageRequest pageRequest = null;
 		Sort sort = null;
 		
-		if(paging != null) {
+		if(null != paging) {
 			pageRequest = getPagingAndOrdering(paging, ordering);
 		}else {
-			if(ordering != null) {
+			if(null != ordering) {
 				sort = getOrdering(ordering);
 			}
 		}
 		
-		if(querying == null) {
+		if(null == querying) {
 			if(pageRequest != null) {
 				return ResponseEntity.ok(this.dao.findAll(pageRequest));
 			}else if(sort != null) {
