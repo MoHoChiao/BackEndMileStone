@@ -264,15 +264,17 @@ public class VRAgentService {
 		this.dao.save(vragent);
 		
 		List<VRAgentList> vrlist = vragent.getAgentlist();
-		this.listService.deleteByVRAgentUid(vragent.getVirtualagentuid());
-		if(null != vrlist && vrlist.size() > 0) {
-			int[] returnValue = this.listService.addBatch(vragent.getVirtualagentuid(), vrlist);
-			for(int i=0; i<returnValue.length; i++) {//重設working calendar list, 只有插入成功的會留下來傳回前端
-				if(returnValue[i] == 0) {
-					vrlist.remove(i);
+		if(null != vrlist) {	//有傳送VRAgentList過來, 才表示需要異動其下的agent list, 否則只需異動VRAgent即可
+			this.listService.deleteByVRAgentUid(vragent.getVirtualagentuid());
+			if(vrlist.size() > 0) {	//當傳送過來的agent list之size大於0, 才有做下面動作的必要
+				int[] returnValue = this.listService.addBatch(vragent.getVirtualagentuid(), vrlist);
+				for(int i=0; i<returnValue.length; i++) {//重設working calendar list, 只有插入成功的會留下來傳回前端
+					if(returnValue[i] == 0) {
+						vrlist.remove(i);
+					}
 				}
+				vragent.setAgentlist(vrlist);
 			}
-			vragent.setAgentlist(vrlist);
 		}
 		
 		return vragent;

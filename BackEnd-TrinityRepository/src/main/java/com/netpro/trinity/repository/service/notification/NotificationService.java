@@ -64,7 +64,7 @@ public class NotificationService {
 		
 		Notification notice = this.dao.findOne(uid);
 		if(null == notice)
-			throw new IllegalArgumentException("Notification UID does not exist!(" + uid + ")");
+			return new Notification();
 		
 		if(null == withoutDetail || withoutDetail == false) {
 			setExtraXmlProp(notice);
@@ -88,11 +88,23 @@ public class NotificationService {
 		return notices;
 	}
 	
+	public Notification modify(Notification notice) throws IllegalArgumentException, Exception{
+		String uid = notice.getNotificationuid();
+		if(null == uid || uid.trim().isEmpty())
+			return add(notice);
+		
+		Notification old_notice = this.dao.findOne(uid);
+		if(null == old_notice)
+			return add(notice);
+		else
+			return edit(notice);
+	}
+	
 	public Notification add(Notification notice) throws IllegalArgumentException, Exception{
 		String uid = notice.getNotificationuid();
 		if(null == uid || !uid.trim().equals("JCSServer"))
 			notice.setNotificationuid(UUID.randomUUID().toString());
-		uid = uid.trim();
+		uid = notice.getNotificationuid().trim();
 		
 		if(null == notice.getTargetuid() || notice.getTargetuid().trim().isEmpty())
 			throw new IllegalArgumentException("Target UID can not be empty!");
@@ -278,7 +290,8 @@ public class NotificationService {
 			if(null == notice.getContent() || notice.getContent().trim().isEmpty())
 				notice.setContent("");
 		}
-			
+		
+		System.out.println(old_notice.getNotificationname() + ":" + notice.getNotificationname());
 		if(this.dao.existByNameAndTargetUid(notice.getNotificationname(), notice.getTargetuid()) && 
 				!old_notice.getNotificationname().equalsIgnoreCase(notice.getNotificationname()))
 			throw new IllegalArgumentException("Duplicate Notification Name in this target object!");

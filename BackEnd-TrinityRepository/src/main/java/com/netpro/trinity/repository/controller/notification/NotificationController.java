@@ -58,6 +58,19 @@ public class NotificationController {
 		}
 	}
   
+	@PostMapping("/modify")
+	public ResponseEntity<?> modifyNotification(@RequestBody Notification notice) {
+		try {
+			return ResponseEntity.ok(this.service.modify(notice));
+		}catch(IllegalArgumentException e) {
+			NotificationController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			NotificationController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@PostMapping("/add")
 	public ResponseEntity<?> addNotification(@RequestBody Notification notice) {
 		try {
