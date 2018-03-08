@@ -75,6 +75,16 @@ public class FreqExcludeService {
 		return this.dao.deleteByExcludeFrequencyUid(uid);
 	}
 	
+	public int deleteByPKUids(String excludeFreqUid, String freqUid) throws IllegalArgumentException, Exception{
+		if(null == excludeFreqUid || excludeFreqUid.trim().isEmpty())
+			throw new IllegalArgumentException("Exclude Frequency Uid can not be empty!");
+		
+		if(null == freqUid || freqUid.trim().isEmpty())
+			throw new IllegalArgumentException("Frequency Uid can not be empty!");
+		
+		return this.dao.deleteByPKUids(excludeFreqUid, freqUid);
+	}
+	
 	public Boolean existByExcludeFrequencyUid(String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Exclude Frequency UID can not be empty!");

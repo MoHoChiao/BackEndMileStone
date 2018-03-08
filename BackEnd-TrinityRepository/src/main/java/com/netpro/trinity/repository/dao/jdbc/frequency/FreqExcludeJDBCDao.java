@@ -74,6 +74,12 @@ public class FreqExcludeJDBCDao {
 		return jtm.update(sql, param);
 	}
 	
+	public int deleteByPKUids(String excludeFreqUid, String freqUid) throws DataAccessException{
+		String sql = "DELETE FROM freqexclude WHERE excludefrequencyuid = ? AND frequencyuid = ?";
+		Object[] param = new Object[] {excludeFreqUid, freqUid};
+		return jtm.update(sql, param);
+	}
+	
 	public Boolean existByExcludeFrequencyUid(String uid) throws DataAccessException{
         String sql = "SELECT COUNT(fe) > 0 "
         		+ "FROM freqexclude fe "

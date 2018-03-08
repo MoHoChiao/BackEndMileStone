@@ -14,123 +14,123 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.repository.dto.FilterInfo;
-import com.netpro.trinity.repository.entity.member.jpa.Usergroup;
-import com.netpro.trinity.repository.service.member.UsergroupService;
+import com.netpro.trinity.repository.entity.member.jpa.Role;
+import com.netpro.trinity.repository.service.member.RoleService;
 
 @RestController  //宣告一個Restful Web Service的Resource
-@RequestMapping("/user-group")
-public class UsergroupController {
-	private static final Logger LOGGER = LoggerFactory.getLogger(UsergroupController.class);
+@RequestMapping("/role")
+public class RoleController {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RoleController.class);
 		
 	@Autowired
-	private UsergroupService service;
+	private RoleService service;
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllGroups() {
+	public ResponseEntity<?> findAllRoles() {
 		try {
 			return ResponseEntity.ok(this.service.getAll());
 		}catch(Exception e) {
-			UsergroupController.LOGGER.error("Exception; reason was:", e);
+			RoleController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isGroupExistByUid(String uid) {
+	public ResponseEntity<?> isRoleExistByUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.existByUid(uid));
 		}catch(Exception e) {
-			UsergroupController.LOGGER.error("Exception; reason was:", e);
+			RoleController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@GetMapping("/findByUid")
-	public ResponseEntity<?> findGroupByUid(String uid) {
+	public ResponseEntity<?> findRoleByUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.getByUid(uid));
 		}catch(IllegalArgumentException e) {
-			UsergroupController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			RoleController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			UsergroupController.LOGGER.error("Exception; reason was:", e);
+			RoleController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
   
 	@GetMapping("/findByName")
-	public ResponseEntity<?> findGroupsByName(String name) {
+	public ResponseEntity<?> findRolesByName(String name) {
 		try {
 			return ResponseEntity.ok(this.service.getByName(name));
 		}catch(IllegalArgumentException e) {
-			UsergroupController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			RoleController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			UsergroupController.LOGGER.error("Exception; reason was:", e);
+			RoleController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findGroupsByFilter(@RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findRolesByFilter(@RequestBody FilterInfo filter) {
 		try {
 			return this.service.getByFilter(filter);
 		}catch(SecurityException e) {
-			UsergroupController.LOGGER.error("SecurityException; reason was:", e);
+			RoleController.LOGGER.error("SecurityException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(NoSuchMethodException e) {
-			UsergroupController.LOGGER.error("NoSuchMethodException; reason was:", e);
+			RoleController.LOGGER.error("NoSuchMethodException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(IllegalAccessException e) {
-			UsergroupController.LOGGER.error("IllegalAccessException; reason was:", e);
+			RoleController.LOGGER.error("IllegalAccessException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(InvocationTargetException e) {
-			UsergroupController.LOGGER.error("InvocationTargetException; reason was:", e);
+			RoleController.LOGGER.error("InvocationTargetException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(IllegalArgumentException e) {
-			UsergroupController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			RoleController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			UsergroupController.LOGGER.error("Exception; reason was:", e);
+			RoleController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/add")
-	public ResponseEntity<?> addGroup(@RequestBody Usergroup group) {
+	public ResponseEntity<?> addRole(@RequestBody Role role) {
 		try {
-			return ResponseEntity.ok(this.service.add(group));
+			return ResponseEntity.ok(this.service.add(role));
 		}catch(IllegalArgumentException e) {
-			UsergroupController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			RoleController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			UsergroupController.LOGGER.error("Exception; reason was:", e);
+			RoleController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/edit")
-	public ResponseEntity<?> editGroup(@RequestBody Usergroup group) {
+	public ResponseEntity<?> editRole(@RequestBody Role role) {
 		try {
-			return ResponseEntity.ok(this.service.edit(group));
+			return ResponseEntity.ok(this.service.edit(role));
 		}catch(IllegalArgumentException e) {
-			UsergroupController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			RoleController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			UsergroupController.LOGGER.error("Exception; reason was:", e);
+			RoleController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@GetMapping("/delete")
-	public ResponseEntity<?> deleteGroupByUid(String uid) {
+	public ResponseEntity<?> deleteRoleByUid(String uid) {
 		try {
 			this.service.deleteByUid(uid);
 		}catch(IllegalArgumentException e) {
-			UsergroupController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			RoleController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
-			UsergroupController.LOGGER.error("Exception; reason was:", e);
+			RoleController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 		return ResponseEntity.ok(uid);

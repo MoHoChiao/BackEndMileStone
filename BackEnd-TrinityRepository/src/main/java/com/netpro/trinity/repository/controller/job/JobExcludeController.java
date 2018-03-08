@@ -97,6 +97,19 @@ public class JobExcludeController {
 		}
 	}
 	
+	@GetMapping("/deleteByPKUids")
+	public ResponseEntity<?> deleteJobExcludeByPKUids(String excludeFreqUid, String jobUid) {
+		try {
+			return ResponseEntity.ok(this.service.deleteByPKUids(excludeFreqUid, jobUid));
+		}catch(IllegalArgumentException e) {
+			JobExcludeController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			JobExcludeController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/isExistByExcludeFrequencyUid")
 	public ResponseEntity<?> isJobExcludeExistExcludeFrequencyUid(String uid) {
 		try {

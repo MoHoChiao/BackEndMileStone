@@ -76,6 +76,16 @@ public class JobFlowExcludeService {
 		return this.dao.deleteByExcludeFrequencyUid(uid);
 	}
 	
+	public int deleteByPKUids(String excludeFreqUid, String flowUid) throws IllegalArgumentException, Exception{
+		if(null == excludeFreqUid || excludeFreqUid.trim().length() <= 0)
+			throw new IllegalArgumentException("Exclude Frequency Uid can not be empty!");
+		
+		if(null == flowUid || flowUid.trim().length() <= 0)
+			throw new IllegalArgumentException("Flow Uid can not be empty!");
+		
+		return this.dao.deleteByPKUids(excludeFreqUid, flowUid);
+	}
+	
 	public Boolean existByExcludeFrequencyUid(String uid) throws IllegalArgumentException, Exception{
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Exclude Frequency UID can not be empty!");

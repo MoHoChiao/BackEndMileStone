@@ -33,7 +33,7 @@ public class FreqExcludeController {
 	}
 	
 	@GetMapping("/findFrequencyUidsByExcludeFrequencyUid")
-	public ResponseEntity<?> findFrequencyUidsByCategoryUid(String uid) {
+	public ResponseEntity<?> findFrequencyUidsByExcludeFrequencyUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.getFrequencyUidsByExcludeFrequencyUid(uid));
 		}catch(IllegalArgumentException e) {
@@ -88,6 +88,19 @@ public class FreqExcludeController {
 	public ResponseEntity<?> deleteFreqExcludeByExcludeFrequencyUid(String uid) {
 		try {
 			return ResponseEntity.ok(this.service.deleteByExcludeFrequencyUid(uid));
+		}catch(IllegalArgumentException e) {
+			FreqExcludeController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			FreqExcludeController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/deleteByPKUids")
+	public ResponseEntity<?> deleteFreqExcludeByPKUids(String excludeFreqUid, String freqUid) {
+		try {
+			return ResponseEntity.ok(this.service.deleteByPKUids(excludeFreqUid, freqUid));
 		}catch(IllegalArgumentException e) {
 			FreqExcludeController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

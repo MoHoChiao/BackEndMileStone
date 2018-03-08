@@ -97,6 +97,19 @@ public class JobFlowExcludeController {
 		}
 	}
 	
+	@GetMapping("/deleteByPKUids")
+	public ResponseEntity<?> deleteFlowExcludeByPKUids(String excludeFreqUid, String flowUid) {
+		try {
+			return ResponseEntity.ok(this.service.deleteByPKUids(excludeFreqUid, flowUid));
+		}catch(IllegalArgumentException e) {
+			JobFlowExcludeController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			JobFlowExcludeController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/isExistByExcludeFrequencyUid")
 	public ResponseEntity<?> isFlowExcludeExistExcludeFrequencyUid(String uid) {
 		try {

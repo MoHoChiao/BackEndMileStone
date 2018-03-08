@@ -19,53 +19,53 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.dao.jpa.member.UsergroupJPADao;
+import com.netpro.trinity.repository.dao.jpa.member.RoleJPADao;
 import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
-import com.netpro.trinity.repository.entity.member.jpa.Usergroup;
+import com.netpro.trinity.repository.entity.member.jpa.Role;
 import com.netpro.trinity.repository.util.Constant;
 
 @Service
-public class UsergroupService {
-	public static final String[] GROUP_FIELD_VALUES = new String[] { "groupname", "description"};
-	public static final Set<String> GROUP_FIELD_SET = new HashSet<>(Arrays.asList(GROUP_FIELD_VALUES));
+public class RoleService {
+	public static final String[] ROLE_FIELD_VALUES = new String[] { "rolename", "description"};
+	public static final Set<String> ROLE_FIELD_SET = new HashSet<>(Arrays.asList(ROLE_FIELD_VALUES));
 	
 	@Autowired
-	private UsergroupJPADao dao;
+	private RoleJPADao dao;
 	
 	@Autowired
-	private GroupMemberService memberService;
+	private RoleMemberService memberService;
 	
-	public List<Usergroup> getAll() throws Exception{
-		List<Usergroup> groups = this.dao.findAll();
-		return groups;
+	public List<Role> getAll() throws Exception{
+		List<Role> roles = this.dao.findAll();
+		return roles;
 	}
 	
-	public Usergroup getByUid(String uid) throws IllegalArgumentException, Exception{
+	public Role getByUid(String uid) throws IllegalArgumentException, Exception{
 		if(null == uid || uid.isEmpty())
-			throw new IllegalArgumentException("User Group UID can not be empty!");
+			throw new IllegalArgumentException("Role UID can not be empty!");
 		
-		Usergroup group = this.dao.findOne(uid);
-		if(null == group)
-			throw new IllegalArgumentException("User Group UID does not exist!(" + uid + ")");
-		return group;
+		Role role = this.dao.findOne(uid);
+		if(null == role)
+			throw new IllegalArgumentException("Role UID does not exist!(" + uid + ")");
+		return role;
 	}
 	
-	public List<Usergroup> getByName(String name) throws IllegalArgumentException, Exception{
+	public List<Role> getByName(String name) throws IllegalArgumentException, Exception{
 		if(name == null || name.trim().isEmpty())
-			throw new IllegalArgumentException("User Group Name can not be empty!");
+			throw new IllegalArgumentException("Role Name can not be empty!");
 		
-		return this.dao.findBygroupname(name);
+		return this.dao.findByrolename(name);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public ResponseEntity<?> getByFilter(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
 		if(null == filter) {
-			List<Usergroup> groups = this.dao.findAll();
-			return ResponseEntity.ok(groups);
+			List<Role> roles = this.dao.findAll();
+			return ResponseEntity.ok(roles);
 		}
 			
 		Paging paging = filter.getPaging();
@@ -73,8 +73,8 @@ public class UsergroupService {
 		Querying querying = filter.getQuerying();
 		
 		if(null == paging && null == ordering && null == querying) {
-			List<Usergroup> groups = this.dao.findAll();
-			return ResponseEntity.ok(groups);
+			List<Role> roles = this.dao.findAll();
+			return ResponseEntity.ok(roles);
 		}
 		
 		PageRequest pageRequest = null;
@@ -90,25 +90,25 @@ public class UsergroupService {
 		
 		if(null == querying) {
 			if(pageRequest != null) {
-				Page<Usergroup> page_group = this.dao.findAll(pageRequest);
-				return ResponseEntity.ok(page_group);
+				Page<Role> page_role = this.dao.findAll(pageRequest);
+				return ResponseEntity.ok(page_role);
 			}else if(sort != null) {
-				List<Usergroup> groups = this.dao.findAll(sort);
-				return ResponseEntity.ok(groups);
+				List<Role> roles = this.dao.findAll(sort);
+				return ResponseEntity.ok(roles);
 			}else {
 				/*
 				 * The paging and ordering both objects are null.
 				 * it means pageRequest and sort must be null too.
 				 * then return default
 				 */
-				List<Usergroup> groups = this.dao.findAll(sort);
-				return ResponseEntity.ok(groups);
+				List<Role> roles = this.dao.findAll(sort);
+				return ResponseEntity.ok(roles);
 			}
 		}else {
 			if(null == querying.getQueryType() || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
 				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
-			if(null == querying.getQueryField() || !GROUP_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query field! "+ GROUP_FIELD_SET.toString());
+			if(null == querying.getQueryField() || !ROLE_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
+				throw new IllegalArgumentException("Illegal query field! "+ ROLE_FIELD_SET.toString());
 			if(null == querying.getIgnoreCase())
 				querying.setIgnoreCase(false);
 			
@@ -129,75 +129,98 @@ public class UsergroupService {
 			Method method = null;
 			if(pageRequest != null){
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
-				Page<Usergroup> page_group = (Page<Usergroup>) method.invoke(this.dao, queryString, pageRequest);
-				return ResponseEntity.ok(page_group);
+				Page<Role> page_role = (Page<Role>) method.invoke(this.dao, queryString, pageRequest);
+				return ResponseEntity.ok(page_role);
 			}else if(sort != null) {
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
-				List<Usergroup> groups = (List<Usergroup>) method.invoke(this.dao, queryString, sort);
-				return ResponseEntity.ok(groups);
+				List<Role> roles = (List<Role>) method.invoke(this.dao, queryString, sort);
+				return ResponseEntity.ok(roles);
 			}else {
 				method = this.dao.getClass().getMethod(methodName.toString(), String.class);
-				List<Usergroup> groups = (List<Usergroup>) method.invoke(this.dao, queryString);
-				return ResponseEntity.ok(groups);
+				List<Role> roles = (List<Role>) method.invoke(this.dao, queryString);
+				return ResponseEntity.ok(roles);
 			}
 		}
 	}
 	
-	public Usergroup add(Usergroup group) throws IllegalArgumentException, Exception{
-		group.setGroupuid(UUID.randomUUID().toString());
+	public Role add(Role role) throws IllegalArgumentException, Exception{
+		role.setRoleuid(UUID.randomUUID().toString());
 		
-		String name = group.getGroupname();
+		String name = role.getRolename();
 		if(null == name || name.trim().isEmpty())
-			throw new IllegalArgumentException("User Group Name can not be empty!");
+			throw new IllegalArgumentException("Role Name can not be empty!");
 		
-		if(this.dao.existByName(group.getGroupname()))
-			throw new IllegalArgumentException("Duplicate User Group Name!");
+		if(this.dao.existByName(role.getRolename()))
+			throw new IllegalArgumentException("Duplicate Role Name!");
 		
-		if(null == group.getDescription())
-			group.setDescription("");
+		if(null == role.getDescription())
+			role.setDescription("");
+		
+		if(null == role.getHomedir())
+			role.setHomedir("");
 		
 		/*
 		 * because lastupdatetime column is auto created value, it can not be reload new value.
 		 * here, we force to give value to lastupdatetime column.
 		 */
-		group.setLastupdatetime(new Date());
+		role.setLastupdatetime(new Date());
 				
-		return this.dao.save(group);
+		return this.dao.save(role);
 	}
 	
-	public Usergroup edit(Usergroup group) throws IllegalArgumentException, Exception{
-		String uid = group.getGroupuid();
+	public Role edit(Role role) throws IllegalArgumentException, Exception{
+		String uid = role.getRoleuid();
 		if(null == uid || uid.trim().length() <= 0)
-			throw new IllegalArgumentException("User Group Uid can not be empty!");
-
-		Usergroup old_group = this.dao.findOne(uid);
-		if(null == old_group)
-			throw new IllegalArgumentException("User Group Uid does not exist!(" + uid + ")");
+			throw new IllegalArgumentException("Role Uid can not be empty!");
 		
-		String name = group.getGroupname();
+		Role old_role = this.dao.findOne(uid);
+		if(null == old_role)
+			throw new IllegalArgumentException("Role Uid does not exist!(" + uid + ")");
+		
+		String name = role.getRolename();
 		if(null == name || name.trim().isEmpty())
-			throw new IllegalArgumentException("User Group Name can not be empty!");
+			throw new IllegalArgumentException("Role Name can not be empty!");
 		
-		if(this.dao.existByName(group.getGroupname()) && !old_group.getGroupname().equalsIgnoreCase(group.getGroupname()))
-			throw new IllegalArgumentException("Duplicate User Group Name!");
+		if(this.dao.existByName(role.getRolename()) && !old_role.getRolename().equalsIgnoreCase(role.getRolename()))
+			throw new IllegalArgumentException("Duplicate Role Name!");
 		
-		if(null == group.getDescription())
-			group.setDescription("");
+		if(null == role.getDescription())
+			role.setDescription("");
+		
+		if(null == role.getHomedir())
+			role.setHomedir("");
+		
+		if(uid.trim().startsWith("Role1")) {
+			role.setRolename("Administrator");
+			role.setDescription("Administrator");
+		}else if(uid.trim().startsWith("Role2")) {
+			role.setRolename("Developer User");
+			role.setDescription("Developer User");
+		}else if(uid.trim().startsWith("Role3")) {
+			role.setRolename("Operator User");
+			role.setDescription("Operator User");
+		}else if(uid.trim().startsWith("Role4")) {
+			role.setRolename("End User");
+			role.setDescription("End User");
+		}
 		
 		/*
 		 * because lastupdatetime column is auto created value, it can not be reload new value.
 		 * here, we force to give value to lastupdatetime column.
 		 */
-		group.setLastupdatetime(new Date());
+		role.setLastupdatetime(new Date());
 						
-		return this.dao.save(group);
+		return this.dao.save(role);
 	}
 	
 	public void deleteByUid(String uid) throws IllegalArgumentException, Exception{
 		if(null == uid || uid.trim().length() <= 0)
-			throw new IllegalArgumentException("User Group Uid can not be empty!");
+			throw new IllegalArgumentException("Role Uid can not be empty!");
 		
-		this.memberService.deleteByGroupUid(uid);
+		if(uid.trim().startsWith("Role"))
+			throw new IllegalArgumentException("You cannot delete default roles!");
+		
+		this.memberService.deleteByRoleUid(uid);
 		this.dao.delete(uid);
 	}
 	
@@ -224,8 +247,8 @@ public class UsergroupService {
 		if(ordering.getOrderType() != null && Constant.ORDER_TYPE_SET.contains(ordering.getOrderType().toUpperCase()))
 			direct = Direction.fromStringOrNull(ordering.getOrderType());
 		
-		Order order = new Order(direct, "groupname");
-		if(ordering.getOrderField() != null && GROUP_FIELD_SET.contains(ordering.getOrderField().toLowerCase()))
+		Order order = new Order(direct, "rolename");
+		if(ordering.getOrderField() != null && ROLE_FIELD_SET.contains(ordering.getOrderField().toLowerCase()))
 			order = new Order(direct, ordering.getOrderField());
 		
 		return new Sort(order);

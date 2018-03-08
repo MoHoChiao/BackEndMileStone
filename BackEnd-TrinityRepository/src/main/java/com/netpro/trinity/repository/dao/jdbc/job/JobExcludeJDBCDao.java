@@ -73,6 +73,12 @@ public class JobExcludeJDBCDao {
 		return jtm.update(sql, param);
 	}
 	
+	public int deleteByPKUids(String excludeFreqUid, String jobUid) throws DataAccessException{
+		String sql = "DELETE FROM jobexclude WHERE excludefrequencyuid = ? AND jobuid = ?";
+		Object[] param = new Object[] {excludeFreqUid, jobUid};
+		return jtm.update(sql, param);
+	}
+	
 	public Boolean existByExcludeFrequencyUid(String uid) throws DataAccessException{
         String sql = "SELECT COUNT(je) > 0 "
         		+ "FROM jobexclude je "
