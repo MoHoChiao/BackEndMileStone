@@ -3,11 +3,14 @@ package com.netpro.trinity.repository.service.member;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +26,10 @@ import com.netpro.trinity.repository.dto.Ordering;
 import com.netpro.trinity.repository.dto.Paging;
 import com.netpro.trinity.repository.dto.Querying;
 import com.netpro.trinity.repository.entity.member.jpa.Trinityuser;
+import com.netpro.trinity.repository.service.notification.NotificationListService;
+import com.netpro.trinity.repository.service.permission.AccessRightService;
 import com.netpro.trinity.repository.util.Constant;
+import com.netpro.trinity.repository.util.Crypto;
 
 @Service
 public class TrinityuserService {
@@ -32,6 +38,18 @@ public class TrinityuserService {
 	
 	@Autowired
 	private TrinityuserJPADao dao;
+	
+	@Autowired
+	private GroupMemberService g_memberService;
+	@Autowired
+	private RoleMemberService r_memberService;
+	@Autowired
+	private NotificationListService n_listService;
+	@Autowired
+	private AccessRightService accessService;
+	
+	@Value("${encrypt.key}")
+	private String encryptKey;
 	
 	public List<Trinityuser> getAll() throws Exception{
 		List<Trinityuser> users = this.dao.findAll();
@@ -143,6 +161,139 @@ public class TrinityuserService {
 				return ResponseEntity.ok(users);
 			}
 		}
+	}
+	
+	public Trinityuser add(Trinityuser user) throws IllegalArgumentException, Exception{
+		user.setUseruid(UUID.randomUUID().toString());
+		
+		String userid = user.getUserid();
+		if(null == userid || userid.trim().isEmpty())
+			throw new IllegalArgumentException("Trinity User Id can not be empty!");
+		
+		if(this.dao.existByID(userid))
+			throw new IllegalArgumentException("Duplicate Trinity User ID!");
+		
+		String username = user.getUsername();
+		if(null == username || username.trim().isEmpty())
+			throw new IllegalArgumentException("Trinity User Name can not be empty!");
+		
+		String activate = user.getActivate();
+		if(null == activate || (!activate.equals("1") && !activate.equals("0")))
+			throw new Exception("Trinity User activate value can only be 1 or 0!");
+		
+		String defaultlang = user.getDefaultlang();
+		if(null == defaultlang || (!defaultlang.equals("en_US") && !defaultlang.equals("zh_TW") && !defaultlang.equals("zh_CN")))
+			user.setDefaultlang("en_US");
+		
+		if(null == user.getDescription())
+			user.setDescription("");
+		
+		if(null == user.getEmail())
+			user.setEmail("");
+		
+		String localaccount = user.getLocalaccount();
+		if(null == localaccount || (!localaccount.equals("1") && !localaccount.equals("0")))
+			user.setLocalaccount("0");
+		
+		if(null == user.getMobile())
+			user.setMobile("");
+		
+		String onlyforexecution = user.getOnlyforexecution();
+		if(null == onlyforexecution || (!onlyforexecution.equals("1") && !onlyforexecution.equals("0")))
+			user.setOnlyforexecution("0");
+		
+		String password = user.getPassword();
+		if(null == password || password.trim().length() < 1)
+			throw new Exception("User Password can not be empty!");
+		password = Crypto.getEncryptString(password, encryptKey);
+		
+		if(null ==  user.getSsoid())
+			user.setSsoid("");
+		
+		user.setUsertype("G");
+		
+		/*
+		 * because lastupdatetime column is auto created value, it can not be reload new value.
+		 * here, we force to give value to lastupdatetime column.
+		 */
+		user.setLastupdatetime(new Date());
+				
+		return this.dao.save(user);
+	}
+	
+	public Trinityuser edit(Trinityuser user) throws IllegalArgumentException, Exception{
+		String uid = user.getUseruid();
+		if(null == uid || uid.trim().isEmpty())
+			throw new IllegalArgumentException("Trinity User Uid can not be empty!");
+
+		Trinityuser old_user = this.dao.findOne(uid);
+		if(null == old_user)
+			throw new IllegalArgumentException("Trinity User Uid does not exist!(" + uid + ")");
+		
+		String userid = user.getUserid();
+		if(null == userid || userid.trim().isEmpty())
+			throw new IllegalArgumentException("Trinity User Id can not be empty!");
+		
+		if(this.dao.existByID(userid) && !old_user.getUserid().equalsIgnoreCase(userid))
+			throw new IllegalArgumentException("Duplicate Trinity User ID!");
+		
+		String username = user.getUsername();
+		if(null == username || username.trim().isEmpty())
+			throw new IllegalArgumentException("Trinity User Name can not be empty!");
+		
+		String activate = user.getActivate();
+		if(null == activate || (!activate.equals("1") && !activate.equals("0")))
+			throw new Exception("Trinity User activate value can only be 1 or 0!");
+		
+		String defaultlang = user.getDefaultlang();
+		if(null == defaultlang || (!defaultlang.equals("en_US") && !defaultlang.equals("zh_TW") && !defaultlang.equals("zh_CN")))
+			user.setDefaultlang("en_US");
+		
+		if(null == user.getDescription())
+			user.setDescription("");
+		
+		if(null == user.getEmail())
+			user.setEmail("");
+		
+		String localaccount = user.getLocalaccount();
+		if(null == localaccount || (!localaccount.equals("1") && !localaccount.equals("0")))
+			user.setLocalaccount("0");
+		
+		if(null == user.getMobile())
+			user.setMobile("");
+		
+		String onlyforexecution = user.getOnlyforexecution();
+		if(null == onlyforexecution || (!onlyforexecution.equals("1") && !onlyforexecution.equals("0")))
+			user.setOnlyforexecution("0");
+		
+		String password = user.getPassword();
+		if(null == password || password.trim().length() < 1)
+			throw new Exception("User Password can not be empty!");
+		password = Crypto.getEncryptString(password, encryptKey);
+		
+		if(null ==  user.getSsoid())
+			user.setSsoid("");
+		
+		user.setUsertype("G");
+		
+		/*
+		 * because lastupdatetime column is auto created value, it can not be reload new value.
+		 * here, we force to give value to lastupdatetime column.
+		 */
+		user.setLastupdatetime(new Date());
+						
+		return this.dao.save(user);
+	}
+	
+	public void deleteByUid(String uid) throws IllegalArgumentException, Exception{
+		if(null == uid || uid.trim().length() <= 0)
+			throw new IllegalArgumentException("Trinity User Uid can not be empty!");
+		
+		this.g_memberService.deleteByUserUid(uid);
+		this.r_memberService.deleteByUserUid(uid);
+		this.n_listService.deleteByDestinationUid(uid);
+		this.accessService.deleteByPeopleUid(uid);
+		this.dao.delete(uid);
 	}
 	
 	public boolean existByUid(String uid) throws Exception {

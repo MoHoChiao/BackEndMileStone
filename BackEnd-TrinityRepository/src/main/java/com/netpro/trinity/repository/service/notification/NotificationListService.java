@@ -130,4 +130,11 @@ public class NotificationListService {
 		
 		this.dao.deleteByNotifyUid(notificationUid);
 	}
+	
+	public void deleteByDestinationUid(String destinationUid) throws IllegalArgumentException, Exception{
+		if(null == destinationUid || destinationUid.trim().length() <= 0)
+			throw new IllegalArgumentException("Destination Uid can not be empty!");
+		
+		this.dao.deleteByDestinationUid(destinationUid);
+	}
 }

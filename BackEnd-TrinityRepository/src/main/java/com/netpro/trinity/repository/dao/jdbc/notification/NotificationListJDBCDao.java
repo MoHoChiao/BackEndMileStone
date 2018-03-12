@@ -104,9 +104,15 @@ public class NotificationListJDBCDao {
         return insertCounts;
 	}
 	
-	public int deleteByNotifyUid(String uid) throws DataAccessException{
+	public int deleteByNotifyUid(String notificationUid) throws DataAccessException{
 		String sql = "DELETE FROM notificationlist WHERE notificationuid = ?";
-		Object[] param = new Object[] {uid};
+		Object[] param = new Object[] {notificationUid};
+		return jtm.update(sql, param);
+	}
+	
+	public int deleteByDestinationUid(String destinationUid) throws DataAccessException{
+		String sql = "DELETE FROM notificationlist WHERE destinationuid = ?";
+		Object[] param = new Object[] {destinationUid};
 		return jtm.update(sql, param);
 	}
 }

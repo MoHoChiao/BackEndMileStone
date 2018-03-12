@@ -90,7 +90,7 @@ public class NotificationListController {
 	}
 	
 	@PostMapping("/addBatch")
-	public ResponseEntity<?> addBatchVRAgentList(String notificationUid, @RequestBody List<NotificationList> lists) {
+	public ResponseEntity<?> addBatchNotifyList(String notificationUid, @RequestBody List<NotificationList> lists) {
 		try {
 			return ResponseEntity.ok(this.service.addBatch(notificationUid, lists));
 		}catch(Exception e) {
@@ -100,7 +100,7 @@ public class NotificationListController {
 	}
 	
 	@GetMapping("/deleteByNotificationUid")
-	public ResponseEntity<?> deleteListByVRAgentUid(String notificationUid) {
+	public ResponseEntity<?> deleteListByNotifyUid(String notificationUid) {
 		try {
 			this.service.deleteByNotifyUid(notificationUid);
 		}catch(IllegalArgumentException e) {
@@ -111,5 +111,19 @@ public class NotificationListController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 		return ResponseEntity.ok(notificationUid);
+	}
+	
+	@GetMapping("/deleteByDestinationUid")
+	public ResponseEntity<?> deleteListByDestinationUid(String destinationUid) {
+		try {
+			this.service.deleteByDestinationUid(destinationUid);
+		}catch(IllegalArgumentException e) {
+			NotificationListController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			NotificationListController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+		return ResponseEntity.ok(destinationUid);
 	}
 }
