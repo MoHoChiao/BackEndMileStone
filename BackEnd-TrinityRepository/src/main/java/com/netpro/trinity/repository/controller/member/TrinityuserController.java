@@ -2,6 +2,8 @@ package com.netpro.trinity.repository.controller.member;
 
 import java.lang.reflect.InvocationTargetException;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.netpro.ac.ACException;
 import com.netpro.trinity.repository.dto.FilterInfo;
+import com.netpro.trinity.repository.entity.member.jpa.Trinityuser;
 import com.netpro.trinity.repository.service.member.TrinityuserService;
 
 @RestController  //宣告一個Restful Web Service的Resource
@@ -106,5 +110,54 @@ public class TrinityuserController {
 			TrinityuserController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
+	}
+	
+	@PostMapping("/add")
+	public ResponseEntity<?> addRole(HttpServletRequest request, @RequestBody Trinityuser user) {
+		try {
+			user = this.service.add(request, user);
+			return ResponseEntity.ok(user);
+		}catch(ACException e) {
+			if(e.getErrorCode().isWarning()) {
+				TrinityuserController.LOGGER.error("ACException; reason was:", e);
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+			}else {
+				TrinityuserController.LOGGER.warn(e.getMessage());
+				return ResponseEntity.ok(user);
+			}
+		}catch(IllegalArgumentException e) {
+			TrinityuserController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			TrinityuserController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/edit")
+	public ResponseEntity<?> editRole(@RequestBody Trinityuser user) {
+		try {
+			return ResponseEntity.ok(this.service.edit(user));
+		}catch(IllegalArgumentException e) {
+			TrinityuserController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			TrinityuserController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/delete")
+	public ResponseEntity<?> deleteUserByUid(String uid) {
+		try {
+			this.service.deleteByUid(uid);
+		}catch(IllegalArgumentException e) {
+			TrinityuserController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			TrinityuserController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+		return ResponseEntity.ok(uid);
 	}
 }

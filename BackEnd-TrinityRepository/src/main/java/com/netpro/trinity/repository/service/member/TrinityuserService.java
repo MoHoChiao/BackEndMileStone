@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,10 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.netpro.ac.ACException;
+import com.netpro.ac.DefaultCredentialsService;
+import com.netpro.ac.util.CookieUtils;
+import com.netpro.ac.util.TrinityWebV2Utils;
 import com.netpro.trinity.repository.dao.jpa.member.TrinityuserJPADao;
 import com.netpro.trinity.repository.dto.FilterInfo;
 import com.netpro.trinity.repository.dto.Ordering;
@@ -30,6 +36,7 @@ import com.netpro.trinity.repository.service.notification.NotificationListServic
 import com.netpro.trinity.repository.service.permission.AccessRightService;
 import com.netpro.trinity.repository.util.Constant;
 import com.netpro.trinity.repository.util.Crypto;
+import com.netpro.trinity.repository.util.NetworkUtil;
 
 @Service
 public class TrinityuserService {
@@ -47,6 +54,8 @@ public class TrinityuserService {
 	private NotificationListService n_listService;
 	@Autowired
 	private AccessRightService accessService;
+	@Autowired
+	private DefaultCredentialsService credentialsService;
 	
 	@Value("${encrypt.key}")
 	private String encryptKey;
@@ -163,7 +172,7 @@ public class TrinityuserService {
 		}
 	}
 	
-	public Trinityuser add(Trinityuser user) throws IllegalArgumentException, Exception{
+	public Trinityuser add(HttpServletRequest request, Trinityuser user) throws ACException, IllegalArgumentException, Exception{
 		user.setUseruid(UUID.randomUUID().toString());
 		
 		String userid = user.getUserid();
@@ -206,19 +215,25 @@ public class TrinityuserService {
 		if(null == password || password.trim().length() < 1)
 			throw new Exception("User Password can not be empty!");
 		password = Crypto.getEncryptString(password, encryptKey);
+		user.setPassword(password);
 		
 		if(null ==  user.getSsoid())
 			user.setSsoid("");
 		
 		user.setUsertype("G");
+		user.setCreateduseruid("root");
 		
 		/*
 		 * because lastupdatetime column is auto created value, it can not be reload new value.
 		 * here, we force to give value to lastupdatetime column.
 		 */
 		user.setLastupdatetime(new Date());
-				
-		return this.dao.save(user);
+		
+		Trinityuser new_user = this.dao.save(user);
+		
+		saveCredentials(request, userid, password == null ? new char[0] : password.toCharArray());
+		
+		return new_user;
 	}
 	
 	public Trinityuser edit(Trinityuser user) throws IllegalArgumentException, Exception{
@@ -270,11 +285,13 @@ public class TrinityuserService {
 		if(null == password || password.trim().length() < 1)
 			throw new Exception("User Password can not be empty!");
 		password = Crypto.getEncryptString(password, encryptKey);
+		user.setPassword(password);
 		
 		if(null ==  user.getSsoid())
 			user.setSsoid("");
 		
 		user.setUsertype("G");
+		user.setCreateduseruid("root");
 		
 		/*
 		 * because lastupdatetime column is auto created value, it can not be reload new value.
@@ -319,10 +336,19 @@ public class TrinityuserService {
 		if(ordering.getOrderType() != null && Constant.ORDER_TYPE_SET.contains(ordering.getOrderType().toUpperCase()))
 			direct = Direction.fromStringOrNull(ordering.getOrderType());
 		
-		Order order = new Order(direct, "username");
+		Order order = new Order(direct, "lastupdatetime");
 		if(ordering.getOrderField() != null && USER_FIELD_SET.contains(ordering.getOrderField().toLowerCase()))
 			order = new Order(direct, ordering.getOrderField());
 		
 		return new Sort(order);
+	}
+	
+	private void saveCredentials(HttpServletRequest request, String userid, char[] secret) throws ACException{
+		if(null == secret || secret.length == 0)
+			return;
+		
+		String ip = NetworkUtil.getRemoteIP(request);
+		String token = CookieUtils.getCookieValue(request, TrinityWebV2Utils.CNAME_ACCESS_TOKEN);
+		credentialsService.changeCredentials("FlexWebUI", ip, token, userid, secret, System.currentTimeMillis(), encryptKey);
 	}
 }

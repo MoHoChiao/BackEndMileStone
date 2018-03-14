@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.service.lib.AuthcLib;
+import com.netpro.trinity.service.util.NetworkUtil;
 import com.netpro.trinity.service.util.entity.LoginInfo;
 import com.netpro.trinity.service.util.tool.ExceptionMsgFormat;
 
@@ -31,7 +32,7 @@ public class AuthcLibController {
 	
 	@PostMapping("/gen-authc")
 	public ResponseEntity<?> genAuthc(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginInfo info) {
-		info.setRemoteip(request.getRemoteAddr());
+		info.setRemoteip(NetworkUtil.getRemoteIP(request));
 		String methodKey = "AuthcLibController#genAuthc(...)";
 		try {
 			return ResponseEntity.ok(authcLib.genAuthc(response, info.getRemoteip(), info.getAccount(), info.getPsw()));

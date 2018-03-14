@@ -12,6 +12,7 @@ zuul:
       serviceId: 'frontend-trinity-service'
     BackEnd-TrinityRepository: 
       path: /backend-trinity-repository/**
+      sensitiveHeaders: 
       serviceId: 'backend-trinity-repository'
 management:
   security:
