@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -50,6 +51,11 @@ public class Trinityuser {
   	@Column
   	@Temporal(TemporalType.TIMESTAMP)
   	private Date lastupdatetime;
+  	
+  	@Transient
+  	private String lock;
+  	@Transient
+  	private String resetCred;
   	
 	public String getUseruid() {
 		return useruid;
@@ -159,5 +165,17 @@ public class Trinityuser {
 	}
 	public void setLastupdatetime(Date lastupdatetime) {
 		this.lastupdatetime = lastupdatetime;
+	}
+	public String getLock() {
+		return lock;
+	}
+	public void setLock(String lock) {
+		this.lock = lock;
+	}
+	public String getResetCred() {
+		return resetCred;
+	}
+	public void setResetCred(String resetCred) {
+		this.resetCred = resetCred;
 	}
 }

@@ -1,6 +1,7 @@
 package com.netpro.trinity.repository.controller.member;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -125,6 +126,9 @@ public class TrinityuserController {
 				TrinityuserController.LOGGER.warn(e.getMessage());
 				return ResponseEntity.ok(user);
 			}
+		}catch(SQLException e) {
+			TrinityuserController.LOGGER.error("SQLException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(IllegalArgumentException e) {
 			TrinityuserController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -135,9 +139,20 @@ public class TrinityuserController {
 	}
 	
 	@PostMapping("/edit")
-	public ResponseEntity<?> editRole(@RequestBody Trinityuser user) {
+	public ResponseEntity<?> editRole(HttpServletRequest request, @RequestBody Trinityuser user) {
 		try {
-			return ResponseEntity.ok(this.service.edit(user));
+			return ResponseEntity.ok(this.service.edit(request, user));
+		}catch(ACException e) {
+			if(e.getErrorCode().isWarning()) {
+				TrinityuserController.LOGGER.error("ACException; reason was:", e);
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+			}else {
+				TrinityuserController.LOGGER.warn(e.getMessage());
+				return ResponseEntity.ok(user);
+			}
+		}catch(SQLException e) {
+			TrinityuserController.LOGGER.error("SQLException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(IllegalArgumentException e) {
 			TrinityuserController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -159,5 +174,18 @@ public class TrinityuserController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 		return ResponseEntity.ok(uid);
+	}
+	
+	@GetMapping("/lock")
+	public ResponseEntity<?> lockUserByID(HttpServletRequest request, String userid, Boolean lock) {
+		try {
+			return ResponseEntity.ok(this.service.lockByUserID(request, userid, lock));
+		}catch(IllegalArgumentException e) {
+			TrinityuserController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			TrinityuserController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
 	}
 }

@@ -15,12 +15,12 @@ public class NetworkUtil {
 		String ip="";
 		if(request.getRemoteAddr().equals("0:0:0:0:0:0:0:1") || request.getRemoteAddr().equals("127.0.0.1")) {
 			try {
-				ip=InetAddress.getLocalHost().getHostAddress();
+				ip = InetAddress.getLocalHost().getHostAddress();
 			}catch(UnknownHostException e) {
 				NetworkUtil.LOGGER.error("Exception; reason was:", e);
 			}
 		}else {
-			ip=request.getRemoteAddr();
+			ip = request.getRemoteAddr();
 		}
 		return ip;
 	}

@@ -417,4 +417,67 @@ public class XMLDataUtility {
 		return doc;
 	}
 	
+	public String parseMailListToXMLStringForTrinityUser(List<String> mailList) {
+		DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder;
+		Document doc;
+		
+		try {
+			docBuilder = dbfac.newDocumentBuilder();
+			doc = docBuilder.newDocument();
+			
+			Element root = doc.createElement("xmldata");
+			doc.appendChild(root);
+			
+			for(String mail:mailList) {
+				Element child = doc.createElement("mail");
+				child.setAttribute("value", mail);
+				root.appendChild(child);
+			}
+			
+			TransformerFactory transfac = TransformerFactory.newInstance();
+			Transformer trans = transfac.newTransformer();
+			
+			trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			
+			StringWriter sw = new StringWriter();
+			StreamResult result = new StreamResult(sw);
+			DOMSource source = new DOMSource(doc);
+			trans.transform(source, result);
+			String xmlString = sw.toString();
+			
+			return xmlString;
+		}catch(ParserConfigurationException e) {
+			e.printStackTrace();
+		}catch(TransformerConfigurationException e) {
+			e.printStackTrace();
+		}catch(TransformerException e) {
+			e.printStackTrace();
+		}
+		
+		return "";
+	}
+	
+	public String parseXMLStringToMailListStringForTrinityUser(String xmldata) {
+		StringBuffer retString = new StringBuffer("");
+		if(null == xmldata || xmldata.length()<1 || !xmldata.startsWith("<")) {
+			return retString.toString();
+		}
+		
+		Document doc = parseXML(xmldata);
+		NodeList node = doc.getElementsByTagName("mail");
+		Node nodeItem;
+		NamedNodeMap map;
+		
+		int length = node.getLength();
+		
+		for(int i=0;i<length;i++) {
+			nodeItem = node.item(i);
+			map = nodeItem.getAttributes();
+			String mail = map.getNamedItem("value").getNodeValue();
+			retString.append(";"+mail);
+		}
+		
+		return retString.toString();
+	}
 }
