@@ -3,14 +3,14 @@ package com.netpro.trinity.repository.entity.permission.jdbc;
 public class AccessRight {
 	private String peopleuid;
 	private String objectuid;
-	private String flag1;
-	private String flag2;
-	private String flag3;
-	private String flag4;
-	private String flag5;
-	private String flag6;
-	private String flag7;
-	private String flag8;
+	private String view;
+	private String add;
+	private String delete;
+	private String edit;
+	private String run;
+	private String reRun;
+	private String grant;
+	private String import_export;
 	
 	public String getPeopleuid() {
 		return peopleuid;
@@ -27,75 +27,75 @@ public class AccessRight {
 	public void setObjectuid(String objectuid) {
 		this.objectuid = objectuid;
 	}
-
-	public String getFlag1() {
-		return flag1;
+	
+	public String getView() {
+		return view;
 	}
 
-	public void setFlag1(String flag1) {
-		this.flag1 = flag1;
+	public void setView(String view) {
+		this.view = view;
 	}
 
-	public String getFlag2() {
-		return flag2;
+	public String getAdd() {
+		return add;
 	}
 
-	public void setFlag2(String flag2) {
-		this.flag2 = flag2;
+	public void setAdd(String add) {
+		this.add = add;
 	}
 
-	public String getFlag3() {
-		return flag3;
+	public String getDelete() {
+		return delete;
 	}
 
-	public void setFlag3(String flag3) {
-		this.flag3 = flag3;
+	public void setDelete(String delete) {
+		this.delete = delete;
 	}
 
-	public String getFlag4() {
-		return flag4;
+	public String getEdit() {
+		return edit;
 	}
 
-	public void setFlag4(String flag4) {
-		this.flag4 = flag4;
+	public void setEdit(String edit) {
+		this.edit = edit;
 	}
 
-	public String getFlag5() {
-		return flag5;
+	public String getRun() {
+		return run;
 	}
 
-	public void setFlag5(String flag5) {
-		this.flag5 = flag5;
+	public void setRun(String run) {
+		this.run = run;
 	}
 
-	public String getFlag6() {
-		return flag6;
+	public String getReRun() {
+		return reRun;
 	}
 
-	public void setFlag6(String flag6) {
-		this.flag6 = flag6;
+	public void setReRun(String reRun) {
+		this.reRun = reRun;
 	}
 
-	public String getFlag7() {
-		return flag7;
+	public String getGrant() {
+		return grant;
 	}
 
-	public void setFlag7(String flag7) {
-		this.flag7 = flag7;
+	public void setGrant(String grant) {
+		this.grant = grant;
 	}
 
-	public String getFlag8() {
-		return flag8;
+	public String getImport_export() {
+		return import_export;
 	}
 
-	public void setFlag8(String flag8) {
-		this.flag8 = flag8;
+	public void setImport_export(String import_export) {
+		this.import_export = import_export;
 	}
 	
 	@Override
 	public String toString() {
 		return "AccessRight{" + "peopleuid='" + peopleuid + '\'' + ", "
 				+ "objectuid='" + objectuid + '\'' + ", "
-				+ "flag='" + flag1+flag2+flag3+flag4+flag5+flag6+flag7+flag8 + '\'' + '}';
+				+ "flag='" + view+add+delete+edit+run+reRun+grant+import_export + '\'' + '}';
 	}
 }

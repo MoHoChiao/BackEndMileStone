@@ -50,6 +50,32 @@ public class AccessRightController {
 		}
 	}
 	
+	@GetMapping("/findByAllPKs")
+	public ResponseEntity<?> findByAllPKs(String peopleUid, String objectUid) {
+		try {
+			return ResponseEntity.ok(this.service.getByAllPKs(peopleUid, objectUid));
+		}catch(IllegalArgumentException e) {
+			AccessRightController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AccessRightController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/findFunctionalPermissionByPeopleUid")
+	public ResponseEntity<?> findFunctionalPermissionByPeopleUid(String peopleUid) {
+		try {
+			return ResponseEntity.ok(this.service.getFunctionalPermissionByPeopleUid(peopleUid));
+		}catch(IllegalArgumentException e) {
+			AccessRightController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AccessRightController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@PostMapping("/addOne")
 	public ResponseEntity<?> addOneAccessRight(@RequestBody AccessRight list) {
 		try {
@@ -76,10 +102,59 @@ public class AccessRightController {
 		}
 	}
 	
+	@PostMapping("/updateOne")
+	public ResponseEntity<?> updateOneAccessRight(@RequestBody AccessRight list) {
+		try {
+			return ResponseEntity.ok(this.service.update(list));
+		}catch(IllegalArgumentException e) {
+			AccessRightController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AccessRightController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/updateMany")
+	public ResponseEntity<?> updateManyAccessRight(@RequestBody List<AccessRight> lists) {
+		try {
+			return ResponseEntity.ok(this.service.update(lists));
+		}catch(IllegalArgumentException e) {
+			AccessRightController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AccessRightController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@PostMapping("/addBatch")
 	public ResponseEntity<?> addBatchAccessRight(@RequestBody List<AccessRight> lists) {
 		try {
 			return ResponseEntity.ok(this.service.addBatch(lists));
+		}catch(Exception e) {
+			AccessRightController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/updateBatch")
+	public ResponseEntity<?> updateBatchAccessRight(@RequestBody List<AccessRight> lists) {
+		try {
+			return ResponseEntity.ok(this.service.updateBatch(lists));
+		}catch(Exception e) {
+			AccessRightController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/modifyByPeopleUid")
+	public ResponseEntity<?> modifyAccessRightByPeopleUid(String peopleUid, @RequestBody List<AccessRight> lists) {
+		try {
+			return ResponseEntity.ok(this.service.modifyByPeopleUid(peopleUid, lists));
+		}catch(IllegalArgumentException e) {
+			AccessRightController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			AccessRightController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -112,5 +187,19 @@ public class AccessRightController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 		return ResponseEntity.ok(objectUid);
+	}
+	
+	@GetMapping("/deleteByPKs")
+	public ResponseEntity<?> deleteAccessRightByPKs(String peopleUid, String objectUid) {
+		try {
+			this.service.deleteByPKs(peopleUid, objectUid);
+		}catch(IllegalArgumentException e) {
+			AccessRightController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AccessRightController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+		return ResponseEntity.ok(peopleUid);
 	}
 }

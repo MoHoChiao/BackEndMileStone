@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,16 +20,22 @@ public class AccessRightJDBCDao {
 							+ "(peopleuid, objectuid, flag1, flag2, flag3, flag4, flag5, flag6, flag7, flag8) "
 							+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
+	public static final String update_sql = "UPDATE accessright "
+			+ "SET flag1 = ?, flag2 = ?, flag3 = ?, flag4 = ?, flag5 = ?, flag6 = ?, flag7 = ?, flag8 = ? "
+			+ "WHERE peopleuid = ? AND objectuid = ?";
+	
 	@Autowired
     protected JdbcTemplate jtm;
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<AccessRight> findByPeopleUid(String uid) throws DataAccessException{
 
-        String sql = "SELECT a.peopleuid, a.objectuid, a.flag1, a.flag2, a.flag3, a.flag4, a.flag5, a.flag6, a.flag7, a.flag8 "
+        String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "
+        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as delete, a.flag4 as edit, "
+        		+ "a.flag5 as run, a.flag6 as reRun, a.flag7 as grant, a.flag8 as import_export "
         		+ "FROM accessright a "
         		+ "WHERE a.peopleuid = ? "
-        		+ "ORDER BY a.lastupdatetime";
+        		+ "ORDER BY a.objectuid";
         Object[] param = new Object[] {uid};
 
         List<AccessRight> lists = (List<AccessRight>) jtm.query(sql, param,
@@ -40,11 +47,45 @@ public class AccessRightJDBCDao {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<AccessRight> findByObjectUid(String uid) throws DataAccessException{
 
-        String sql = "SELECT a.peopleuid, a.objectuid, a.flag1, a.flag2, a.flag3, a.flag4, a.flag5, a.flag6, a.flag7, a.flag8 "
+        String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "
+        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as delete, a.flag4 as edit, "
+        		+ "a.flag5 as run, a.flag6 as reRun, a.flag7 as grant, a.flag8 as import_export "
         		+ "FROM accessright a "
         		+ "WHERE a.objectuid = ? "
-        		+ "ORDER BY a.lastupdatetime";
+        		+ "ORDER BY a.peopleuid";
         Object[] param = new Object[] {uid};
+
+        List<AccessRight> lists = (List<AccessRight>) jtm.query(sql, param,
+                new BeanPropertyRowMapper(AccessRight.class));
+
+        return lists;
+    }
+	
+	public AccessRight findByAllPKs(String peopleUid, String objectUid) throws EmptyResultDataAccessException, DataAccessException{
+
+        String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "
+        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as delete, a.flag4 as edit, "
+        		+ "a.flag5 as run, a.flag6 as reRun, a.flag7 as grant, a.flag8 as import_export "
+        		+ "FROM accessright a "
+        		+ "WHERE a.peopleuid = ? AND a.objectuid = ?";
+        Object[] param = new Object[] {peopleUid, objectUid};
+        
+        AccessRight accessright = (AccessRight)jtm.queryForObject(
+    			sql, param, new BeanPropertyRowMapper<AccessRight>(AccessRight.class));
+        
+        return accessright;
+    }
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<AccessRight> findFunctionalPermissionByPeopleUid(String uid) throws DataAccessException{
+
+        String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "
+        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as delete, a.flag4 as edit, "
+        		+ "a.flag5 as run, a.flag6 as reRun, a.flag7 as grant, a.flag8 as import_export "
+        		+ "FROM accessright a "
+        		+ "WHERE a.peopleuid = ? AND a.objectuid like ? "
+        		+ "ORDER BY a.objectuid";
+        Object[] param = new Object[] {uid, "function-%"};
 
         List<AccessRight> lists = (List<AccessRight>) jtm.query(sql, param,
                 new BeanPropertyRowMapper(AccessRight.class));
@@ -63,27 +104,59 @@ public class AccessRightJDBCDao {
         return ret;
     }
 	
-	public int save(AccessRight list) throws DataAccessException{
+	public int add(AccessRight list) throws DataAccessException{
 		Object[] params = new Object[] {list.getPeopleuid(), list.getObjectuid(), 
-				list.getFlag1(), list.getFlag2(), list.getFlag3(), list.getFlag4(), list.getFlag5(), list.getFlag6(), list.getFlag7(), list.getFlag8()};
+				list.getView(), list.getAdd(), list.getDelete(), list.getEdit(), list.getRun(), list.getReRun(), list.getGrant(), list.getImport_export()};
 		
 		return jtm.update(insert_sql, params);
 	}
 	
-	public int[] saveBatch(List<AccessRight> lists) throws DataAccessException{
+	public int update(AccessRight list) throws DataAccessException{
+		Object[] params = new Object[] {list.getView(), list.getAdd(), list.getDelete(), list.getEdit(), 
+				list.getRun(), list.getReRun(), list.getGrant(), list.getImport_export(), list.getPeopleuid(), list.getObjectuid(),};
+		
+		return jtm.update(update_sql, params);
+	}
+	
+	public int[] addBatch(List<AccessRight> lists) throws DataAccessException{
 		int[] insertCounts = jtm.batchUpdate(insert_sql, new BatchPreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				ps.setString(1, lists.get(i).getPeopleuid());
 				ps.setString(2, lists.get(i).getObjectuid());
-				ps.setString(3, lists.get(i).getFlag1());
-				ps.setString(4, lists.get(i).getFlag2());
-				ps.setString(5, lists.get(i).getFlag3());
-				ps.setString(6, lists.get(i).getFlag4());
-				ps.setString(7, lists.get(i).getFlag5());
-				ps.setString(8, lists.get(i).getFlag6());
-				ps.setString(9, lists.get(i).getFlag7());
-				ps.setString(10, lists.get(i).getFlag8());
+				ps.setString(3, lists.get(i).getView());
+				ps.setString(4, lists.get(i).getAdd());
+				ps.setString(5, lists.get(i).getDelete());
+				ps.setString(6, lists.get(i).getEdit());
+				ps.setString(7, lists.get(i).getRun());
+				ps.setString(8, lists.get(i).getReRun());
+				ps.setString(9, lists.get(i).getGrant());
+				ps.setString(10, lists.get(i).getImport_export());
+			}
+			
+			@Override
+			public int getBatchSize() {
+				return lists.size();
+			}
+		});
+		
+        return insertCounts;
+	}
+	
+	public int[] updateBatch(List<AccessRight> lists) throws DataAccessException{
+		int[] insertCounts = jtm.batchUpdate(update_sql, new BatchPreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps, int i) throws SQLException {
+				ps.setString(1, lists.get(i).getView());
+				ps.setString(2, lists.get(i).getAdd());
+				ps.setString(3, lists.get(i).getDelete());
+				ps.setString(4, lists.get(i).getEdit());
+				ps.setString(5, lists.get(i).getRun());
+				ps.setString(6, lists.get(i).getReRun());
+				ps.setString(7, lists.get(i).getGrant());
+				ps.setString(8, lists.get(i).getImport_export());
+				ps.setString(9, lists.get(i).getPeopleuid());
+				ps.setString(10, lists.get(i).getObjectuid());
 			}
 			
 			@Override
@@ -104,6 +177,12 @@ public class AccessRightJDBCDao {
 	public int deleteByObjectUid(String uid) throws DataAccessException{
 		String sql = "DELETE FROM accessright WHERE objectuid = ?";
 		Object[] param = new Object[] {uid};
+		return jtm.update(sql, param);
+	}
+	
+	public int deleteByPKs(String peopleUid, String objectUid) throws DataAccessException{
+		String sql = "DELETE FROM accessright WHERE peopleuid = ? AND objectuid = ?";
+		Object[] param = new Object[] {peopleUid, objectUid};
 		return jtm.update(sql, param);
 	}
 }
