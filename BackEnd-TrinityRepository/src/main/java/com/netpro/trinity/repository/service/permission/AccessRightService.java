@@ -34,6 +34,20 @@ public class AccessRightService {
 		return this.dao.findByObjectUid(objectUid);
 	}
 	
+	public List<AccessRight> getUserExByObjectUid(String objectUid) throws IllegalArgumentException, Exception{
+		if(objectUid == null || objectUid.isEmpty())
+			throw new IllegalArgumentException("Object UID can not be empty!");
+				
+		return this.dao.findUserExByObjectUid(objectUid);
+	}
+	
+	public List<AccessRight> getRoleExByObjectUid(String objectUid) throws IllegalArgumentException, Exception{
+		if(objectUid == null || objectUid.isEmpty())
+			throw new IllegalArgumentException("Object UID can not be empty!");
+				
+		return this.dao.findRoleExByObjectUid(objectUid);
+	}
+	
 	public AccessRight getByAllPKs(String peopleUid, String objectUid) throws IllegalArgumentException, Exception{
 		if(peopleUid == null || peopleUid.isEmpty())
 			throw new IllegalArgumentException("People UID can not be empty!");

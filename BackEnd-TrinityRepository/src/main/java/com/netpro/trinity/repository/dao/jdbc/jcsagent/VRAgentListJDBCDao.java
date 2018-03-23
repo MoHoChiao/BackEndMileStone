@@ -27,7 +27,7 @@ public class VRAgentListJDBCDao {
 
         String sql = "SELECT a.virtualagentuid, a.agentuid, b.agentname, a.activate, a.description, a.seq "
         		+ "FROM jcsvirtualagentlist a, jcsagent b "
-        		+ "WHERE a.agentuid = b.agentUID and a.virtualagentUID = ? "
+        		+ "WHERE a.agentuid = b.agentUID AND a.virtualagentUID = ? "
         		+ "ORDER BY a.seq";
         Object[] param = new Object[] {uid};
 

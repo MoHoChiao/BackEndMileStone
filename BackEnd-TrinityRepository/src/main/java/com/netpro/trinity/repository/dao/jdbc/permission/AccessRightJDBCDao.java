@@ -61,6 +61,42 @@ public class AccessRightJDBCDao {
         return lists;
     }
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<AccessRight> findUserExByObjectUid(String uid) throws DataAccessException{
+
+        String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "
+        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as delete, a.flag4 as edit, "
+        		+ "a.flag5 as run, a.flag6 as reRun, a.flag7 as grant, a.flag8 as import_export, "
+        		+ "b.userid as peopleid, b.username as peoplename "
+        		+ "FROM accessright a, trinityuser b "
+        		+ "WHERE a.peopleuid = b.useruid AND a.objectuid = ? "
+        		+ "ORDER BY b.username, b.userid";
+        Object[] param = new Object[] {uid};
+
+        List<AccessRight> lists = (List<AccessRight>) jtm.query(sql, param,
+                new BeanPropertyRowMapper(AccessRight.class));
+
+        return lists;
+    }
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<AccessRight> findRoleExByObjectUid(String uid) throws DataAccessException{
+
+        String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "
+        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as delete, a.flag4 as edit, "
+        		+ "a.flag5 as run, a.flag6 as reRun, a.flag7 as grant, a.flag8 as import_export, "
+        		+ "b.rolename as peoplename "
+        		+ "FROM accessright a, role b "
+        		+ "WHERE a.peopleuid = b.roleuid AND a.objectuid = ? "
+        		+ "ORDER BY b.rolename";
+        Object[] param = new Object[] {uid};
+
+        List<AccessRight> lists = (List<AccessRight>) jtm.query(sql, param,
+                new BeanPropertyRowMapper(AccessRight.class));
+
+        return lists;
+    }
+	
 	public AccessRight findByAllPKs(String peopleUid, String objectUid) throws EmptyResultDataAccessException, DataAccessException{
 
         String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "

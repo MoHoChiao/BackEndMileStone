@@ -12,6 +12,9 @@ public class AccessRight {
 	private String grant;
 	private String import_export;
 	
+	private String peoplename;
+	private String peopleid;	//for trinity user
+	
 	public String getPeopleuid() {
 		return peopleuid;
 	}
@@ -92,9 +95,27 @@ public class AccessRight {
 		this.import_export = import_export;
 	}
 	
+	public String getPeoplename() {
+		return peoplename;
+	}
+
+	public void setPeoplename(String peoplename) {
+		this.peoplename = peoplename;
+	}
+
+	public String getPeopleid() {
+		return peopleid;
+	}
+
+	public void setPeopleid(String peopleid) {
+		this.peopleid = peopleid;
+	}
+	
 	@Override
 	public String toString() {
 		return "AccessRight{" + "peopleuid='" + peopleuid + '\'' + ", "
+				+ "peoplename='" + peoplename + '\'' + ", "
+				+ "peopleid='" + peopleid + '\'' + ", "
 				+ "objectuid='" + objectuid + '\'' + ", "
 				+ "flag='" + view+add+delete+edit+run+reRun+grant+import_export + '\'' + '}';
 	}

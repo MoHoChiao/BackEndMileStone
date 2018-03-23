@@ -50,6 +50,32 @@ public class AccessRightController {
 		}
 	}
 	
+	@GetMapping("/findUserExByObjectUid")
+	public ResponseEntity<?> findUserExByObjectUid(String objectUid) {
+		try {
+			return ResponseEntity.ok(this.service.getUserExByObjectUid(objectUid));
+		}catch(IllegalArgumentException e) {
+			AccessRightController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AccessRightController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/findRoleExByObjectUid")
+	public ResponseEntity<?> findRoleExByObjectUid(String objectUid) {
+		try {
+			return ResponseEntity.ok(this.service.getRoleExByObjectUid(objectUid));
+		}catch(IllegalArgumentException e) {
+			AccessRightController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AccessRightController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/findByAllPKs")
 	public ResponseEntity<?> findByAllPKs(String peopleUid, String objectUid) {
 		try {
