@@ -187,6 +187,19 @@ public class AccessRightController {
 		}
 	}
 	
+	@PostMapping("/modifyByObjectUid")
+	public ResponseEntity<?> modifyAccessRightByObjectUid(String objectUid, @RequestBody List<AccessRight> lists) {
+		try {
+			return ResponseEntity.ok(this.service.modifyByObjectUid(objectUid, lists));
+		}catch(IllegalArgumentException e) {
+			AccessRightController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AccessRightController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/deleteByPeopleUid")
 	public ResponseEntity<?> deleteAccessRightByPeopleUid(String peopleUid) {
 		try {

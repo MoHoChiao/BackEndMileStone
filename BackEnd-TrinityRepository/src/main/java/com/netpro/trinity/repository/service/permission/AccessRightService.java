@@ -239,6 +239,61 @@ public class AccessRightService {
 		return new_lists;
 	}
 	
+	public List<AccessRight> modifyByObjectUid(String objectUid, List<AccessRight> lists) throws IllegalArgumentException, Exception{
+		List<AccessRight> new_lists = new ArrayList<AccessRight>();
+		if(null == lists)
+			return new_lists;
+		
+		Map<String, AccessRight> oldAccessRightMap = new HashMap<String, AccessRight>();
+		Map<String, AccessRight> newAccessRightMap = new HashMap<String, AccessRight>();		
+		
+		List<AccessRight> oldAccessRightList = this.dao.findByObjectUid(objectUid);
+		for(AccessRight accessRight : oldAccessRightList) {
+			oldAccessRightMap.put(accessRight.getPeopleuid().trim(), accessRight);
+		}
+		
+		for(AccessRight accessRight : lists) {
+			newAccessRightMap.put(accessRight.getPeopleuid().trim(), accessRight);
+			
+			AccessRight oldAccessRight = oldAccessRightMap.get(accessRight.getPeopleuid().trim());
+			if(oldAccessRight == null) {
+				try {
+					accessRight.setObjectuid(objectUid);
+					this.add(accessRight);
+					new_lists.add(accessRight);
+				}catch(Exception e) {
+					AccessRightService.LOGGER.warn("Warning; reason was:", e);
+				}
+			}else {
+				try {
+					String acCode = accessRight.getView() + accessRight.getAdd() + accessRight.getDelete() + accessRight.getEdit() + 
+							accessRight.getRun() + accessRight.getReRun() + accessRight.getGrant() + accessRight.getImport_export();
+					
+					String old_acCode = oldAccessRight.getView() + oldAccessRight.getAdd() + oldAccessRight.getDelete() + oldAccessRight.getEdit() + 
+							oldAccessRight.getRun() + oldAccessRight.getReRun() + oldAccessRight.getGrant() + oldAccessRight.getImport_export();
+					
+					if(!acCode.equals(old_acCode)) {
+						accessRight.setObjectuid(objectUid);
+						this.update(accessRight);
+						new_lists.add(accessRight);
+					}else {
+						new_lists.add(accessRight);
+					}
+				}catch(Exception e) {
+					AccessRightService.LOGGER.warn("Warning; reason was:", e);
+				}
+			}
+		}
+		
+		for(AccessRight accessRight : oldAccessRightList) {
+			if(null == newAccessRightMap.get(accessRight.getObjectuid().trim()) ) {
+				this.deleteByPKs(accessRight.getPeopleuid(), objectUid);
+			}
+		}	
+		
+		return new_lists;
+	}
+	
 	public void deleteByPeopleUid(String peopleUid) throws IllegalArgumentException, Exception{
 		if(null == peopleUid || peopleUid.trim().isEmpty())
 			throw new IllegalArgumentException("People Uid can not be empty!");
