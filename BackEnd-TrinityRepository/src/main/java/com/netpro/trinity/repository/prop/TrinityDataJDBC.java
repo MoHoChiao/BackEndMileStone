@@ -3,13 +3,17 @@ package com.netpro.trinity.repository.prop;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties(prefix="trinity-data-jdbc")
+@RefreshScope
 public class TrinityDataJDBC
 {
+	@Value("${trinity-data-jdbc}")
 	private Map<String, JDBCDriverInfo> info = new TreeMap<String, JDBCDriverInfo>();
 	    
     public void setInfo(Map<String, JDBCDriverInfo> info) {
@@ -18,7 +22,7 @@ public class TrinityDataJDBC
 	public Map<String, JDBCDriverInfo> getInfo() {
 		return info;
 	}
-    
+	
 	public static class JDBCDriverInfo {
 		private String jar;
         private String name;

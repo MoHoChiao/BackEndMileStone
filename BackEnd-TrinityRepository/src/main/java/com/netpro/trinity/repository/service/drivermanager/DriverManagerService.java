@@ -82,6 +82,18 @@ public class DriverManagerService {
 		return retList;
 	}
 	
+	public Boolean addDriverInfo() {
+		JDBCDriverInfo info = new JDBCDriverInfo();
+		info.setDriver("driver");
+		info.setJar("jar");
+		info.setName("name");
+		info.setOwner("user");
+		info.setUrl("url");
+		this.jdbcInfo.getInfo().put("test", info);
+		
+		return true;
+	}
+	
 	public Boolean deleteDriverJarFile(String driverName, String jarName) throws IllegalArgumentException, Exception{
 		if(null == driverName || driverName.trim().isEmpty())
 			throw new IllegalArgumentException("Driver Name can not be empty!");
@@ -95,9 +107,8 @@ public class DriverManagerService {
 			this.maintain.unload(driverName);
 			try {
 				this.maintain.load(driverName);
-			}catch(Exception e) {
-				System.out.println(e.getMessage());
-			}
+			}catch(Exception e) {}
+			
 			return true;
 		}else {
 			return false;
@@ -114,7 +125,8 @@ public class DriverManagerService {
 		File file = new File(filePath + jarName);
 		if(file.exists()) {
 			if(!file.delete())
-				throw new IllegalArgumentException("Delete "+jarName+" Fail!");
+				throw new IllegalArgumentException("Delete "+jarName+" Fail! "
+						+ "Possible Causes : This jar file is in use. Please restart the server and then delete the jar file.");
 		}else {
 			throw new IllegalArgumentException("Jar File:"+jarName+" does not exist!");
 		}

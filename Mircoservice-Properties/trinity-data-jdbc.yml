@@ -85,8 +85,3 @@ trinity-data-jdbc:
       driver: 'com.ibm.as400.access.AS400JDBCDriver'
       url: 'sdfasdfsdf'
       owner: 'user'
-    GGYY: 
-      name: 'GGYY'
-      driver: 'com.mysql.jdbc.NonRegisteringReplicationDriver'
-      url: 'dsfdasf'
-      owner: 'user'
