@@ -21,10 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.repository.dao.jpa.domain.DomainJPADao;
-import com.netpro.trinity.repository.dto.FilterInfo;
-import com.netpro.trinity.repository.dto.Ordering;
-import com.netpro.trinity.repository.dto.Paging;
-import com.netpro.trinity.repository.dto.Querying;
+import com.netpro.trinity.repository.dto.filter.FilterInfo;
+import com.netpro.trinity.repository.dto.filter.Ordering;
+import com.netpro.trinity.repository.dto.filter.Paging;
+import com.netpro.trinity.repository.dto.filter.Querying;
 import com.netpro.trinity.repository.entity.domain.jdbc.DomainResource;
 import com.netpro.trinity.repository.entity.domain.jdbc.DomainVariable;
 import com.netpro.trinity.repository.entity.domain.jpa.Domain;

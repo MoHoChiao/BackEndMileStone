@@ -20,10 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.repository.dao.jpa.job.JobJPADao;
-import com.netpro.trinity.repository.dto.FilterInfo;
-import com.netpro.trinity.repository.dto.Ordering;
-import com.netpro.trinity.repository.dto.Paging;
-import com.netpro.trinity.repository.dto.Querying;
+import com.netpro.trinity.repository.dto.filter.FilterInfo;
+import com.netpro.trinity.repository.dto.filter.Ordering;
+import com.netpro.trinity.repository.dto.filter.Paging;
+import com.netpro.trinity.repository.dto.filter.Querying;
 import com.netpro.trinity.repository.entity.filesource.jpa.FileSource;
 import com.netpro.trinity.repository.entity.job.jdbc.JobFullPath;
 import com.netpro.trinity.repository.entity.job.jpa.Job;

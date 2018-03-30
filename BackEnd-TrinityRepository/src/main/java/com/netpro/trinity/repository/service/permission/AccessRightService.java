@@ -286,7 +286,7 @@ public class AccessRightService {
 		}
 		
 		for(AccessRight accessRight : oldAccessRightList) {
-			if(null == newAccessRightMap.get(accessRight.getObjectuid().trim()) ) {
+			if(null == newAccessRightMap.get(accessRight.getPeopleuid().trim()) ) {
 				this.deleteByPKs(accessRight.getPeopleuid(), objectUid);
 			}
 		}	

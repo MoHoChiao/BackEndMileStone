@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class TrinityDataJDBC
 {
 	private Map<String, JDBCDriverInfo> info = new TreeMap<String, JDBCDriverInfo>();
-    
+	    
     public void setInfo(Map<String, JDBCDriverInfo> info) {
 		this.info = info;
 	}

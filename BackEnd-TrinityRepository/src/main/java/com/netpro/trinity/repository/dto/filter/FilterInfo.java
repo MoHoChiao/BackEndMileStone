@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.dto;
+package com.netpro.trinity.repository.dto.filter;
 
 public class FilterInfo {
 	private Paging paging;

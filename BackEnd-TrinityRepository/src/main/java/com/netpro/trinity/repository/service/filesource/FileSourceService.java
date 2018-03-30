@@ -23,10 +23,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.repository.dao.jpa.filesource.FileSourceJPADao;
-import com.netpro.trinity.repository.dto.FilterInfo;
-import com.netpro.trinity.repository.dto.Ordering;
-import com.netpro.trinity.repository.dto.Paging;
-import com.netpro.trinity.repository.dto.Querying;
+import com.netpro.trinity.repository.dto.filter.FilterInfo;
+import com.netpro.trinity.repository.dto.filter.Ordering;
+import com.netpro.trinity.repository.dto.filter.Paging;
+import com.netpro.trinity.repository.dto.filter.Querying;
 import com.netpro.trinity.repository.entity.filesource.jdbc.FilesourceRelation;
 import com.netpro.trinity.repository.entity.filesource.jpa.FileSource;
 import com.netpro.trinity.repository.service.job.JobService;

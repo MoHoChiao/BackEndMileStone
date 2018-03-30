@@ -20,10 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.repository.dao.jpa.frequency.FrequencyJPADao;
-import com.netpro.trinity.repository.dto.FilterInfo;
-import com.netpro.trinity.repository.dto.Ordering;
-import com.netpro.trinity.repository.dto.Paging;
-import com.netpro.trinity.repository.dto.Querying;
+import com.netpro.trinity.repository.dto.filter.FilterInfo;
+import com.netpro.trinity.repository.dto.filter.Ordering;
+import com.netpro.trinity.repository.dto.filter.Paging;
+import com.netpro.trinity.repository.dto.filter.Querying;
 import com.netpro.trinity.repository.entity.frequency.jdbc.FrequencyList;
 import com.netpro.trinity.repository.entity.frequency.jdbc.FrequencyRelation;
 import com.netpro.trinity.repository.entity.frequency.jpa.Frequency;

@@ -80,3 +80,13 @@ trinity-data-jdbc:
       driver: 'com.informix.jdbc.IfxDriver'
       url: 'jdbc:informix-sqli://host:port/dbName'
       owner: 'system'
+    ATEST: 
+      name: 'ATEST'
+      driver: 'com.ibm.as400.access.AS400JDBCDriver'
+      url: 'sdfasdfsdf'
+      owner: 'user'
+    GGYY: 
+      name: 'GGYY'
+      driver: 'com.mysql.jdbc.NonRegisteringReplicationDriver'
+      url: 'dsfdasf'
+      owner: 'user'

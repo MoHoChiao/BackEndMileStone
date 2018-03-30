@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.repository.dto.FilterInfo;
+import com.netpro.trinity.repository.dto.filter.FilterInfo;
 import com.netpro.trinity.repository.entity.job.jpa.Busentity;
 import com.netpro.trinity.repository.service.job.BusentityService;
 
