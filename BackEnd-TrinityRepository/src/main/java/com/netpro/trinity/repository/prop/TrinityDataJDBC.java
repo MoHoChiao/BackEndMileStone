@@ -14,7 +14,7 @@ import com.netpro.trinity.repository.dto.drivermanager.DriverInfo;
 @RefreshScope
 public class TrinityDataJDBC
 {
-	private Map<String, DriverInfo> info = new TreeMap<String, DriverInfo>();
+	private Map<String, DriverInfo> info = new TreeMap<String, DriverInfo>(String.CASE_INSENSITIVE_ORDER);
 	    
     public void setInfo(Map<String, DriverInfo> info) {
 		this.info = info;

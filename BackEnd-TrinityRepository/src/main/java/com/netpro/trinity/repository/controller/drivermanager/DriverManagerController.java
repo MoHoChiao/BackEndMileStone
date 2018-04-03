@@ -7,9 +7,14 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.netpro.trinity.repository.dto.drivermanager.DriverInfo;
 import com.netpro.trinity.repository.service.drivermanager.DriverManagerService;
 
 @RestController  //宣告一個Restful Web Service的Resource
@@ -57,10 +62,11 @@ public class DriverManagerController {
 		}
 	}
 	
-	@GetMapping("/addtest")
-	public ResponseEntity<?> addtest() {
+	@PostMapping("/addDriverInformation")
+	public ResponseEntity<?> addDriverInfo(@RequestBody DriverInfo info, 
+			@RequestParam(value="file", required = true) MultipartFile file) {
 		try {
-			return ResponseEntity.ok(this.service.addDriverInfo());
+			return ResponseEntity.ok(this.service.addDriverInfo(info, file));
 		}catch(IllegalArgumentException e) {
 			DriverManagerController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

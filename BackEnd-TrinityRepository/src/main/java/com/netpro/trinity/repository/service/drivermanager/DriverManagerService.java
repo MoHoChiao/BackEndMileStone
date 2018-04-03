@@ -3,17 +3,31 @@ package com.netpro.trinity.repository.service.drivermanager;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.sql.Driver;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
+import com.netpro.trinity.repository.controller.drivermanager.DriverManagerController;
 import com.netpro.trinity.repository.drivermanager.MetadataDriverMaintain;
 import com.netpro.trinity.repository.drivermanager.MetadataDriverManager;
 import com.netpro.trinity.repository.dto.drivermanager.DriverInfo;
@@ -22,6 +36,8 @@ import com.netpro.trinity.repository.prop.TrinitySysSetting;
 
 @Service
 public class DriverManagerService {	
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(DriverManagerService.class);
 	
 	@Autowired
 	private TrinityDataJDBC jdbcInfo;
@@ -86,58 +102,87 @@ public class DriverManagerService {
 		return retList;
 	}
 	
-	public Boolean addDriverInfo() throws IOException {
-		DriverInfo new_info = new DriverInfo();
-		new_info.setDriver("driver");
-		new_info.setJar("jar");
-		new_info.setName("name");
-		new_info.setOwner("user");
-		new_info.setUrl("url");
+	public Boolean addDriverInfo(DriverInfo info, MultipartFile file) throws IllegalArgumentException, IOException, Exception {
+		if(null == info)
+			throw new IllegalArgumentException("Driver Information can not be empty!");
+		
+		String driverName = info.getName();
+		if(null == driverName || driverName.trim().isEmpty())
+			throw new IllegalArgumentException("Driver Name can not be empty!");
+		driverName = driverName.trim();
+		info.setName(driverName);
+		
+		if(null == info.getUrl() || info.getUrl().trim().isEmpty())
+			throw new IllegalArgumentException("Driver URL can not be empty!");
+		
 		Map<String, DriverInfo> infos = this.jdbcInfo.getInfo();
-		infos.put("test", new_info);
 		
-		Map<String, Map<String, Map<String, Map<String, String>>>> data_L1 = new TreeMap<String, Map<String, Map<String, Map<String, String>>>>();
-		Map<String, Map<String, Map<String, String>>> data_L2 = new TreeMap<String, Map<String, Map<String, String>>>();
-		Map<String, Map<String, String>> data_L3 = new TreeMap<String, Map<String, String>>();
+		if(infos.containsKey(info.getName()))
+			throw new IllegalArgumentException("Duplicate Driver Name!");
 		
-		for(String key : infos.keySet()) {
-			DriverInfo info = infos.get(key);
-			if(null != info) {
-				String name = info.getName();
-				String driver = info.getDriver();
-				String url = info.getUrl();
-				String jar = info.getJar();
-				String owner = info.getOwner();
-				
-				Map<String, String> data_L4 = new TreeMap<String, String>();
-				if(null != name)
-					data_L4.put("name", name);
-				if(null != driver)
-					data_L4.put("driver", driver);
-				if(null != url)
-					data_L4.put("url", url);
-				if(null != owner)
-					data_L4.put("owner", owner);
-				if(null != jar)
-					data_L4.put("jar", jar);
-				
-				data_L3.put(key, data_L4);
-			}
-		}
+		String dirPath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + 
+					driverName + System.getProperty("file.separator");
+		File dirF = new File(dirPath);
+		if(!dirF.exists())
+			dirF.mkdir();
 		
-		data_L2.put("info", data_L3);
-		data_L1.put("trinity-data-jdbc", data_L2);
+		String filePath = dirPath + file.getOriginalFilename();
+		File fileF = new File(filePath);
+		if(fileF.exists())
+			fileF.delete();
+		byte[] bytes = file.getBytes();
+		FileCopyUtils.copy(bytes, fileF);
+		System.out.println(fileF.getAbsolutePath());
 		
 		
-		DumperOptions options = new DumperOptions();
-	     options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-	     options.setPrettyFlow(true);
 		
-		Yaml yaml = new Yaml(options);
-		FileWriter writer = new FileWriter("D:\\MyWork\\DataIntegrationService\\BackEndMileStone\\Mircoservice-Properties\\trinity-data-jdbc.yml");
-//		StringWriter writer = new StringWriter();
-        yaml.dump(data_L1, writer);
-        System.out.println(writer.toString());
+//		info.setDriver("driver");
+//		info.setOwner("user");
+//		
+//		infos.put("test", info);
+//		
+//		Map<String, Map<String, Map<String, Map<String, String>>>> data_L1 = new TreeMap<String, Map<String, Map<String, Map<String, String>>>>();
+//		Map<String, Map<String, Map<String, String>>> data_L2 = new TreeMap<String, Map<String, Map<String, String>>>();
+//		Map<String, Map<String, String>> data_L3 = new TreeMap<String, Map<String, String>>();
+//		
+//		for(String key : infos.keySet()) {
+//			DriverInfo each_info = infos.get(key);
+//			if(null != each_info) {
+//				String name = each_info.getName();
+//				String driver = each_info.getDriver();
+//				String url = each_info.getUrl();
+//				String jar = each_info.getJar();
+//				String owner = each_info.getOwner();
+//				
+//				Map<String, String> data_L4 = new TreeMap<String, String>();
+//				if(null != name)
+//					data_L4.put("name", name);
+//				if(null != driver)
+//					data_L4.put("driver", driver);
+//				if(null != url)
+//					data_L4.put("url", url);
+//				if(null != owner)
+//					data_L4.put("owner", owner);
+//				if(null != jar)
+//					data_L4.put("jar", jar);
+//				
+//				data_L3.put(key, data_L4);
+//			}
+//		}
+//		
+//		data_L2.put("info", data_L3);
+//		data_L1.put("trinity-data-jdbc", data_L2);
+//		
+//		
+//		DumperOptions options = new DumperOptions();
+//	     options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+//	     options.setPrettyFlow(true);
+//		
+//		Yaml yaml = new Yaml(options);
+//		FileWriter writer = new FileWriter("D:\\MyWork\\DataIntegrationService\\BackEndMileStone\\Mircoservice-Properties\\trinity-data-jdbc.yml");
+//        yaml.dump(data_L1, writer);
+//        System.out.println(writer.toString());
+        
 		return true;
 	}
 	
@@ -159,6 +204,67 @@ public class DriverManagerService {
 			return true;
 		}else {
 			return false;
+		}
+	}
+	
+	private List<String> checkHaveDriver(String filePath) throws ZipException, IOException, ClassNotFoundException,  Exception, Throwable {
+		ZipFile zipFile = null;
+		URLConnection c = null;
+		List<String> driverList = new ArrayList<String>();
+		
+		try {
+			zipFile = new ZipFile(new File(filePath));
+			URL url = new URL("jar", "", -1, new File(zipFile.getName()).toURI().toString() + "!/");
+			
+			Enumeration<? extends ZipEntry> zipEntrys = zipFile.entries();
+			
+			while (zipEntrys.hasMoreElements()) {
+				c = url.openConnection();
+				URLClassLoader ucl = new URLClassLoader(new URL[] { url });
+				ZipEntry zipEntry = zipEntrys.nextElement();
+				if (!zipEntry.getName().endsWith(".class")) {
+					continue;
+				}
+				String driver = "";
+				if ((driver = check(zipEntry, ucl)) != "") {
+					driverList.add(driver);
+				}
+			}
+		} catch (ZipException e){
+			throw e;
+		} catch (IOException e){
+			throw e;
+		} catch (ClassNotFoundException e){
+			throw e;
+		} catch (Exception e){
+			throw e;
+		} catch (Throwable e){
+			throw e;
+		} finally {
+			try {
+				if (zipFile != null){
+					zipFile.close();
+				}
+				if (c != null){
+					((JarURLConnection)c).getJarFile().close();
+				}
+			} catch (Exception e) {
+				DriverManagerService.LOGGER.warn("Exception; reason was:", e);
+			}
+		}
+		return driverList;
+	}
+	
+	private String check(ZipEntry zipEntry, URLClassLoader ucl) throws ClassNotFoundException, Exception, Throwable {
+		
+		String className = zipEntry.getName().replace("/", ".");
+		className = className.substring(0, className.length() - 6);
+	
+		Class<?> objClass = Class.forName(className, false, ucl);
+		if (Driver.class.isAssignableFrom(objClass)) {
+			return objClass.getName();
+		}else {
+			return "";
 		}
 	}
 	
