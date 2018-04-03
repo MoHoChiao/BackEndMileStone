@@ -11,8 +11,8 @@ import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.netpro.trinity.repository.dto.drivermanager.DriverInfo;
 import com.netpro.trinity.repository.prop.TrinityDataJDBC;
-import com.netpro.trinity.repository.prop.TrinityDataJDBC.JDBCDriverInfo;
 
 @Component
 public class MetadataDriverManager {
@@ -171,8 +171,8 @@ public class MetadataDriverManager {
 	 * @return DriverVO
 	 */
 	private DriverVO getDriverInfo(String target) throws Exception{
-		Map<String, JDBCDriverInfo> infoMap = this.jdbcInfo.getInfo();
-		JDBCDriverInfo info = infoMap.get(target);
+		Map<String, DriverInfo> infoMap = this.jdbcInfo.getInfo();
+		DriverInfo info = infoMap.get(target);
 		
 		DriverVO dvo = new DriverVO();
 		String jarname	= info.getJar();

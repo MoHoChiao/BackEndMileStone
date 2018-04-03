@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import com.netpro.trinity.repository.dao.jpa.connection.ConnectionJPADao;
 import com.netpro.trinity.repository.drivermanager.MetadataDriverMaintain;
 import com.netpro.trinity.repository.drivermanager.MetadataDriverManager;
+import com.netpro.trinity.repository.dto.drivermanager.DriverInfo;
 import com.netpro.trinity.repository.dto.filter.FilterInfo;
 import com.netpro.trinity.repository.dto.filter.Ordering;
 import com.netpro.trinity.repository.dto.filter.Paging;
@@ -45,7 +46,6 @@ import com.netpro.trinity.repository.entity.connection.SapConnection;
 import com.netpro.trinity.repository.entity.connection.jdbc.ConnectionRelation;
 import com.netpro.trinity.repository.entity.connection.jpa.Connection;
 import com.netpro.trinity.repository.prop.TrinityDataJDBC;
-import com.netpro.trinity.repository.prop.TrinityDataJDBC.JDBCDriverInfo;
 import com.netpro.trinity.repository.service.filesource.FileSourceService;
 import com.netpro.trinity.repository.service.jobstep.JobstepService;
 import com.netpro.trinity.repository.util.Constant;
@@ -625,7 +625,7 @@ public class ConnectionService {
 		return this.dao.exists(uid);
 	}
 	
-	public Map<String, JDBCDriverInfo> getJDBCDriverInfo() throws Exception {
+	public Map<String, DriverInfo> getJDBCDriverInfo() throws Exception {
 		return this.jdbcInfo.getInfo();
 	}
 	

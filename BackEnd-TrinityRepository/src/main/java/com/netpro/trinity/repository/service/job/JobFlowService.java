@@ -26,15 +26,11 @@ import com.netpro.trinity.repository.dto.filter.Querying;
 import com.netpro.trinity.repository.entity.filesource.jpa.FileSource;
 import com.netpro.trinity.repository.entity.job.jpa.JobFlow;
 import com.netpro.trinity.repository.util.Constant;
-import com.netpro.trinity.repository.util.XMLDataUtility;
 
 @Service
 public class JobFlowService {
 	public static final String[] FLOW_FIELD_VALUES = new String[] {"flowname", "activate", "description"};
 	public static final Set<String> FLOW_FIELD_SET = new HashSet<>(Arrays.asList(FLOW_FIELD_VALUES));
-	
-	@Autowired
-	private XMLDataUtility xmlUtil;
 	
 	@Autowired
 	private JobFlowJPADao dao;
