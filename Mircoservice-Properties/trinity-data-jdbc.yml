@@ -1,87 +1,92 @@
-trinity-data-jdbc: 
-  info: 
-    DB2: 
-      name: 'DB2'
-      driver: 'com.ibm.db2.jcc.DB2Driver'
-      url: 'jdbc:db2://hostName:port/dbName'
-      owner: 'system'
-    SQLServer: 
-      name: 'SQLServer'
-      driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
-      url: 'jdbc:sqlserver://hostName;databaseName=dbName;selectMethod=cursor'
-      owner: 'system'
-    MySQL: 
-      name: 'MySQL'
-      driver: 'com.mysql.jdbc.Driver'
-      url: 'jdbc:mysql://hostName:port/dbName'
-      owner: 'system'
-    ORACLE: 
-      name: 'ORACLE'
-      driver: 'oracle.jdbc.driver.OracleDriver'
-      url: 'jdbc:oracle:thin:@hostName:1521:dbName'
-      owner: 'system'
-    ORACLE8i: 
-      name: 'ORACLE8i'
-      driver: 'oracle.jdbc.driver.OracleDriver'
-      url: 'jdbc:oracle:thin:@hostName:1521:dbName'
-      owner: 'system'
-    PostgreSQL: 
-      name: 'PostgreSQL'
-      driver: 'org.postgresql.Driver'
-      url: 'jdbc:postgresql://hostName/dbName'
-      owner: 'system'
-    SybaseDB: 
-      name: 'SybaseDB'
-      driver: 'com.sybase.jdbc4.jdbc.SybDriver'
-      url: 'jdbc:sybase:Tds:hostName:port/dbName'
-      owner: 'system'
-    SybaseIQ: 
-      name: 'SybaseIQ'
-      driver: 'com.sybase.jdbc4.jdbc.SybDriver'
-      url: 'jdbc:sybase:Tds:hostName:port/dbName'
-      owner: 'system'
-    Teradata: 
-      name: 'Teradata'
-      driver: 'com.teradata.jdbc.TeraDriver'
-      url: 'jdbc:teradata://hostName/TMODE=TERA,CHARSET=ASCII'
-      owner: 'system'
-    AS400: 
-      name: 'AS400'
-      driver: 'com.ibm.as400.access.AS400JDBCDriver'
-      url: 'jdbc:as400://host/libname'
-      owner: 'system'
-    Hive: 
-      name: 'Hive'
-      driver: 'org.apache.hadoop.hive.jdbc.HiveDriver'
-      url: 'jdbc:hive://host:10000/default'
-      owner: 'system'
-    Hive2: 
-      name: 'Hive2'
-      driver: 'org.apache.hive.jdbc.HiveDriver'
-      url: 'jdbc:hive2://host:10000/default'
-      owner: 'system'
-    MSAccess: 
-      name: 'MSAccess'
-      driver: 'sun.jdbc.odbc.JdbcOdbcDriver'
-      url: 'jdbc:odbc:driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ='
-      owner: 'system'
-    Netezza: 
-      name: 'Netezza'
-      driver: 'org.netezza.Driver'
-      url: 'jdbc:netezza://hostName:port/dbName'
-      owner: 'system'
-    Vertica: 
-      name: 'Vertica'
-      driver: 'com.vertica.jdbc.Driver'
-      url: 'jdbc:vertica://VerticaHost:portNumber/databaseName'
-      owner: 'system'
-    informix: 
-      name: 'informix'
-      driver: 'com.informix.jdbc.IfxDriver'
-      url: 'jdbc:informix-sqli://host:port/dbName'
-      owner: 'system'
-    ATEST: 
-      name: 'ATEST'
-      driver: 'com.ibm.as400.access.AS400JDBCDriver'
-      url: 'sdfasdfsdf'
-      owner: 'user'
+trinity-data-jdbc:
+  info:
+    AS400:
+      driver: com.ibm.as400.access.AS400JDBCDriver
+      name: AS400
+      owner: system
+      url: jdbc:as400://host/libname
+    ATEST:
+      driver: com.ibm.as400.access.AS400JDBCDriver
+      name: ATEST
+      owner: user
+      url: sdfasdfsdf
+    DB2:
+      driver: com.ibm.db2.jcc.DB2Driver
+      name: DB2
+      owner: system
+      url: jdbc:db2://hostName:port/dbName
+    Hive:
+      driver: org.apache.hadoop.hive.jdbc.HiveDriver
+      name: Hive
+      owner: system
+      url: jdbc:hive://host:10000/default
+    Hive2:
+      driver: org.apache.hive.jdbc.HiveDriver
+      name: Hive2
+      owner: system
+      url: jdbc:hive2://host:10000/default
+    MSAccess:
+      driver: sun.jdbc.odbc.JdbcOdbcDriver
+      name: MSAccess
+      owner: system
+      url: jdbc:odbc:driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=
+    MySQL:
+      driver: com.mysql.jdbc.Driver
+      name: MySQL
+      owner: system
+      url: jdbc:mysql://hostName:port/dbName
+    Netezza:
+      driver: org.netezza.Driver
+      name: Netezza
+      owner: system
+      url: jdbc:netezza://hostName:port/dbName
+    ORACLE:
+      driver: oracle.jdbc.driver.OracleDriver
+      name: ORACLE
+      owner: system
+      url: jdbc:oracle:thin:@hostName:1521:dbName
+    ORACLE8i:
+      driver: oracle.jdbc.driver.OracleDriver
+      name: ORACLE8i
+      owner: system
+      url: jdbc:oracle:thin:@hostName:1521:dbName
+    PostgreSQL:
+      driver: org.postgresql.Driver
+      name: PostgreSQL
+      owner: system
+      url: jdbc:postgresql://hostName/dbName
+    SQLServer:
+      driver: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      name: SQLServer
+      owner: system
+      url: jdbc:sqlserver://hostName;databaseName=dbName;selectMethod=cursor
+    SybaseDB:
+      driver: com.sybase.jdbc4.jdbc.SybDriver
+      name: SybaseDB
+      owner: system
+      url: jdbc:sybase:Tds:hostName:port/dbName
+    SybaseIQ:
+      driver: com.sybase.jdbc4.jdbc.SybDriver
+      name: SybaseIQ
+      owner: system
+      url: jdbc:sybase:Tds:hostName:port/dbName
+    Teradata:
+      driver: com.teradata.jdbc.TeraDriver
+      name: Teradata
+      owner: system
+      url: jdbc:teradata://hostName/TMODE=TERA,CHARSET=ASCII
+    Vertica:
+      driver: com.vertica.jdbc.Driver
+      name: Vertica
+      owner: system
+      url: jdbc:vertica://VerticaHost:portNumber/databaseName
+    informix:
+      driver: com.informix.jdbc.IfxDriver
+      name: informix
+      owner: system
+      url: jdbc:informix-sqli://host:port/dbName
+    test:
+      driver: driver
+      name: AS200
+      owner: user
+      url: jdbc:as400://host/libname
