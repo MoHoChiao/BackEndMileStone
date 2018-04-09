@@ -36,7 +36,7 @@ public class DriverManagerController {
 		}
 	}
 	
-	@GetMapping("/findDriverJarFiles")
+	@GetMapping("/findJarFilesByDriverName")
 	public ResponseEntity<?> findDriverJarFiles(String driverName) {
 		try {
 			return ResponseEntity.ok(this.service.getDriverJarFiles(driverName));
@@ -63,10 +63,10 @@ public class DriverManagerController {
 	}
 	
 	@PostMapping("/addDriverInformation")
-	public ResponseEntity<?> addDriverInfo(@RequestBody DriverInfo info, 
-			@RequestParam(value="file", required = true) MultipartFile file) {
+	public ResponseEntity<?> addDriverInfo(String driverName, String driverURL, 
+			@RequestParam(value="file", required = true) MultipartFile[] files) {
 		try {
-			return ResponseEntity.ok(this.service.addDriverInfo(info, file));
+			return ResponseEntity.ok(this.service.addDriverInfo(driverName, driverURL, files));
 		}catch(IllegalArgumentException e) {
 			DriverManagerController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

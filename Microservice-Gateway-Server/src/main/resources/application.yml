@@ -1,5 +1,9 @@
 spring:
   application:
     name: microservice-gateway-server           # 指定要注冊到Eureka Server上的應用程式之名稱
+  http:
+    multipart:
+      max-file-size: 150Mb
+      max-request-size: 200Mb
 server:
   port: 8080                                    # 指定這台Server啟動的port

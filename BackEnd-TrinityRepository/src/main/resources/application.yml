@@ -1,8 +1,10 @@
 spring:
   application:
     name: backend-trinity-repository         # 在eureka server的應用程式名稱
-  jackson: 
-    default-property-inclusion: NON_NULL
+  http:
+    multipart:
+      max-file-size: 150Mb
+      max-request-size: 200Mb
 server:
   port: 9001                                 # Process啟動的port
 encrypt:
