@@ -3,8 +3,11 @@ spring:
     name: backend-trinity-repository         # 在eureka server的應用程式名稱
   http:
     multipart:
-      max-file-size: 150Mb
-      max-request-size: 200Mb
+      enabled: true   # 啟用http上傳
+      max-file-size: 200MB # 設置單文件的最大長度
+      max-request-size: 200MB # 设置最大的请求文件的大小
+      file-size-threshold: 2MB  # 設置最大的請求文件之大小
+      location: /  # 上傳檔案的臨時目錄
 server:
   port: 9001                                 # Process啟動的port
 encrypt:

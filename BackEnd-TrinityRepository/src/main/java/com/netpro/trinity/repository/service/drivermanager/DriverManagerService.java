@@ -27,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
-import com.netpro.trinity.repository.controller.drivermanager.DriverManagerController;
 import com.netpro.trinity.repository.drivermanager.MetadataDriverMaintain;
 import com.netpro.trinity.repository.drivermanager.MetadataDriverManager;
 import com.netpro.trinity.repository.dto.drivermanager.DriverInfo;
@@ -49,7 +48,7 @@ public class DriverManagerService {
 	@Autowired
 	MetadataDriverMaintain maintain;
 	
-	public List<DriverInfo> getDriversInfo(String driverName) throws Exception {
+	public List<DriverInfo> getDriversProp(String driverName) throws Exception {
 		LinkedList<DriverInfo> systemList = new LinkedList<DriverInfo>();
 		LinkedList<DriverInfo> userList = new LinkedList<DriverInfo>();
 		
@@ -70,7 +69,7 @@ public class DriverManagerService {
 			info.setName(propInfo.getName());
 			info.setOwner(propInfo.getOwner());
 			info.setUrl(propInfo.getUrl());
-			info.setJarFiles(getDriverJarFiles(name));
+			info.setJarFiles(getJarFilesByDriverName(name));
 			
 			if("system".equalsIgnoreCase(owner)) {
 				systemList.add(info);
@@ -83,7 +82,7 @@ public class DriverManagerService {
 		return systemList;
 	}
 	
-	public List<String> getDriverJarFiles(String driverName) throws IllegalArgumentException, Exception{
+	public List<String> getJarFilesByDriverName(String driverName) throws IllegalArgumentException, Exception{
 		if(null == driverName || driverName.trim().isEmpty())
 			throw new IllegalArgumentException("Driver Name can not be empty!");
 		driverName = driverName.trim();
@@ -102,7 +101,7 @@ public class DriverManagerService {
 		return retList;
 	}
 	
-	public DriverInfo addDriverInfo(String driverName, String driverURL, MultipartFile[] files) throws IllegalArgumentException, IOException, Exception {
+	public DriverInfo addDriverFolderAndProp(String driverName, String driverURL, MultipartFile[] files) throws IllegalArgumentException, IOException, Exception {		
 		if(null == driverName || driverName.trim().isEmpty())
 			throw new IllegalArgumentException("Driver Name can not be empty!");
 		driverName = driverName.trim();
@@ -120,9 +119,7 @@ public class DriverManagerService {
 		File dirF = new File(dirPath);
 		if(!dirF.exists())
 			dirF.mkdir();
-		
-		System.out.println(files.length+"/////////////");
-		
+				
 		List<String> jarFiles = new LinkedList<String>();
 		for(MultipartFile file : files) {
 			String fileName = file.getOriginalFilename();
@@ -143,52 +140,67 @@ public class DriverManagerService {
 		info.setOwner("user");
 		infos.put(driverName, info);
 		
-		Map<String, Map<String, Map<String, Map<String, String>>>> data_L1 = new TreeMap<String, Map<String, Map<String, Map<String, String>>>>();
-		Map<String, Map<String, Map<String, String>>> data_L2 = new TreeMap<String, Map<String, Map<String, String>>>();
-		Map<String, Map<String, String>> data_L3 = new TreeMap<String, Map<String, String>>();
-		
-		for(String key : infos.keySet()) {
-			DriverInfo each_info = infos.get(key);
-			if(null != each_info) {
-				String name = each_info.getName();
-				String driver = each_info.getDriver();
-				String url = each_info.getUrl();
-				String jar = each_info.getJar();
-				String owner = each_info.getOwner();
-				
-				Map<String, String> data_L4 = new TreeMap<String, String>();
-				if(null != name)
-					data_L4.put("name", name);
-				if(null != driver)
-					data_L4.put("driver", driver);
-				if(null != url)
-					data_L4.put("url", url);
-				if(null != owner)
-					data_L4.put("owner", owner);
-				if(null != jar)
-					data_L4.put("jar", jar);
-				
-				data_L3.put(key, data_L4);
-			}
-		}
-		
-		data_L2.put("info", data_L3);
-		data_L1.put("trinity-data-jdbc", data_L2);
-		
-		
-		DumperOptions options = new DumperOptions();
-	     options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-	     options.setPrettyFlow(true);
-		
-		Yaml yaml = new Yaml(options);
-		FileWriter writer = new FileWriter("D:\\MyWork\\DataIntegrationService\\BackEndMileStone\\Mircoservice-Properties\\trinity-data-jdbc.yml");
-        yaml.dump(data_L1, writer);
-        System.out.println(writer.toString());
-        
-		return info;
+		if(writeProp(infos)) {
+			return info;
+		}else {
+			throw new Exception("Write Driver Properties Fail!");
+		}        
 	}
 	
-	public Boolean deleteDriverJarFile(String driverName, String jarName) throws IllegalArgumentException, Exception{
+	public String addJarFileByDriverName(String driverName, MultipartFile file) throws IllegalArgumentException, IOException, Exception {
+		if(null == driverName || driverName.trim().isEmpty())
+			throw new IllegalArgumentException("Driver Name can not be empty!");
+		driverName = driverName.trim();
+		
+		if(null == file)
+			throw new IllegalArgumentException("Multipart File can not be empty!");
+		
+		String dirPath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + 
+					driverName + System.getProperty("file.separator");
+		File dirF = new File(dirPath);
+		if(!dirF.exists())
+			dirF.mkdir();
+		
+		String fileName = file.getOriginalFilename();
+		String filePath = dirPath + fileName;
+		File fileF = new File(filePath);
+		if(fileF.exists())
+			fileF.delete();
+		
+		byte[] bytes = file.getBytes();
+		FileCopyUtils.copy(bytes, fileF);		
+        
+		return fileName;
+	}
+	
+	public DriverInfo addDriverProp(String driverName, String driverURL) throws IllegalArgumentException, IOException, Exception {
+		if(null == driverName || driverName.trim().isEmpty())
+			throw new IllegalArgumentException("Driver Name can not be empty!");
+		driverName = driverName.trim();
+		
+		if(null == driverURL || driverURL.trim().isEmpty())
+			throw new IllegalArgumentException("Driver URL can not be empty!");
+		
+		Map<String, DriverInfo> infos = this.jdbcInfo.getInfo();
+		
+		if(infos.containsKey(driverName))
+			throw new IllegalArgumentException("Duplicate Driver Name!");		
+		
+		DriverInfo info = new DriverInfo();
+		info.setName(driverName);
+		info.setUrl(driverURL);
+		info.setDriver("driver");
+		info.setOwner("user");
+		infos.put(driverName, info);
+		
+		if(writeProp(infos)) {
+			return info;
+		}else {
+			throw new Exception("Write Driver Properties Fail!");
+		}
+	}
+	
+	public Boolean deleteJarFile(String driverName, String jarName) throws IllegalArgumentException, IOException, Exception{
 		if(null == driverName || driverName.trim().isEmpty())
 			throw new IllegalArgumentException("Driver Name can not be empty!");
 		driverName = driverName.trim();
@@ -197,7 +209,7 @@ public class DriverManagerService {
 			throw new IllegalArgumentException("Jar File Name can not be empty!");
 		jarName = jarName.trim();
 		
-		if(deleteJarFile(driverName, jarName)) {
+		if(deleteFile(driverName, jarName)) {
 			this.maintain.unload(driverName);
 			try {
 				this.maintain.load(driverName);
@@ -208,6 +220,40 @@ public class DriverManagerService {
 			return false;
 		}
 	}
+	
+	public Boolean deleteDriverFolder(String driverName) throws IllegalArgumentException, IOException, Exception{
+		if(null == driverName || driverName.trim().isEmpty())
+			throw new IllegalArgumentException("Driver Name can not be empty!");
+		driverName = driverName.trim();
+		
+		if(deleteFolder(driverName)) {
+			this.maintain.unload(driverName);
+			try {
+				this.maintain.load(driverName);
+			}catch(Exception e) {}
+			
+			return true;
+		}else {
+			return false;
+		}
+	}
+	
+	public String deleteDriverProp(String driverName) throws IllegalArgumentException, IOException, Exception {
+		if(null == driverName || driverName.trim().isEmpty())
+			throw new IllegalArgumentException("Driver Name can not be empty!");
+		driverName = driverName.trim();
+		
+		Map<String, DriverInfo> infos = this.jdbcInfo.getInfo();
+		infos.remove(driverName);
+		
+		if(writeProp(infos)) {
+			return driverName;
+		}else {
+			throw new Exception("Write Driver Properties Fail!");
+		}
+	}
+	
+	
 	
 	private List<String> checkHaveDriver(String filePath) throws ZipException, IOException, ClassNotFoundException,  Exception, Throwable {
 		ZipFile zipFile = null;
@@ -270,7 +316,7 @@ public class DriverManagerService {
 		}
 	}
 	
-	private Boolean deleteJarFile(String driverName, String jarName) throws IllegalArgumentException, Exception {
+	private Boolean deleteFile(String driverName, String jarName) throws IllegalArgumentException, IOException, Exception {
 		String filePath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + driverName + System.getProperty("file.separator");
 		
 		File dir = new File(filePath);
@@ -287,5 +333,70 @@ public class DriverManagerService {
 		}
 		
 		return true;
+	}
+	
+	private Boolean deleteFolder(String driverName) throws IllegalArgumentException, IOException, Exception {
+		String filePath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + driverName + System.getProperty("file.separator");
+		
+		File dir = new File(filePath);
+		if(!dir.exists())
+			throw new IllegalArgumentException("Path:"+filePath+" does not exist!");
+		
+		File[] files = dir.listFiles();
+		for(File file : files) {
+			if(file.exists()) {
+				if(!file.delete())
+					throw new IllegalArgumentException("Delete "+file.getAbsolutePath()+" Fail! "
+							+ "Possible Causes : This jar file is in use. Please restart the server and then delete the jar file.");
+			}else {
+				throw new IllegalArgumentException("Jar File:"+file.getAbsolutePath()+" does not exist!");
+			}
+		}
+		
+		return dir.delete();
+	}
+	
+	private Boolean writeProp(Map<String, DriverInfo> infos) throws IOException, Exception {
+		Map<String, Map<String, Map<String, Map<String, String>>>> data_L1 = new TreeMap<String, Map<String, Map<String, Map<String, String>>>>();
+		Map<String, Map<String, Map<String, String>>> data_L2 = new TreeMap<String, Map<String, Map<String, String>>>();
+		Map<String, Map<String, String>> data_L3 = new TreeMap<String, Map<String, String>>();
+		
+		for(String key : infos.keySet()) {
+			DriverInfo each_info = infos.get(key);
+			if(null != each_info) {
+				String name = each_info.getName();
+				String driver = each_info.getDriver();
+				String url = each_info.getUrl();
+				String jar = each_info.getJar();
+				String owner = each_info.getOwner();
+				
+				Map<String, String> data_L4 = new TreeMap<String, String>();
+				if(null != name)
+					data_L4.put("name", name);
+				if(null != driver)
+					data_L4.put("driver", driver);
+				if(null != url)
+					data_L4.put("url", url);
+				if(null != owner)
+					data_L4.put("owner", owner);
+				if(null != jar)
+					data_L4.put("jar", jar);
+				
+				data_L3.put(key, data_L4);
+			}
+		}
+		
+		data_L2.put("info", data_L3);
+		data_L1.put("trinity-data-jdbc", data_L2);
+		
+		DumperOptions options = new DumperOptions();
+	    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+	    options.setPrettyFlow(true);
+		
+		Yaml yaml = new Yaml(options);
+		FileWriter writer = new FileWriter("D:\\MyWork\\DataIntegrationService\\BackEndMileStone\\Mircoservice-Properties\\trinity-data-jdbc.yml");
+        yaml.dump(data_L1, writer);
+        
+        return true;
 	}
 }

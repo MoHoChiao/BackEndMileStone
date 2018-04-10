@@ -10,11 +10,6 @@ trinity-data-jdbc:
       name: DB2
       owner: system
       url: jdbc:db2://hostName:port/dbName
-    GGYY:
-      driver: driver
-      name: GGYY
-      owner: user
-      url: ggyy
     Hive:
       driver: org.apache.hadoop.hive.jdbc.HiveDriver
       name: Hive
@@ -80,6 +75,11 @@ trinity-data-jdbc:
       name: Vertica
       owner: system
       url: jdbc:vertica://VerticaHost:portNumber/databaseName
+    a:
+      driver: driver
+      name: a
+      owner: user
+      url: a
     informix:
       driver: com.informix.jdbc.IfxDriver
       name: informix

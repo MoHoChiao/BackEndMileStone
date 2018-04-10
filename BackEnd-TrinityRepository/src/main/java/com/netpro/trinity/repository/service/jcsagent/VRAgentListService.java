@@ -63,7 +63,7 @@ public class VRAgentListService {
 		if(this.dao.save(list) > 0)
 			return list;
 		else
-			throw new IllegalArgumentException("Add Virtual Agent List Fail!");		
+			throw new IllegalArgumentException("Add Virtual Agent List Fail!");
 	}
 	
 	public List<VRAgentList> add(String vrAgentUid, List<VRAgentList> lists) throws IllegalArgumentException, Exception{
