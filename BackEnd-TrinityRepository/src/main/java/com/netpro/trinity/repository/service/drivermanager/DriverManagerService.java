@@ -8,7 +8,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.sql.Driver;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +29,7 @@ import org.yaml.snakeyaml.Yaml;
 import com.netpro.trinity.repository.drivermanager.MetadataDriverMaintain;
 import com.netpro.trinity.repository.drivermanager.MetadataDriverManager;
 import com.netpro.trinity.repository.dto.drivermanager.DriverInfo;
+import com.netpro.trinity.repository.dto.drivermanager.JarFileInfo;
 import com.netpro.trinity.repository.prop.TrinityDataJDBC;
 import com.netpro.trinity.repository.prop.TrinitySysSetting;
 
@@ -87,12 +87,12 @@ public class DriverManagerService {
 			throw new IllegalArgumentException("Driver Name can not be empty!");
 		driverName = driverName.trim();
 		
-		List<String> retList = new ArrayList<String>();
+		List<String> retList = new LinkedList<String>();
 		
-		String filePath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + driverName.trim();
-		File f = new File(filePath);
-		if(f.exists()) {
-			String[] files = f.list();
+		String dirPath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + driverName.trim();
+		File dir = new File(dirPath);
+		if(dir.exists()) {
+			String[] files = dir.list();
 			for(String file : files) {
 				retList.add(file);
 			}
@@ -101,97 +101,142 @@ public class DriverManagerService {
 		return retList;
 	}
 	
-	public DriverInfo addDriverFolderAndProp(String driverName, String driverURL, MultipartFile[] files) throws IllegalArgumentException, IOException, Exception {		
+	public List<String> getDriverClassByDriverName(String driverName) throws IllegalArgumentException, Exception{
 		if(null == driverName || driverName.trim().isEmpty())
 			throw new IllegalArgumentException("Driver Name can not be empty!");
 		driverName = driverName.trim();
 		
-		if(null == driverURL || driverURL.trim().isEmpty())
-			throw new IllegalArgumentException("Driver URL can not be empty!");
+		List<String> retList = new LinkedList<String>();
 		
-		Map<String, DriverInfo> infos = this.jdbcInfo.getInfo();
+		String dirPath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + driverName.trim();
+		File dir = new File(dirPath);
+		if(dir.exists()) {
+			File[] files = dir.listFiles();
+			for(File file : files) {
+				List<String> driverList = checkHaveDriver(file);
+				for(String driverClass : driverList) {
+					retList.add(driverClass + " (" + file.getName() + ")");
+				}
+			}
+		}
+		return retList;
+	}
+	
+	public DriverInfo addDriverFolderAndProp(String driverName, String driverURL, MultipartFile[] files) throws IllegalArgumentException, Exception {								
+		JarFileInfo fileInfo = addJarFileByDriverName(driverName, files);
 		
-		if(infos.containsKey(driverName))
-			throw new IllegalArgumentException("Duplicate Driver Name!");
-		
-		String dirPath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + 
-					driverName + System.getProperty("file.separator");
-		File dirF = new File(dirPath);
-		if(!dirF.exists())
-			dirF.mkdir();
-				
-		List<String> jarFiles = new LinkedList<String>();
-		for(MultipartFile file : files) {
-			String fileName = file.getOriginalFilename();
-			String filePath = dirPath + fileName;
-			File fileF = new File(filePath);
-			if(fileF.exists())
-				fileF.delete();
-			byte[] bytes = file.getBytes();
-			FileCopyUtils.copy(bytes, fileF);
-			jarFiles.add(fileName);
+		String driverClass = "";
+		if(null != fileInfo.getDriverClassList() && fileInfo.getDriverClassList().size() > 0) {
+			driverClass = fileInfo.getDriverClassList().get(0);
 		}
 		
-		DriverInfo info = new DriverInfo();
-		info.setName(driverName);
-		info.setUrl(driverURL);
-		info.setJarFiles(jarFiles);
-		info.setDriver("driver");
-		info.setOwner("user");
-		infos.put(driverName, info);
+		DriverInfo driverInfo = new DriverInfo();
+		try {
+			driverInfo.setName(driverName);
+			driverInfo.setUrl(driverURL);
+			driverInfo.setDriver(driverClass);
+			driverInfo = modifyDriverProp(driverInfo);
+			driverInfo.setJarFiles(fileInfo.getFileNameList());
+		}catch(Exception e) {
+			DriverManagerService.LOGGER.warn("Exception; reason was:", e);
+			try {
+				driverInfo = null;
+				deleteDriverFolder(driverName);
+			} catch (Exception e1) {
+				DriverManagerService.LOGGER.warn("Exception; reason was:", e);
+			}
+		}
 		
-		if(writeProp(infos)) {
-			return info;
-		}else {
-			throw new Exception("Write Driver Properties Fail!");
-		}        
+		if(null == driverInfo)
+			throw new Exception("Add Driver Folder And Property Fail! Please look at the error log.");
+		else 
+			return driverInfo;
 	}
 	
-	public String addJarFileByDriverName(String driverName, MultipartFile file) throws IllegalArgumentException, IOException, Exception {
+	public JarFileInfo addJarFileByDriverName(String driverName, MultipartFile[] files) throws IllegalArgumentException, Exception{
 		if(null == driverName || driverName.trim().isEmpty())
 			throw new IllegalArgumentException("Driver Name can not be empty!");
 		driverName = driverName.trim();
 		
-		if(null == file)
-			throw new IllegalArgumentException("Multipart File can not be empty!");
-		
 		String dirPath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + 
-					driverName + System.getProperty("file.separator");
+				driverName + System.getProperty("file.separator");
+		
 		File dirF = new File(dirPath);
 		if(!dirF.exists())
 			dirF.mkdir();
 		
-		String fileName = file.getOriginalFilename();
-		String filePath = dirPath + fileName;
-		File fileF = new File(filePath);
-		if(fileF.exists())
-			fileF.delete();
+		List<String> fileNameList = new LinkedList<String>();
+		List<String> driverClassList = new LinkedList<String>();
 		
-		byte[] bytes = file.getBytes();
-		FileCopyUtils.copy(bytes, fileF);		
-        
-		return fileName;
+		int fileSizeCount = 0;
+		for(MultipartFile file : files) {
+			try {
+				if(null != file) {
+					String fileName = file.getOriginalFilename();
+					
+					if(fileName.toLowerCase().indexOf("jar") == -1)
+						throw new Exception(fileName + " is illegal!  Uploaded file can only be jar file.");
+					
+					int fileSize = Math.round(file.getSize() / 1024L / 1024L);
+					if(fileSize > 10)
+						throw new Exception(fileName + " must be less than 10MB!");
+					
+					fileSizeCount += fileSize;
+					if(fileSizeCount > 50)
+						throw new Exception(fileName + " upload fail! The number of File capacity cannot be greater than 50MB.");
+					
+					String filePath = dirPath + fileName;
+					File fileF = new File(filePath);
+					if(fileF.exists())
+						fileF.delete();
+					
+					byte[] bytes = file.getBytes();
+					FileCopyUtils.copy(bytes, fileF);
+					
+					fileNameList.add(fileName);
+					driverClassList.addAll(checkHaveDriver(fileF));
+				}else {
+					throw new IllegalArgumentException("Multipart File is null!");
+				}
+			}catch(IllegalArgumentException e) {
+				DriverManagerService.LOGGER.warn("IllegalArgumentException; reason was:", e);
+				continue;
+			}catch(IOException e) {
+				DriverManagerService.LOGGER.warn("IOException; reason was:", e);
+				continue;
+			}catch(Exception e) {
+				DriverManagerService.LOGGER.warn("Exception; reason was:", e);
+				continue;
+			}
+		}
+		
+		JarFileInfo info = new JarFileInfo();
+		info.setFileNameList(fileNameList);
+		info.setDriverClassList(driverClassList);
+		
+		return info;
 	}
 	
-	public DriverInfo addDriverProp(String driverName, String driverURL) throws IllegalArgumentException, IOException, Exception {
-		if(null == driverName || driverName.trim().isEmpty())
+	public DriverInfo modifyDriverProp(DriverInfo info) throws IllegalArgumentException, IOException, Exception {
+		if(null == info.getName() || info.getName().trim().isEmpty())
 			throw new IllegalArgumentException("Driver Name can not be empty!");
-		driverName = driverName.trim();
+		info.setName(info.getName().trim());
 		
-		if(null == driverURL || driverURL.trim().isEmpty())
+		if(null == info.getUrl() || info.getUrl().trim().isEmpty())
 			throw new IllegalArgumentException("Driver URL can not be empty!");
+		
+		if(null == info.getDriver() || info.getDriver().trim().isEmpty())
+			info.setDriver("driver.not.found");
+		
+		if(null == info.getOwner() || info.getOwner().trim().isEmpty())
+			info.setOwner("user");
 		
 		Map<String, DriverInfo> infos = this.jdbcInfo.getInfo();
 		
-		if(infos.containsKey(driverName))
-			throw new IllegalArgumentException("Duplicate Driver Name!");		
+//		if(infos.containsKey(driverName))
+//			throw new IllegalArgumentException("Duplicate Driver Name!");
 		
-		DriverInfo info = new DriverInfo();
-		info.setName(driverName);
-		info.setUrl(driverURL);
-		info.setDriver("driver");
-		info.setOwner("user");
-		infos.put(driverName, info);
+		infos.put(info.getName(), info);
 		
 		if(writeProp(infos)) {
 			return info;
@@ -253,15 +298,13 @@ public class DriverManagerService {
 		}
 	}
 	
-	
-	
-	private List<String> checkHaveDriver(String filePath) throws ZipException, IOException, ClassNotFoundException,  Exception, Throwable {
+	private List<String> checkHaveDriver(File file) {
 		ZipFile zipFile = null;
 		URLConnection c = null;
-		List<String> driverList = new ArrayList<String>();
+		List<String> driverList = new LinkedList<String>();
 		
 		try {
-			zipFile = new ZipFile(new File(filePath));
+			zipFile = new ZipFile(file);
 			URL url = new URL("jar", "", -1, new File(zipFile.getName()).toURI().toString() + "!/");
 			
 			Enumeration<? extends ZipEntry> zipEntrys = zipFile.entries();
@@ -279,15 +322,11 @@ public class DriverManagerService {
 				}
 			}
 		} catch (ZipException e){
-			throw e;
+			DriverManagerService.LOGGER.error("ZipException; reason was:", e);
 		} catch (IOException e){
-			throw e;
-		} catch (ClassNotFoundException e){
-			throw e;
+			DriverManagerService.LOGGER.error("IOException; reason was:", e);
 		} catch (Exception e){
-			throw e;
-		} catch (Throwable e){
-			throw e;
+			DriverManagerService.LOGGER.error("Exception; reason was:", e);
 		} finally {
 			try {
 				if (zipFile != null){
@@ -303,33 +342,37 @@ public class DriverManagerService {
 		return driverList;
 	}
 	
-	private String check(ZipEntry zipEntry, URLClassLoader ucl) throws ClassNotFoundException, Exception, Throwable {
+	private String check(ZipEntry zipEntry, URLClassLoader ucl) {
+		try {
+			String className = zipEntry.getName().replace("/", ".");
+			className = className.substring(0, className.length() - 6);
 		
-		String className = zipEntry.getName().replace("/", ".");
-		className = className.substring(0, className.length() - 6);
-	
-		Class<?> objClass = Class.forName(className, false, ucl);
-		if (Driver.class.isAssignableFrom(objClass)) {
-			return objClass.getName();
-		}else {
-			return "";
+			Class<?> objClass = Class.forName(className, false, ucl);
+			if (Driver.class.isAssignableFrom(objClass)) {
+				return objClass.getName();
+			}
+		}catch(ClassNotFoundException e) {
+			
+		}catch(Exception e) {
+			DriverManagerService.LOGGER.warn("Exception; reason was:", e);
+		}catch(Throwable e) {
+			DriverManagerService.LOGGER.warn("Exception; reason was:", e);
 		}
+		return "";
 	}
 	
 	private Boolean deleteFile(String driverName, String jarName) throws IllegalArgumentException, IOException, Exception {
 		String filePath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + driverName + System.getProperty("file.separator");
 		
 		File dir = new File(filePath);
-		if(!dir.exists())
-			throw new IllegalArgumentException("Path:"+filePath+" does not exist!");
 		
-		File file = new File(filePath + jarName);
-		if(file.exists()) {
-			if(!file.delete())
-				throw new IllegalArgumentException("Delete "+jarName+" Fail! "
-						+ "Possible Causes : This jar file is in use. Please restart the server and then delete the jar file.");
-		}else {
-			throw new IllegalArgumentException("Jar File:"+jarName+" does not exist!");
+		if(dir.exists()) {
+			File file = new File(filePath + jarName);
+			if(file.exists()) {
+				if(!file.delete())
+					throw new IllegalArgumentException("Delete "+jarName+" Fail! "
+							+ "Possible Causes : This jar file is in use. Please restart the server and then delete the jar file.");
+			}
 		}
 		
 		return true;
@@ -339,21 +382,20 @@ public class DriverManagerService {
 		String filePath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + driverName + System.getProperty("file.separator");
 		
 		File dir = new File(filePath);
-		if(!dir.exists())
-			throw new IllegalArgumentException("Path:"+filePath+" does not exist!");
 		
-		File[] files = dir.listFiles();
-		for(File file : files) {
-			if(file.exists()) {
-				if(!file.delete())
-					throw new IllegalArgumentException("Delete "+file.getAbsolutePath()+" Fail! "
-							+ "Possible Causes : This jar file is in use. Please restart the server and then delete the jar file.");
-			}else {
-				throw new IllegalArgumentException("Jar File:"+file.getAbsolutePath()+" does not exist!");
+		if(dir.exists()) {
+			File[] files = dir.listFiles();
+			for(File file : files) {
+				if(file.exists()) {
+					if(!file.delete())
+						throw new IllegalArgumentException("Delete "+file.getAbsolutePath()+" Fail! "
+								+ "Possible Causes : This jar file is in use. Please restart the server and then delete the jar file.");
+				}
 			}
+			dir.delete();
 		}
 		
-		return dir.delete();
+		return true;
 	}
 	
 	private Boolean writeProp(Map<String, DriverInfo> infos) throws IOException, Exception {

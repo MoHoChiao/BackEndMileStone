@@ -8,6 +8,5 @@ spring:
       max-request-size: 200MB # 設置最大的請求文件之大小
       file-size-threshold: 2MB  # 當上傳檔案到達2MB時, 寫入磁碟
       location: /  # 上傳檔案的臨時目錄
-      
 server:
   port: 8080                                    # 指定這台Server啟動的port

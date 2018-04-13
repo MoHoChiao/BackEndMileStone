@@ -70,13 +70,18 @@ trinity-data-jdbc:
       name: Teradata
       owner: system
       url: jdbc:teradata://hostName/TMODE=TERA,CHARSET=ASCII
+    Test_Oracle:
+      driver: org.postgresql.Driver
+      name: Test_Oracle
+      owner: user
+      url: test/test/test111
     Vertica:
       driver: com.vertica.jdbc.Driver
       name: Vertica
       owner: system
       url: jdbc:vertica://VerticaHost:portNumber/databaseName
     a:
-      driver: driver
+      driver: oracle.jdbc.driver.OracleDriver
       name: a
       owner: user
       url: a
