@@ -1,43 +1,63 @@
 package com.netpro.trinity.repository.service.drivermanager;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.security.Principal;
 import java.sql.Driver;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
+import com.netpro.ac.TrinityPrincipal;
+import com.netpro.ac.util.CookieUtils;
+import com.netpro.ac.util.TrinityWebV2Utils;
 import com.netpro.trinity.repository.drivermanager.MetadataDriverMaintain;
 import com.netpro.trinity.repository.drivermanager.MetadataDriverManager;
 import com.netpro.trinity.repository.dto.drivermanager.DriverInfo;
 import com.netpro.trinity.repository.dto.drivermanager.JarFileInfo;
 import com.netpro.trinity.repository.prop.TrinityDataJDBC;
 import com.netpro.trinity.repository.prop.TrinitySysSetting;
+import com.netpro.trinity.repository.util.FileUtil;
 
 @Service
 public class DriverManagerService {	
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(DriverManagerService.class);
 	
+	//暫時寫死, 以後再來整合
+	private static final String JDBC_DRIVER_YML_PATH = "D:\\MyWork\\DataIntegrationService\\BackEndMileStone\\Mircoservice-Properties\\trinity-data-jdbc.yml";
+		
 	@Autowired
 	private TrinityDataJDBC jdbcInfo;
 	@Autowired
@@ -47,6 +67,8 @@ public class DriverManagerService {
 	MetadataDriverManager manager;
 	@Autowired
 	MetadataDriverMaintain maintain;
+	@Autowired
+	FileUtil fileUtil;
 	
 	public List<DriverInfo> getDriversProp(String driverName) throws Exception {
 		LinkedList<DriverInfo> systemList = new LinkedList<DriverInfo>();
@@ -89,7 +111,7 @@ public class DriverManagerService {
 		
 		List<String> retList = new LinkedList<String>();
 		
-		String dirPath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + driverName.trim();
+		String dirPath = this.trinitySys.getDir().getJdbc() + File.separator + driverName.trim();
 		File dir = new File(dirPath);
 		if(dir.exists()) {
 			String[] files = dir.list();
@@ -108,7 +130,7 @@ public class DriverManagerService {
 		
 		List<String> retList = new LinkedList<String>();
 		
-		String dirPath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + driverName.trim();
+		String dirPath = this.trinitySys.getDir().getJdbc() + File.separator + driverName.trim();
 		File dir = new File(dirPath);
 		if(dir.exists()) {
 			File[] files = dir.listFiles();
@@ -135,8 +157,8 @@ public class DriverManagerService {
 			driverInfo.setName(driverName);
 			driverInfo.setUrl(driverURL);
 			driverInfo.setDriver(driverClass);
-			driverInfo = modifyDriverProp(driverInfo);
-			driverInfo.setJarFiles(fileInfo.getFileNameList());
+			driverInfo = modifyDriverYAML(driverInfo);
+			driverInfo.setJarFiles(getJarFilesByDriverName(driverName));
 		}catch(Exception e) {
 			DriverManagerService.LOGGER.warn("Exception; reason was:", e);
 			try {
@@ -158,8 +180,8 @@ public class DriverManagerService {
 			throw new IllegalArgumentException("Driver Name can not be empty!");
 		driverName = driverName.trim();
 		
-		String dirPath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + 
-				driverName + System.getProperty("file.separator");
+		String dirPath = this.trinitySys.getDir().getJdbc() + File.separator + 
+				driverName + File.separator;
 		
 		File dirF = new File(dirPath);
 		if(!dirF.exists())
@@ -199,13 +221,13 @@ public class DriverManagerService {
 					throw new IllegalArgumentException("Multipart File is null!");
 				}
 			}catch(IllegalArgumentException e) {
-				DriverManagerService.LOGGER.warn("IllegalArgumentException; reason was:", e);
+				DriverManagerService.LOGGER.error("IllegalArgumentException; reason was:", e);
 				continue;
 			}catch(IOException e) {
-				DriverManagerService.LOGGER.warn("IOException; reason was:", e);
+				DriverManagerService.LOGGER.error("IOException; reason was:", e);
 				continue;
 			}catch(Exception e) {
-				DriverManagerService.LOGGER.warn("Exception; reason was:", e);
+				DriverManagerService.LOGGER.error("Exception; reason was:", e);
 				continue;
 			}
 		}
@@ -217,7 +239,7 @@ public class DriverManagerService {
 		return info;
 	}
 	
-	public DriverInfo modifyDriverProp(DriverInfo info) throws IllegalArgumentException, IOException, Exception {
+	public DriverInfo modifyDriverYAML(DriverInfo info) throws IllegalArgumentException, IOException, Exception {
 		if(null == info.getName() || info.getName().trim().isEmpty())
 			throw new IllegalArgumentException("Driver Name can not be empty!");
 		info.setName(info.getName().trim());
@@ -225,20 +247,23 @@ public class DriverManagerService {
 		if(null == info.getUrl() || info.getUrl().trim().isEmpty())
 			throw new IllegalArgumentException("Driver URL can not be empty!");
 		
+		Map<String, DriverInfo> infos = this.jdbcInfo.getInfo();
+		
 		if(null == info.getDriver() || info.getDriver().trim().isEmpty())
 			info.setDriver("driver.not.found");
 		
-		if(null == info.getOwner() || info.getOwner().trim().isEmpty())
-			info.setOwner("user");
-		
-		Map<String, DriverInfo> infos = this.jdbcInfo.getInfo();
-		
-//		if(infos.containsKey(driverName))
-//			throw new IllegalArgumentException("Duplicate Driver Name!");
-		
+		if(null == info.getOwner() || info.getOwner().trim().isEmpty()) {
+			DriverInfo old_info = infos.get(info.getName());
+			if(null != old_info) {
+				info.setOwner(old_info.getOwner());
+			}else {
+				info.setOwner("user");
+			}
+		}
+					
 		infos.put(info.getName(), info);
 		
-		if(writeProp(infos)) {
+		if(writeDriverYAML(infos)) {
 			return info;
 		}else {
 			throw new Exception("Write Driver Properties Fail!");
@@ -254,7 +279,10 @@ public class DriverManagerService {
 			throw new IllegalArgumentException("Jar File Name can not be empty!");
 		jarName = jarName.trim();
 		
-		if(deleteFile(driverName, jarName)) {
+		String dirPath = this.trinitySys.getDir().getJdbc() + File.separator + driverName + File.separator;
+		String filePath = dirPath + jarName;
+		File file = new File(filePath);
+		if(FileSystemUtils.deleteRecursively(file)) {
 			this.maintain.unload(driverName);
 			try {
 				this.maintain.load(driverName);
@@ -271,7 +299,9 @@ public class DriverManagerService {
 			throw new IllegalArgumentException("Driver Name can not be empty!");
 		driverName = driverName.trim();
 		
-		if(deleteFolder(driverName)) {
+		String dirPath = this.trinitySys.getDir().getJdbc() + File.separator + driverName + File.separator;
+		File dir = new File(dirPath);
+		if(FileSystemUtils.deleteRecursively(dir)) {
 			this.maintain.unload(driverName);
 			try {
 				this.maintain.load(driverName);
@@ -291,10 +321,151 @@ public class DriverManagerService {
 		Map<String, DriverInfo> infos = this.jdbcInfo.getInfo();
 		infos.remove(driverName);
 		
-		if(writeProp(infos)) {
+		if(writeDriverYAML(infos)) {
 			return driverName;
 		}else {
 			throw new Exception("Write Driver Properties Fail!");
+		}
+	}
+	
+	public byte[] exportDriverZIP(HttpServletRequest request) throws IllegalArgumentException, IOException, Exception {
+		String sourcePath = this.trinitySys.getDir().getJdbc() + File.separator;
+		String dirPath = "";
+		String targetPath = "";
+		
+		try {
+			String accessToken = CookieUtils.getCookieValue(request, TrinityWebV2Utils.CNAME_ACCESS_TOKEN);
+			Principal principal = TrinityWebV2Utils.doValidateAccessTokenAndReturnPrincipal(accessToken);
+			if(!"".equals(principal.getName()) && principal instanceof TrinityPrincipal) {
+				
+				TrinityPrincipal trinityPrinc = (TrinityPrincipal) principal;
+				if(trinityPrinc.isPowerUser()) {
+					String userInfo = trinityPrinc.getName();
+					
+					dirPath = ".." + File.separator + userInfo + File.separator;
+					File dir = new File(dirPath);
+					if(!dir.exists())
+						dir.mkdirs();
+					
+					//把trinity-data-jdbc.yml檔加進來一起打包成zip, 以後import才可以用
+					File sourceYML = new File(JDBC_DRIVER_YML_PATH);
+					File targetYML = new File(sourcePath + "trinity-data-jdbc.yml");
+					Files.copy(Paths.get(sourceYML.getPath()), 
+							Paths.get(targetYML.getPath()), StandardCopyOption.REPLACE_EXISTING);
+					
+					targetPath = dirPath + "jdbc"+ System.currentTimeMillis() +".zip";
+					fileUtil.zipFile(sourcePath, targetPath);
+				}
+			}
+			
+			if("".equals(dirPath) || "".equals(targetPath)) {
+				throw new IllegalArgumentException("Authentication Information error!");
+			}else {
+				byte[] bFile = Files.readAllBytes(Paths.get(targetPath));
+				return bFile;
+			}
+		}finally {
+			try {
+				File dir = new File(dirPath);
+				if(dir.exists())
+					FileSystemUtils.deleteRecursively(dir);
+			}catch(Exception e) {
+				DriverManagerService.LOGGER.error("Exception; reason was:", e);
+			}
+		}
+	}
+	
+	public Boolean importDriverZIP(MultipartFile file) throws IllegalArgumentException, IOException, Exception {
+		String tempDirPath = "";
+		File tempDir = null;
+		
+		try{
+			this.maintain.unload();
+			
+			String jdbcDirPath = this.trinitySys.getDir().getJdbc() + File.separator;
+			File jdbcDir = new File(jdbcDirPath);
+			String jdbcDirName = jdbcDir.getName();
+			String jdbcParentDirPath = jdbcDir.getParent();
+			
+			String jdbcTempDirPath = jdbcParentDirPath + File.separator + "temp" + File.separator + jdbcDirName;
+			File jdbcTempDir = new File(jdbcTempDirPath);
+			
+			tempDirPath = jdbcParentDirPath + File.separator + "temp";
+			tempDir = new File(tempDirPath);
+			
+			String uploadFilePath = jdbcParentDirPath + File.separator + "temp" + File.separator + jdbcDirName + ".zip";
+			File uploadFile = new File(uploadFilePath);
+			
+			//temp/jdbc目錄先砍掉再建立一個空的, 若有檔案存在會發生java.nio.file.DirectoryNotEmptyException
+			FileSystemUtils.deleteRecursively(tempDir);
+//			this.fileUtil.deleteFolder(tempDirPath);
+			jdbcTempDir.mkdirs();
+			
+			//先把jdbc目錄下的東西搬到temp/jdbc目錄底下(備份, 以防下面的程式出錯)
+			Files.move(Paths.get(jdbcDir.getPath()), 
+					Paths.get(jdbcTempDir.getPath()), StandardCopyOption.REPLACE_EXISTING);
+			
+			try {
+				//把上傳的檔案落地在temp目錄底下
+				byte[] bytes = file.getBytes();
+				FileCopyUtils.copy(bytes, uploadFile);
+				
+				//把上傳的檔案解壓縮到data目錄底下(也就是替代原本的jdbc目錄, 舊的已經搬到temp/jdbc目錄
+				File jdbcParentDir = new File(jdbcParentDirPath);
+				this.fileUtil.unZipFile(uploadFilePath, jdbcParentDir + File.separator);
+				
+				if(jdbcDir.exists()) {//如果新的jdbc目錄存在(即解壓縮後新的jdbc目錄)
+					String ymlFilePath = jdbcDirPath + "trinity-data-jdbc.yml";
+					File ymlFile = new File(ymlFilePath);
+					String propFilePath = jdbcDirPath + "drivers.properties";
+					File propFile = new File(propFilePath);
+					
+					if(propFile.exists()) {	//如果drivers.properties檔案存在, 則一定是以drivers.properties檔案為更新檔
+						Map<String, DriverInfo> infos = readDriverProperties(propFilePath);
+						writeDriverYAML(infos);
+					}else if(ymlFile.exists()) {
+						File targetYML = new File(JDBC_DRIVER_YML_PATH);
+						Files.copy(Paths.get(ymlFile.getPath()), 
+								Paths.get(targetYML.getPath()), StandardCopyOption.REPLACE_EXISTING);
+					}else {
+						throw new Exception("Import Properties File Error! File does not exist.");
+					}
+					
+					try {
+						this.maintain.load(); //我覺得不需要
+					}catch(Exception e) {}
+					
+					return true;
+				}else {
+					throw new Exception("Unzip jdbc.zip error!");
+				}
+			}catch(Exception e) {
+				try {
+					/*
+					 * 當try中的程式出錯時
+					 */
+					
+					//如果新的被解壓縮的jdbc目錄已經完成且存在, 則先刪除掉
+					if(jdbcDir.exists())
+						FileSystemUtils.deleteRecursively(jdbcDir);
+//						this.fileUtil.deleteFolder(jdbcDirPath);
+					
+					//再把temp/jdbc目錄下的東西搬到jdbc目錄底下(復原)
+					Files.move(Paths.get(jdbcTempDir.getPath()), 
+							Paths.get(jdbcDir.getPath()), StandardCopyOption.REPLACE_EXISTING);
+				}catch(Exception ex) {
+					DriverManagerService.LOGGER.error("Exception; reason was:", ex);
+				}
+				throw e;
+			}
+		} finally {
+			try {//刪掉為了import所建立的一切temp
+				if(null != tempDir && tempDir.exists())
+					FileSystemUtils.deleteRecursively(tempDir);
+//					this.fileUtil.deleteFolder(tempDirPath);
+			}catch(Exception e) {
+				DriverManagerService.LOGGER.error("Exception; reason was:", e);
+			}
 		}
 	}
 	
@@ -352,53 +523,13 @@ public class DriverManagerService {
 				return objClass.getName();
 			}
 		}catch(ClassNotFoundException e) {
-			
 		}catch(Exception e) {
-			DriverManagerService.LOGGER.warn("Exception; reason was:", e);
 		}catch(Throwable e) {
-			DriverManagerService.LOGGER.warn("Exception; reason was:", e);
 		}
 		return "";
 	}
 	
-	private Boolean deleteFile(String driverName, String jarName) throws IllegalArgumentException, IOException, Exception {
-		String filePath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + driverName + System.getProperty("file.separator");
-		
-		File dir = new File(filePath);
-		
-		if(dir.exists()) {
-			File file = new File(filePath + jarName);
-			if(file.exists()) {
-				if(!file.delete())
-					throw new IllegalArgumentException("Delete "+jarName+" Fail! "
-							+ "Possible Causes : This jar file is in use. Please restart the server and then delete the jar file.");
-			}
-		}
-		
-		return true;
-	}
-	
-	private Boolean deleteFolder(String driverName) throws IllegalArgumentException, IOException, Exception {
-		String filePath = this.trinitySys.getDir().getJdbc() + System.getProperty("file.separator") + driverName + System.getProperty("file.separator");
-		
-		File dir = new File(filePath);
-		
-		if(dir.exists()) {
-			File[] files = dir.listFiles();
-			for(File file : files) {
-				if(file.exists()) {
-					if(!file.delete())
-						throw new IllegalArgumentException("Delete "+file.getAbsolutePath()+" Fail! "
-								+ "Possible Causes : This jar file is in use. Please restart the server and then delete the jar file.");
-				}
-			}
-			dir.delete();
-		}
-		
-		return true;
-	}
-	
-	private Boolean writeProp(Map<String, DriverInfo> infos) throws IOException, Exception {
+	private Boolean writeDriverYAML(Map<String, DriverInfo> infos) throws IOException, Exception {
 		Map<String, Map<String, Map<String, Map<String, String>>>> data_L1 = new TreeMap<String, Map<String, Map<String, Map<String, String>>>>();
 		Map<String, Map<String, Map<String, String>>> data_L2 = new TreeMap<String, Map<String, Map<String, String>>>();
 		Map<String, Map<String, String>> data_L3 = new TreeMap<String, Map<String, String>>();
@@ -436,9 +567,53 @@ public class DriverManagerService {
 	    options.setPrettyFlow(true);
 		
 		Yaml yaml = new Yaml(options);
-		FileWriter writer = new FileWriter("D:\\MyWork\\DataIntegrationService\\BackEndMileStone\\Mircoservice-Properties\\trinity-data-jdbc.yml");
+		FileWriter writer = new FileWriter(JDBC_DRIVER_YML_PATH);
         yaml.dump(data_L1, writer);
         
         return true;
+	}
+	
+	private Map<String, DriverInfo> readDriverProperties(String filePath) throws IOException, Exception {
+		Properties props = new Properties();
+		FileInputStream inFile = null;
+		Map<String, DriverInfo> retMap = new TreeMap<String, DriverInfo>(String.CASE_INSENSITIVE_ORDER);
+		try {
+			inFile = new FileInputStream(filePath);
+			props.load(new BufferedInputStream(inFile));
+			Enumeration<?> e = props.propertyNames();
+			while (e.hasMoreElements()) {
+				String key = (String) e.nextElement();
+				String keyArr[] = key.split("\\.");
+				if(keyArr.length != 3)
+					continue;
+				
+				DriverInfo info = retMap.get(keyArr[0]);
+				if(null == info) {
+					info = new DriverInfo();
+					info.setName(keyArr[0]);
+					retMap.put(keyArr[0], info);
+				}
+				
+				String value = props.getProperty(key);
+				if(keyArr[2].equals("driver")) {
+					info.setDriver(value);
+				}else if(keyArr[2].equals("url")) {
+					info.setUrl(value);
+				}else if(keyArr[2].equals("owner")) {
+					info.setOwner(value);
+				}
+			}			
+		} catch (Exception e) {
+			DriverManagerService.LOGGER.error("Exception; reason was:", e);
+		} finally {
+			if (inFile != null){
+				try {
+					inFile.close();
+				} catch (IOException e) {
+					DriverManagerService.LOGGER.error("IOException; reason was:", e);
+				}
+			}
+		}
+		return retMap;
 	}
 }

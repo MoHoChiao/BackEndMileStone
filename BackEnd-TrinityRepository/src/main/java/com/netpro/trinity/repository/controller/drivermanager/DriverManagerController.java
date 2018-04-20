@@ -2,12 +2,18 @@ package com.netpro.trinity.repository.controller.drivermanager;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -92,7 +98,7 @@ public class DriverManagerController {
 	@PostMapping("/modifyDriverProp")
 	public ResponseEntity<?> modifyDriverProp(@RequestBody DriverInfo info) {
 		try {
-			return ResponseEntity.ok(this.service.modifyDriverProp(info));
+			return ResponseEntity.ok(this.service.modifyDriverYAML(info));
 		}catch(IllegalArgumentException e) {
 			DriverManagerController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -168,6 +174,46 @@ public class DriverManagerController {
 		}catch(IOException e) {
 			DriverManagerController.LOGGER.error("IOException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			DriverManagerController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/exportDriverZIP")
+	public ResponseEntity<?> exportDriverZIP(HttpServletRequest request, String jarName) {
+		try {
+			ByteArrayResource resource = new ByteArrayResource(this.service.exportDriverZIP(request));
+			
+			HttpHeaders httpHeaders = new HttpHeaders();
+			httpHeaders.set("Content-Disposition","attachment;filename=jdbc.zip");
+
+			return ResponseEntity.ok()
+		            .headers(httpHeaders)
+		            .contentType(MediaType.parseMediaType("application/zip"))
+		            .body(resource);
+		}catch(IllegalArgumentException e) {
+			DriverManagerController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(IOException e) {
+			DriverManagerController.LOGGER.error("IOException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+		}catch(Exception e) {
+			DriverManagerController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/importDriverZIP")
+	public ResponseEntity<?> importDriverZIP(MultipartFile file) {
+		try {
+			return ResponseEntity.ok(this.service.importDriverZIP(file));
+		}catch(IllegalArgumentException e) {
+			DriverManagerController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(IOException e) {
+			DriverManagerController.LOGGER.error("IOException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
 		}catch(Exception e) {
 			DriverManagerController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

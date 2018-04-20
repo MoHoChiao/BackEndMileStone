@@ -1,8 +1,14 @@
 package com.netpro.trinity.repository;
 
+import java.io.File;
+
+import javax.servlet.MultipartConfigElement;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.context.annotation.Bean;
 /*
  * Spring Boot啟動的核心,它會開啟所有的自動配置以及載入相關的annotation(@Bean,@Entity...)進入Spring IOC Container
  * @SpringBootApplication為@Configuration,@EnableAutoConfiguration,@ComponentScan這些annotation的組合式annotation
@@ -20,8 +26,30 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
  */
 //@EntityScan( basePackages = {"com.netpro.trinity.service.util.entity"} )
 public class BackEndTrinityRepositoryApplication {
-
+	
+	@Bean  
+    public MultipartConfigElement multipartConfigElement() {
+        MultipartConfigFactory factory = new MultipartConfigFactory();
+        factory.setMaxFileSize("50MB");
+        factory.setMaxRequestSize("50MB");
+        if(mkFileTempDir("D:/microservice-work/backend-trinity-repository/work/temp")) {
+        	factory.setLocation("D:/microservice-work/backend-trinity-repository/work/temp");
+        }else {
+        	factory.setLocation("/");
+        }
+        
+        return factory.createMultipartConfig();
+    }
+	
 	public static void main(String[] args) {
 		SpringApplication.run(BackEndTrinityRepositoryApplication.class, args);
+	}
+	
+	private boolean mkFileTempDir(String path) {
+		File f = new File(path);
+		if(f.exists())
+			return true;
+		
+		return f.mkdirs();
 	}
 }

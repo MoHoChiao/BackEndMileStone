@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,7 @@ public class JnlpController {
 	private JnlpLib jnlpLib;
 	
 	@RequestMapping("/*")
-	public ResponseEntity<?> getSoftwareJar(HttpServletRequest request, HttpServletResponse response) {
+	public ResponseEntity<?> getSoftwareJar(HttpServletRequest request) {
 		String methodKey = "JnlpController#getSoftwareJar(...)";
 		try {
 			StringBuffer url = request.getRequestURL();
@@ -59,7 +58,7 @@ public class JnlpController {
 	}
 	
 	@PostMapping("/JFDesigner.jnlp")
-	public ResponseEntity<?> getJfdesignerJnlp(HttpServletRequest request, HttpServletResponse response) {
+	public ResponseEntity<?> getJfdesignerJnlp(HttpServletRequest request) {
 		String methodKey = "JnlpController#getJfdesignerJnlp(...)";
 		try {
 			List<Disconfig> uiapPosition = repo.findServicePosition("server", "uiap", "serverIP", "serverPort");
@@ -84,7 +83,7 @@ public class JnlpController {
 	}
 	
 	@PostMapping("/TaskConsole.jnlp")
-	public ResponseEntity<?> getTaskConsoleJnlp(HttpServletRequest request, HttpServletResponse response) {
+	public ResponseEntity<?> getTaskConsoleJnlp(HttpServletRequest request) {
 		String methodKey = "JnlpController#getTaskConsoleJnlp(...)";
 		try {
 			List<Disconfig> uiapPosition = repo.findServicePosition("server", "uiap", "serverIP", "serverPort");
@@ -109,7 +108,7 @@ public class JnlpController {
 	}
 	
 	@PostMapping("/Metaman.jnlp")
-	public ResponseEntity<?> getMetamanJnlp(HttpServletRequest request, HttpServletResponse response) {
+	public ResponseEntity<?> getMetamanJnlp(HttpServletRequest request) {
 		String methodKey = "JnlpController#getMetamanJnlp(...)";
 		try {
 			List<Disconfig> metamanPosition = repo.findServicePosition("server", "metamanserver", "serverIP", "serverPort");
@@ -134,7 +133,7 @@ public class JnlpController {
 	}
 	
 	@PostMapping("/Updater.jnlp")
-	public ResponseEntity<?> getUpdaterJnlp(HttpServletRequest request, HttpServletResponse response) {
+	public ResponseEntity<?> getUpdaterJnlp(HttpServletRequest request) {
 		String methodKey = "JnlpController#getUpdaterJnlp(...)";
 		try {
 			List<Disconfig> uiapPosition = repo.findServicePosition("server", "uiap", "serverIP", "serverPort");

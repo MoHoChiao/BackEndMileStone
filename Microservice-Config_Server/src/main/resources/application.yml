@@ -7,7 +7,8 @@ spring:
     config:
       server:
         native:
-          search-locations: file:D:/MyWork/DataIntegrationService/BackEndMileStone/Mircoservice-Properties  #本地檔案,無GIT,直接指定一個你想存放各個微服務之property檔的位置
+          #本地檔案,無GIT,直接指定一個你想存放各個微服務之property檔的位置
+          search-locations: file:D:/MyWork/DataIntegrationService/BackEndMileStone/Mircoservice-Properties
 server:
   port: 8888                            # 此Config Server Process啟動的port
 eureka:
