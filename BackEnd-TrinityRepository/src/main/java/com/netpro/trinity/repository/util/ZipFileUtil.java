@@ -1,17 +1,24 @@
 package com.netpro.trinity.repository.util;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import org.springframework.stereotype.Component;
 
 @Component
-public class FileUtil {
+public class ZipFileUtil {
 	public String zipFile(String sourcePath, String targetPath) throws IOException {
 		FileOutputStream bos = null;
 		ZipOutputStream zipOut = null;
@@ -86,50 +93,59 @@ public class FileUtil {
         }
 	}
 	
-	public void unZipFile(String sourcePath, String targetPath) throws IOException{
-		File dir = new File(targetPath);
-        // create output directory if it doesn't exist
-        if(!dir.exists()) dir.mkdirs();
-        
-        FileInputStream fis = null;
-        ZipInputStream zis = null;
-        //buffer for read and write data to file
-        byte[] buffer = new byte[1024];
-        try {
-            fis = new FileInputStream(sourcePath);
-            zis = new ZipInputStream(fis);
-            ZipEntry ze = zis.getNextEntry();
-            while(ze != null){
-            	String fileName = ze.getName();
-                File newFile = null;
-                FileOutputStream fos = null;
+	public void unZipFile(String sourcePath, String targetPath) throws IOException, Exception{
+		//Open the file
+        try(ZipFile file = new ZipFile(sourcePath))
+        {
+        	FileSystem fileSystem = FileSystems.getDefault();
+            //Get file entries
+            Enumeration<? extends ZipEntry> entries = file.entries();
+             
+            //We will unzip files in this folder
+            File targetDir = new File(targetPath);
+            if(!targetDir.exists())
+            	targetDir.mkdirs();
+             
+            //Iterate over entries
+            while (entries.hasMoreElements())
+            {
+                ZipEntry entry = entries.nextElement();
+                
+                if(!entry.getName().toLowerCase().endsWith(".jar")
+                		&& !entry.getName().toLowerCase().endsWith(".yml") 
+                		&& !entry.getName().toLowerCase().endsWith(".properties"))
+                	continue;
+                
+                Files.createDirectories(fileSystem.getPath(targetPath + entry.getName()).getParent());
+                
+                InputStream is = null;
+                BufferedInputStream bis = null;
+                FileOutputStream fileOutput = null;
             	try {
-            		newFile = new File(targetPath + File.separator + fileName);
-            		System.out.println("Unzipping to "+newFile.getAbsolutePath());
-            		
-            		//create directories for sub directories in zip
-                    new File(newFile.getParent()).mkdirs();
-            		fos = new FileOutputStream(newFile);
+            		is = file.getInputStream(entry);
+                    bis = new BufferedInputStream(is);
                     
-                    int len;
-                    while ((len = zis.read(buffer)) > 0) {
-                    	fos.write(buffer, 0, len);
+                    String uncompressedFileName = targetPath + entry.getName();
+                    Path uncompressedFilePath = fileSystem.getPath(uncompressedFileName);
+                    Files.createFile(uncompressedFilePath);
+                    fileOutput = new FileOutputStream(uncompressedFileName);
+                    while (bis.available() > 0)
+                    {
+                        fileOutput.write(bis.read());
                     }
+                    
+                    System.out.println("Written :" + entry.getName());
             	}finally {
-            		if(null != fos)
-            			fos.close();
-                    //close this ZipEntry
-            		if(null != zis)
-            			zis.closeEntry();
-            		
-                    ze = zis.getNextEntry();
+            		if(null != is)
+            			is.close();
+            		if(null != bis)
+            			bis.close();
+            		if(null != fileOutput)
+            			fileOutput.close();	
             	}
             }
-        } finally {
-        	//close last ZipEntry
-            zis.closeEntry();
-            zis.close();
-            fis.close();
+        }catch(Exception e) {
+        	throw e;
         }
 	}
 }

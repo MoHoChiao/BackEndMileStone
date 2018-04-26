@@ -34,11 +34,11 @@ public class DriverLoader {
 	
 	public Driver getDriver(DriverVO dObj) throws Exception{
 		if (filePath == null || filePath == ""){
-			filePath = this.trinitySys.getDir().getJdbc() + "/";
+			filePath = this.trinitySys.getDir().getJdbc() + File.separator;
 		}
 		List<JarURLConnection> urlList = new ArrayList<JarURLConnection>();
 		try {
-			String path = filePath + System.getProperty("file.separator") + dObj.getTarget();
+			String path = filePath + File.separator + dObj.getTarget();
 			File fp = new File(path);
 			if (!fp.exists()){
 				return (Driver) Class.forName(dObj.getDriver()).newInstance();

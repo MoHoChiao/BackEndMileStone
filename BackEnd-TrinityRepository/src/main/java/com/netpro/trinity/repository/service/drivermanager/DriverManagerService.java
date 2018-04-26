@@ -3,24 +3,26 @@ package com.netpro.trinity.repository.service.drivermanager;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.sql.Driver;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
@@ -43,12 +45,13 @@ import com.netpro.ac.TrinityPrincipal;
 import com.netpro.ac.util.CookieUtils;
 import com.netpro.ac.util.TrinityWebV2Utils;
 import com.netpro.trinity.repository.drivermanager.MetadataDriverMaintain;
-import com.netpro.trinity.repository.drivermanager.MetadataDriverManager;
 import com.netpro.trinity.repository.dto.drivermanager.DriverInfo;
 import com.netpro.trinity.repository.dto.drivermanager.JarFileInfo;
 import com.netpro.trinity.repository.prop.TrinityDataJDBC;
 import com.netpro.trinity.repository.prop.TrinitySysSetting;
-import com.netpro.trinity.repository.util.FileUtil;
+import com.netpro.trinity.repository.util.ZipFileUtil;
+import com.netpro.trinity.repository.util.drivermanager.JCSServerCommandUtil;
+import com.netpro.trinity.repository.util.drivermanager.PublishFileUtil;
 
 @Service
 public class DriverManagerService {	
@@ -64,11 +67,13 @@ public class DriverManagerService {
 	private TrinitySysSetting trinitySys;
 	
 	@Autowired
-	MetadataDriverManager manager;
+	private MetadataDriverMaintain maintain;
 	@Autowired
-	MetadataDriverMaintain maintain;
+	private ZipFileUtil fileUtil;
 	@Autowired
-	FileUtil fileUtil;
+	private PublishFileUtil publishUtil;
+	@Autowired
+	private JCSServerCommandUtil jcsCmdUtil;
 	
 	public List<DriverInfo> getDriversProp(String driverName) throws Exception {
 		LinkedList<DriverInfo> systemList = new LinkedList<DriverInfo>();
@@ -97,6 +102,29 @@ public class DriverManagerService {
 				systemList.add(info);
 			}else {
 				userList.add(info);
+			}
+		}
+		systemList.addAll(userList);
+		
+		return systemList;
+	}
+	
+	public List<String> getAllDriverNames() throws Exception {
+		LinkedList<String> systemList = new LinkedList<String>();
+		LinkedList<String> userList = new LinkedList<String>();
+		
+		Map<String, DriverInfo> driverMap = this.jdbcInfo.getInfo();
+		for(String name : driverMap.keySet()) {
+			String owner = driverMap.get(name).getOwner();
+			if(null == owner)
+				continue;
+			
+			DriverInfo propInfo = driverMap.get(name);
+			
+			if("system".equalsIgnoreCase(owner)) {
+				systemList.add(propInfo.getName());
+			}else {
+				userList.add(propInfo.getName());
 			}
 		}
 		systemList.addAll(userList);
@@ -384,6 +412,7 @@ public class DriverManagerService {
 			
 			String jdbcDirPath = this.trinitySys.getDir().getJdbc() + File.separator;
 			File jdbcDir = new File(jdbcDirPath);
+			if(!jdbcDir.exists()) jdbcDir.mkdirs();
 			String jdbcDirName = jdbcDir.getName();
 			String jdbcParentDirPath = jdbcDir.getParent();
 			
@@ -422,14 +451,16 @@ public class DriverManagerService {
 					
 					if(propFile.exists()) {	//如果drivers.properties檔案存在, 則一定是以drivers.properties檔案為更新檔
 						Map<String, DriverInfo> infos = readDriverProperties(propFilePath);
+						this.jdbcInfo.setInfo(infos);
 						writeDriverYAML(infos);
 					}else if(ymlFile.exists()) {
-						File targetYML = new File(JDBC_DRIVER_YML_PATH);
-						Files.copy(Paths.get(ymlFile.getPath()), 
-								Paths.get(targetYML.getPath()), StandardCopyOption.REPLACE_EXISTING);
-					}else {
-						throw new Exception("Import Properties File Error! File does not exist.");
+						Map<String, DriverInfo> new_infos = readDriverYAML(ymlFilePath);
+						this.jdbcInfo.setInfo(new_infos);
+						writeDriverYAML(new_infos);
 					}
+//					else {
+//						throw new Exception("Import Properties File Error! Property File does not exist.");
+//					}
 					
 					try {
 						this.maintain.load(); //我覺得不需要
@@ -467,6 +498,25 @@ public class DriverManagerService {
 				DriverManagerService.LOGGER.error("Exception; reason was:", e);
 			}
 		}
+	}
+	
+	public Boolean publishDriver(List<String> driverNames) 
+				throws UnknownHostException, FileNotFoundException, IOException, Exception{
+		Map<String, Map<String, String>> records = new HashMap<String, Map<String,String>>();
+		for(String driverName : this.jdbcInfo.getInfo().keySet()) {
+			Map<String, String> map = new HashMap<String, String>();
+			if(driverNames.contains(driverName)) {
+				map.put("publish", "1");
+			}else {
+				map.put("publish", "0");
+			}
+			String path = "jdbc" + File.separator + driverName;
+			records.put(path, map);
+		}
+		
+		this.publishUtil.genPublishItem(records, true);
+		this.jcsCmdUtil.sendCommandToServer("publishjdbcfile");
+		return true;
 	}
 	
 	private List<String> checkHaveDriver(File file) {
@@ -566,11 +616,64 @@ public class DriverManagerService {
 	    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
 	    options.setPrettyFlow(true);
 		
-		Yaml yaml = new Yaml(options);
-		FileWriter writer = new FileWriter(JDBC_DRIVER_YML_PATH);
-        yaml.dump(data_L1, writer);
-        
-        return true;
+		FileWriter writer = null;
+		try {
+			Yaml yaml = new Yaml(options);
+			writer = new FileWriter(JDBC_DRIVER_YML_PATH);
+	        yaml.dump(data_L1, writer);
+	        return true;
+		}finally {
+			try {
+				if(null != writer)
+					writer.close();
+			}catch(Exception e) {
+				DriverManagerService.LOGGER.error("Exception; reason was:", e);
+			}
+			
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Map<String, DriverInfo> readDriverYAML(String filePath) throws IOException, Exception {		
+		Map<String, DriverInfo> retMap = new TreeMap<String, DriverInfo>(String.CASE_INSENSITIVE_ORDER);
+		Yaml yaml = new Yaml();
+		FileInputStream ios = null;
+		BufferedInputStream bis = null;
+	    try {
+	        ios = new FileInputStream(new File(filePath));
+	        bis = new BufferedInputStream(ios);
+
+	        // Parse the YAML file
+	        Map<String, Object> result = (Map<String, Object>) yaml.load(bis);
+	        Map<String, Object> level1 = (Map<String, Object>)result.get("trinity-data-jdbc");
+	        Map<String, Object> level2 = (Map<String, Object>)level1.get("info");
+	        for (String driverName : level2.keySet()) {
+	        	System.out.println(driverName);
+	        	Map<String, String> level3 = (Map<String, String>)level2.get(driverName);
+	        	Iterator<Entry<String, String>> iter = level3.entrySet().iterator();
+	        	
+	        	DriverInfo info = new DriverInfo();
+	        	while (iter.hasNext()) {
+	        		info.setDriver(level3.get("driver"));
+	        		info.setName(level3.get("name"));
+	        		info.setOwner(level3.get("owner"));
+	        		info.setUrl(level3.get("url"));
+	        		info.setJar(level3.get("jar"));
+	        		iter.next();
+	        	}
+	        	retMap.put(driverName, info);
+	        }
+	        return retMap;
+	    } finally {
+	    	try {
+	    		if(null != ios)
+		    		ios.close();
+		    	if(null != bis)
+		    		bis.close();
+			}catch(Exception e) {
+				DriverManagerService.LOGGER.error("Exception; reason was:", e);
+			}
+	    }
 	}
 	
 	private Map<String, DriverInfo> readDriverProperties(String filePath) throws IOException, Exception {
@@ -602,17 +705,15 @@ public class DriverManagerService {
 				}else if(keyArr[2].equals("owner")) {
 					info.setOwner(value);
 				}
-			}			
-		} catch (Exception e) {
-			DriverManagerService.LOGGER.error("Exception; reason was:", e);
-		} finally {
-			if (inFile != null){
-				try {
-					inFile.close();
-				} catch (IOException e) {
-					DriverManagerService.LOGGER.error("IOException; reason was:", e);
-				}
 			}
+		} finally {
+			try {
+				if (inFile != null)
+					inFile.close();
+			}catch(Exception e) {
+				DriverManagerService.LOGGER.error("Exception; reason was:", e);
+			}
+			
 		}
 		return retMap;
 	}

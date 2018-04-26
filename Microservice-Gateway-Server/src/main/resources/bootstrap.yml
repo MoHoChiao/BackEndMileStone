@@ -20,7 +20,7 @@ ribbon:
   MaxAutoRetriesNextServer: 1
 zuul:
   host:
-    connect-timeout-millis: 20000
+    connect-timeout-millis: 60000
     socket-timeout-millis: 60000
   routes:
     FrontEnd-TrinityService: 

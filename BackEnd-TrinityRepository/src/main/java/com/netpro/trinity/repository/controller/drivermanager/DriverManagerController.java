@@ -1,6 +1,9 @@
 package com.netpro.trinity.repository.controller.drivermanager;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -13,7 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +39,16 @@ public class DriverManagerController {
 	public ResponseEntity<?> findDriversProp(String driverName) {
 		try {
 			return ResponseEntity.ok(this.service.getDriversProp(driverName));
+		}catch(Exception e) {
+			DriverManagerController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/findAllDriverNames")
+	public ResponseEntity<?> getAllDriverNames() {
+		try {
+			return ResponseEntity.ok(this.service.getAllDriverNames());
 		}catch(Exception e) {
 			DriverManagerController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -210,6 +222,28 @@ public class DriverManagerController {
 			return ResponseEntity.ok(this.service.importDriverZIP(file));
 		}catch(IllegalArgumentException e) {
 			DriverManagerController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(IOException e) {
+			DriverManagerController.LOGGER.error("IOException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e);
+		}catch(Exception e) {
+			DriverManagerController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/publishDriver")
+	public ResponseEntity<?> publishDriver(@RequestBody List<String> driverNames) {
+		try {
+			return ResponseEntity.ok(this.service.publishDriver(driverNames));
+		}catch(IllegalArgumentException e) {
+			DriverManagerController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(UnknownHostException e) {
+			DriverManagerController.LOGGER.error("UnknownHostException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(FileNotFoundException e) {
+			DriverManagerController.LOGGER.error("FileNotFoundException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(IOException e) {
 			DriverManagerController.LOGGER.error("IOException; reason was:", e);

@@ -30,8 +30,8 @@ public class BackEndTrinityRepositoryApplication {
 	@Bean  
     public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
-        factory.setMaxFileSize("50MB");
-        factory.setMaxRequestSize("50MB");
+        factory.setMaxFileSize("300MB");
+        factory.setMaxRequestSize("300MB");
         if(mkFileTempDir("D:/microservice-work/backend-trinity-repository/work/temp")) {
         	factory.setLocation("D:/microservice-work/backend-trinity-repository/work/temp");
         }else {
