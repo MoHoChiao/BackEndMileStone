@@ -1,5 +1,7 @@
 package com.netpro.trinity.repository.entity.externalrule.jdbc;
 
+import java.util.List;
+
 public class DmExtJar {
 	private String extjaruid;
 	private String packageuid;
@@ -8,6 +10,9 @@ public class DmExtJar {
 	private String uploadtime;
 	private String filetype;
 	private String description;
+	private byte[] data;
+	
+	private List<DmExtRule> rules;
 	
 	public String getExtjaruid() {
 		return extjaruid;
@@ -63,6 +68,22 @@ public class DmExtJar {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public List<DmExtRule> getRules() {
+		return rules;
+	}
+
+	public void setRules(List<DmExtRule> rules) {
+		this.rules = rules;
+	}
+	
+	public byte[] getData() {
+		return data;
+	}
+
+	public void setData(byte[] data) {
+		this.data = data;
 	}
 	
 	@Override

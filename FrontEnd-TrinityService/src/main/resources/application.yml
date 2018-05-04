@@ -1,5 +1,7 @@
 spring:
   application:
     name: frontend-trinity-service                    # 指定要注冊到Eureka Server上的應用程式之名稱
+  jackson: 
+    default-property-inclusion: NON_NULL
 server:
   port: 8001                                      # 此Process啟動的port

@@ -4,12 +4,22 @@ trinity-data-jdbc:
       driver: com.ibm.as400.access.AS400JDBCDriver
       name: AS400
       owner: system
-      url: jdbc\:as400\://host/libname
+      url: jdbc:as400://host/libname
+    ATEST:
+      driver: com.ibm.as400.access.AS400JDBCDriver
+      name: ATEST
+      owner: user
+      url: sdfasdfsdf
     DB2:
-      driver: org.postgresql.Driver
+      driver: com.ibm.db2.jcc.DB2Driver
       name: DB2
       owner: system
-      url: jdbc\:as400\://host/libname
+      url: jdbc:db2://hostName:port/dbName
+    GGYY:
+      driver: com.mysql.jdbc.NonRegisteringReplicationDriver
+      name: GGYY
+      owner: user
+      url: dsfdasf
     Hive:
       driver: org.apache.hadoop.hive.jdbc.HiveDriver
       name: Hive
