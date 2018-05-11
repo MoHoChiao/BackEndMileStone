@@ -1,11 +1,23 @@
 package com.netpro.trinity.repository.service.externalrule;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -15,7 +27,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.netpro.trinity.repository.dao.jpa.externalrule.DmExtPackageJPADao;
+import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtJar;
 import com.netpro.trinity.repository.entity.externalrule.jpa.Dmextpackage;
+import com.netpro.trinity.repository.prop.TrinitySysSetting;
+import com.netpro.trinity.repository.util.drivermanager.FileDetailUtil;
 
 @Service
 public class DmExtPackageService {
@@ -24,6 +39,9 @@ public class DmExtPackageService {
 	
 	@Autowired
 	private DmExtPackageJPADao dao;
+	
+	@Autowired
+	private TrinitySysSetting trinitySys;
 	
 	@Autowired
 	private DmExtJarService jarService;
@@ -57,7 +75,7 @@ public class DmExtPackageService {
 		Order order = new Order(direct, "packagename");
 		Sort sort = new Sort(order);
 		
-		List<Dmextpackage> packages = this.dao.findBypackagenameLikeIgnoreCase(name.toUpperCase(), sort);
+		List<Dmextpackage> packages = this.dao.findBypackagenameLikeIgnoreCase("%"+name.toUpperCase()+"%", sort);
 		
 		if(null == withoutDetail || withoutDetail == false)
 			getExternalJars(packages);
@@ -65,41 +83,28 @@ public class DmExtPackageService {
 		return packages;
 	}
 	
-	public Dmextpackage add(String packageName, String description, MultipartFile file) throws IllegalArgumentException, Exception{
-		Dmextpackage p = new Dmextpackage();
-		
+	public Dmextpackage add(Dmextpackage p) throws IllegalArgumentException, Exception{		
 		p.setPackageuid(UUID.randomUUID().toString());
 		
+		String packageName = p.getPackagename();
 		if(null == packageName || packageName.trim().isEmpty())
 			throw new IllegalArgumentException("Package Name can not be empty!");
 		p.setPackagename(packageName.toUpperCase());
 		
+		
 		if(this.dao.existByName(p.getPackagename()))
 			throw new IllegalArgumentException("Duplicate Package Name!");
 				
-		if(null == description)
+		if(null == p.getDescription())
 			p.setDescription("");
 		
 		/*
-		 * because lastupdatetime column is auto created value, it can not be reload new value.
+		 * Because lastupdatetime column is auto created value, it can not be reload new value.
 		 * here, we force to give value to lastupdatetime column.
 		 */
 		p.setLastupdatetime(new Date());
 		
 		this.dao.save(p);
-//		this.jarService.add(jar);
-		
-		
-//		List<DmExtJar> files = p.getFiles();
-//		if(null != files && files.size() > 0) {
-//			int[] returnValue = this.jarService.addBatch(p.getPackageuid(), files);
-//			for(int i=0; i<returnValue.length; i++) {//只有插入成功的會留下來傳回前端
-//				if(returnValue[i] == 0) {
-//					files.remove(i);
-//				}
-//			}
-//			p.setFiles(files);
-//		}
 		
 		return p;
 	}
@@ -187,8 +192,23 @@ public class DmExtPackageService {
 //		}
 //	}
 	
+	public void deleteByUid(String uid) throws IllegalArgumentException, IOException, Exception{
+		if(null == uid || uid.isEmpty())
+			throw new IllegalArgumentException("External Package UID can not be empty!");
+		
+		this.jarService.deleteByPackageUid(uid);
+		this.dao.delete(uid);
+	}
+	
 	public boolean existByUid(String uid) throws Exception {
 		return this.dao.exists(uid);
+	}
+	
+	public Boolean existByName(String packageName) throws IllegalArgumentException, Exception{
+		if(packageName == null || packageName.isEmpty())
+			throw new IllegalArgumentException("Package Name can not be empty!");
+
+		return this.dao.existByName(packageName.toUpperCase());
 	}
 	
 	private void getExternalJars(List<Dmextpackage> packages) throws Exception {

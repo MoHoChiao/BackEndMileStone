@@ -37,15 +37,25 @@ public class DmExtRuleJDBCDao {
         return lists;
     }
 	
-	public Boolean existByAllPKs(DmExtRule rule) throws DataAccessException{
+	public List<String> findFullClassPathsByExtJarUid(String extJarUid) throws DataAccessException{
 
+        String sql = "SELECT rule.fullclasspath "
+        		+ "FROM dmextrule rule "
+        		+ "WHERE rule.extjaruid = ? ";
+        Object[] param = new Object[] {extJarUid};
+
+        List<String> lists = (List<String>) jtm.queryForList(sql, param, String.class);
+        return lists;
+    }
+	
+	public Boolean existByAllPKs(DmExtRule rule) throws DataAccessException{
         String sql = "SELECT COUNT(list) > 0 "
         		+ "FROM dmextrule list "
         		+ "WHERE extjaruid=? AND rulename=? AND 1=1";
         Object[] param = new Object[] {rule.getExtjaruid(), rule.getRulename()};
         
         Boolean ret = (Boolean) jtm.queryForObject(sql, Boolean.class, param);
-
+        
         return ret;
     }
 	

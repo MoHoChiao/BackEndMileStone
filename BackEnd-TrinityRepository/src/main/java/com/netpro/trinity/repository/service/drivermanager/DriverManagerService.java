@@ -404,6 +404,9 @@ public class DriverManagerService {
 	}
 	
 	public Boolean importDriverZIP(MultipartFile file) throws IllegalArgumentException, IOException, Exception {
+		if(null == file)
+			throw new IllegalArgumentException("Driver File can not be empty!");
+		
 		String tempDirPath = "";
 		File tempDir = null;
 		

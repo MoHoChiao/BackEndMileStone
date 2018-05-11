@@ -1,6 +1,8 @@
 package com.netpro.trinity.repository.service.externalrule;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -9,7 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.repository.dao.jdbc.externalrule.DmExtRuleJDBCDao;
+import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtJar;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtRule;
+import com.netpro.trinity.repository.entity.externalrule.jpa.Dmextpackage;
+import com.netpro.trinity.repository.service.resdoc.ResdocService;
+import com.netpro.trinity.repository.service.transformrule.TransformruleService;
+import com.netpro.trinity.repository.util.Constant;
+import com.netpro.trinity.repository.util.externalrule.SettingRuleFileUtil;
 
 @Service
 public class DmExtRuleService {
@@ -19,13 +27,53 @@ public class DmExtRuleService {
 	private DmExtRuleJDBCDao dao;
 	
 	@Autowired
+	private DmExtPackageService packageService;
+	@Autowired
 	private DmExtJarService jarService;
+	@Autowired
+	private TransformruleService transService;
+	@Autowired
+	private ResdocService docService;
+	
+	@Autowired
+	private SettingRuleFileUtil ruleFileUtil;
 	
 	public List<DmExtRule> getByExtJarUid(String extJarUid) throws IllegalArgumentException, Exception{
 		if(extJarUid == null || extJarUid.isEmpty())
 			throw new IllegalArgumentException("External Jar UID can not be empty!");
 
 		return this.dao.findByExtJarUid(extJarUid);
+	}
+	
+	public List<String> getFullClassPathsByExtJarUid(String extJarUid) throws IllegalArgumentException, Exception{
+		if(extJarUid == null || extJarUid.isEmpty())
+			throw new IllegalArgumentException("External Jar UID can not be empty!");
+
+		return this.dao.findFullClassPathsByExtJarUid(extJarUid);
+	}
+	
+	public List<DmExtRule> getNonSettingRulesByExtJarUid(String extJarUid) throws IllegalArgumentException, Exception {
+		if(null == extJarUid || extJarUid.trim().length() <= 0)
+			throw new IllegalArgumentException("External Jar UID can not be empty!");
+		
+		DmExtJar jar = this.jarService.getByUid(extJarUid);
+		if(null == jar)
+			throw new IllegalArgumentException("External Jar UID does not exist!");
+		
+		List<DmExtRule> retList = new LinkedList<DmExtRule>();
+		List<String> settingRules = this.dao.findFullClassPathsByExtJarUid(extJarUid);
+		
+		String fileType = jar.getFiletype();
+		if(fileType.equals(Constant.RULE_JAR)) {
+			
+		}else if(fileType.equals(Constant.RULE_CLASS)) {
+			
+		}
+		
+		return null;
+		
+		
+		
 	}
 	
 	public DmExtRule add(DmExtRule rule) throws IllegalArgumentException, Exception{
@@ -89,19 +137,44 @@ public class DmExtRuleService {
 		return this.dao.saveBatch(extJarUid, rules);
 	}
 	
-	public void deleteByExtJarUid(String extJarUid) throws IllegalArgumentException, Exception{
+	public void deleteByExtJarUid(String extJarUid) throws IllegalArgumentException, IOException, Exception{
 		if(null == extJarUid || extJarUid.trim().length() <= 0)
 			throw new IllegalArgumentException("External Jar UID can not be empty!");
+		
+		if(ruleFileUtil.haveRulePublishByJar(extJarUid))
+			throw new IllegalArgumentException("External Rule(s) have been published to JCS Agnet!");			
+		
+		DmExtJar jar = jarService.getByUid(extJarUid);
+		Dmextpackage p = packageService.getByUid(true, jar.getPackageuid());
+		
+		List<DmExtRule> rules = this.dao.findByExtJarUid(extJarUid);
+		for(DmExtRule rule : rules) {
+			String ruleFullName = (p.getPackagename() + "." + rule.getRulename()).toLowerCase();
+			
+			docService.deleteByName(ruleFullName);
+			transService.deleteByRule(ruleFullName);
+		}
 		
 		this.dao.deleteByExtJarUid(extJarUid);
 	}
 	
-	public void deleteByAllPKs(String extJarUid, String ruleName) throws IllegalArgumentException, Exception{
+	public void deleteByAllPKs(String extJarUid, String ruleName) throws IllegalArgumentException, IOException, Exception{
 		if(null == extJarUid || extJarUid.trim().length() <= 0)
 			throw new IllegalArgumentException("External Jar UID can not be empty!");
 		
 		if(null == ruleName || ruleName.trim().length() <= 0)
 			throw new IllegalArgumentException("External Rule Name can not be empty!");
+		
+		if(ruleFileUtil.haveRulePublishByRule(extJarUid, ruleName))
+			throw new IllegalArgumentException("External Rule has been published to JCS Agnet!");
+		
+		DmExtJar jar = jarService.getByUid(extJarUid);
+		Dmextpackage p = packageService.getByUid(true, jar.getPackageuid());
+		
+		String ruleFullName = (p.getPackagename() + "." + ruleName).toLowerCase();
+		
+		docService.deleteByName(ruleFullName);
+		transService.deleteByRule(ruleFullName);
 		
 		this.dao.deleteByAllPKs(extJarUid, ruleName);
 	}

@@ -51,22 +51,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.netpro.trinity.repository.util.Constant;
+
 /**
  * 
  * @author Dean
  */
 public class FileDetailUtil {	
-	public static final String EXTRULEXML = "extrule.xml";
-	public static final String TAG_AGENT = "agent";
-	public static final String TAG_RULE = "rule";
-	public static final String TAG_ATTR_AGENTUID = "uuid";
-	public static final String TAG_ATTR_FILENAME = "filename";
-	public static final String TAG_ATTR_MD5 = "md5";
-	public static final String TAG_ATTR_ACTIVE = "active";
-	public static final String TAG_ATTR_NAME = "name";
-	public static final String TAG_ATTR_CLASSPATH = "classpath";
-	public static final String TAG_ATTR_JARUID = "jaruid";
-	
 	private static MessageDigest digest = null;
 	
 	public static final char[] hexChar = new char[] { '0', '1', '2', '3', '4', '5', '6', '7',
@@ -106,7 +97,7 @@ public class FileDetailUtil {
 	
 	public static Map<String, String> getFileDetailInXmlRule(String rootPath, String ip) throws FileNotFoundException, Exception{
 		Map<String, String> ret = new HashMap<String, String>();
-		File extf = new File(rootPath, EXTRULEXML);
+		File extf = new File(rootPath, Constant.EXT_RULE_CFG);
 		if (!extf.exists())
 			return ret;
 		
@@ -130,7 +121,7 @@ public class FileDetailUtil {
 	
 	public static List<Map<String, String>> getXmlRuleByIP(String rootPath, String ip) throws FileNotFoundException,Exception{
 		List<Map<String, String>> list = new ArrayList<Map<String,String>>();
-		File extf = new File(rootPath, EXTRULEXML);
+		File extf = new File(rootPath, Constant.EXT_RULE_CFG);
 		if (!extf.exists())
 			return list;
 		
@@ -143,10 +134,10 @@ public class FileDetailUtil {
 			}
 			
 			Document doc = parseXML(sb.toString());
-			NodeList agentNodeList = doc.getElementsByTagName(TAG_AGENT);
+			NodeList agentNodeList = doc.getElementsByTagName(Constant.TAG_AGENT);
 			for (int i = 0 ; i < agentNodeList.getLength() ; i++){
 				Node agentNode = agentNodeList.item(i);
-				if (getNodeAttByName(agentNode, TAG_ATTR_AGENTUID).equals(ip.trim())){
+				if (getNodeAttByName(agentNode, Constant.TAG_ATTR_AGENTUID).equals(ip.trim())){
 					NodeList ruleNodeList = agentNode.getChildNodes();
 					for (int j = 0 ; j < ruleNodeList.getLength() ; j++){
 						Node ruleNode = ruleNodeList.item(j);
@@ -156,9 +147,9 @@ public class FileDetailUtil {
 							continue;
 						
 						Map<String, String> map = new HashMap<String, String>();
-						map.put(TAG_ATTR_ACTIVE, getNodeAttByName(ruleNode, TAG_ATTR_ACTIVE));
-						map.put(TAG_ATTR_NAME, getNodeAttByName(ruleNode, TAG_ATTR_NAME));
-						map.put(TAG_ATTR_CLASSPATH, getNodeAttByName(ruleNode, TAG_ATTR_CLASSPATH));
+						map.put(Constant.TAG_ATTR_ACTIVE, getNodeAttByName(ruleNode, Constant.TAG_ATTR_ACTIVE));
+						map.put(Constant.TAG_ATTR_NAME, getNodeAttByName(ruleNode, Constant.TAG_ATTR_NAME));
+						map.put(Constant.TAG_ATTR_CLASSPATH, getNodeAttByName(ruleNode, Constant.TAG_ATTR_CLASSPATH));
 						list.add(map);
 					}
 				}
@@ -308,10 +299,10 @@ public class FileDetailUtil {
 	
 	private static Map<String, String> getDetailInDoc(Document doc, String ip) throws Exception{
 		Map<String, String> ret = new HashMap<String, String>();
-		NodeList agentNodeList = doc.getElementsByTagName(TAG_AGENT);
+		NodeList agentNodeList = doc.getElementsByTagName(Constant.TAG_AGENT);
 		for (int i = 0 ; i < agentNodeList.getLength() ; i++){
 			Node agentNode = agentNodeList.item(i);
-			if (getNodeAttByName(agentNode, TAG_ATTR_AGENTUID).equals(ip.trim())){
+			if (getNodeAttByName(agentNode, Constant.TAG_ATTR_AGENTUID).equals(ip.trim())){
 				NodeList ruleNodeList = agentNode.getChildNodes();
 				for (int j = 0 ; j < ruleNodeList.getLength() ; j++){
 					Node ruleNode = ruleNodeList.item(j);
@@ -320,8 +311,8 @@ public class FileDetailUtil {
 					if(ruleNode.getNodeType() != 1)
 						continue;
 					
-					String key = getNodeAttByName(ruleNode, TAG_ATTR_FILENAME);
-					String value = getNodeAttByName(ruleNode, TAG_ATTR_MD5);
+					String key = getNodeAttByName(ruleNode, Constant.TAG_ATTR_FILENAME);
+					String value = getNodeAttByName(ruleNode, Constant.TAG_ATTR_MD5);
 					ret.put(key, value);
 				}
 			}
@@ -341,7 +332,7 @@ public class FileDetailUtil {
 	
 	public static List<Map<String, String>> getExtRuleDetail(String rootPath)throws FileNotFoundException, Exception{
 		List<Map<String, String>> list = new ArrayList<Map<String,String>>();
-		File extf = new File(rootPath, EXTRULEXML);
+		File extf = new File(rootPath, Constant.EXT_RULE_CFG);
 		if (!extf.exists())
 			return list;
 		
@@ -364,7 +355,7 @@ public class FileDetailUtil {
 	
 	private static void parseXmlToList(String xml, List<Map<String, String>> list) throws Exception {
 		Document doc = parseXML(xml);
-		NodeList ruleNodeList = doc.getElementsByTagName(TAG_RULE);
+		NodeList ruleNodeList = doc.getElementsByTagName(Constant.TAG_RULE);
 		for (int i = 0 ; i < ruleNodeList.getLength() ; i++){
 			Node ruleNode = ruleNodeList.item(i);
 			
@@ -373,9 +364,9 @@ public class FileDetailUtil {
 				continue;
 			
 			Map<String, String> map = new HashMap<String, String>();
-			map.put(TAG_ATTR_ACTIVE, getNodeAttByName(ruleNode, TAG_ATTR_ACTIVE));
-			map.put(TAG_ATTR_NAME, getNodeAttByName(ruleNode, TAG_ATTR_NAME));
-			map.put(TAG_ATTR_CLASSPATH, getNodeAttByName(ruleNode, TAG_ATTR_CLASSPATH));
+			map.put(Constant.TAG_ATTR_ACTIVE, getNodeAttByName(ruleNode, Constant.TAG_ATTR_ACTIVE));
+			map.put(Constant.TAG_ATTR_NAME, getNodeAttByName(ruleNode, Constant.TAG_ATTR_NAME));
+			map.put(Constant.TAG_ATTR_CLASSPATH, getNodeAttByName(ruleNode, Constant.TAG_ATTR_CLASSPATH));
 			
 			list.add(map);
 		}
@@ -388,7 +379,7 @@ public class FileDetailUtil {
 		BufferedWriter bw = null;
 		
 		try {
-			bw = new BufferedWriter(new FileWriter(new File(rootPath, EXTRULEXML)));
+			bw = new BufferedWriter(new FileWriter(new File(rootPath, Constant.EXT_RULE_CFG)));
 			bw.write(xml, 0, xml.length());
 		}finally {
 			try {
@@ -410,7 +401,7 @@ public class FileDetailUtil {
 			Element root = doc.createElement("xml");
 			doc.appendChild(root);
 			for (Map<String, String> map : list){
-				Element child = doc.createElement(TAG_RULE);
+				Element child = doc.createElement(Constant.TAG_RULE);
 				for (Map.Entry<String, String> entry : map.entrySet()){
 					child.setAttribute(entry.getKey(), entry.getValue());
 				}

@@ -15,8 +15,14 @@ public class DisconfigService {
 	private DisconfigJPADao dao;
 	
 	public Disconfig getByUid(DisconfigPKs pks) throws IllegalArgumentException, Exception{
-		if(pks == null || pks.getModule().isEmpty() || pks.getConfigname().isEmpty())
+		if(null == pks)
 			throw new IllegalArgumentException("Disconfig pks can not be empty!");
+		
+		if(null == pks.getModule() || pks.getModule().trim().isEmpty())
+			throw new IllegalArgumentException("Module Name can not be empty!");
+		
+		if(null == pks.getConfigname() || pks.getConfigname().trim().isEmpty())
+			throw new IllegalArgumentException("Config Name can not be empty!");
 		
 		Disconfig config = this.dao.findOne(pks);
 		if(config == null)
