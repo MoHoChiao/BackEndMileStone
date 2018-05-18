@@ -329,6 +329,10 @@ public class DriverManagerService {
 		
 		String dirPath = this.trinitySys.getDir().getJdbc() + File.separator + driverName + File.separator;
 		File dir = new File(dirPath);
+		
+		if(!dir.exists())
+			return true;
+		
 		if(FileSystemUtils.deleteRecursively(dir)) {
 			this.maintain.unload(driverName);
 			try {

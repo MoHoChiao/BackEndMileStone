@@ -1,6 +1,7 @@
 package com.netpro.trinity.repository.controller.externalrule;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class DmExtPackageController {
 	@PostMapping("/add")
 	public ResponseEntity<?> addPackage(@RequestBody Dmextpackage p) {
 		try {
-			return ResponseEntity.ok(this.service.add(p));
+			return ResponseEntity.ok(this.service.addPackage(p));
 		}catch(IllegalArgumentException e) {
 			DmExtPackageController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -72,19 +73,25 @@ public class DmExtPackageController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
-//	
-//	@PostMapping("/edit")
-//	public ResponseEntity<?> editDomain(@RequestBody Domain domain) {
-//		try {
-//			return ResponseEntity.ok(this.service.edit(domain));
-//		}catch(IllegalArgumentException e) {
-//			DmExtPackageController.LOGGER.error("IllegalArgumentException; reason was:", e);
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-//		}catch(Exception e) {
-//			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-//		}
-//	}
+	
+	@PostMapping("/edit")
+	public ResponseEntity<?> editPackage(@RequestBody Dmextpackage new_p) {
+		try {
+			return ResponseEntity.ok(this.service.editPackage(new_p));
+		}catch(IllegalArgumentException e) {
+			DmExtPackageController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(NoSuchAlgorithmException e) {
+			DmExtPackageController.LOGGER.error("NoSuchAlgorithmException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(IOException e) {
+			DmExtPackageController.LOGGER.error("IOException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
   
 	@GetMapping("/delete")
 	public ResponseEntity<?> deletePackageByUid(String uid) {

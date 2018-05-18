@@ -59,6 +59,19 @@ public class ResdocController {
 		}
 	}
   
+	@PostMapping("/editResNameOnly")
+	public ResponseEntity<?> editResNameOnly(String newResName, @RequestBody Resdoc doc) {
+		try {
+			return ResponseEntity.ok(this.service.editResNameOnly(newResName, doc));
+		}catch(IllegalArgumentException e) {
+			ResdocController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			ResdocController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/deleteByPKs")
 	public ResponseEntity<?> deleteResDocByRule(ResdocPKs pks) {
 		try {

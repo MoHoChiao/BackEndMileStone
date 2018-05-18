@@ -18,8 +18,11 @@ public class DmExtJarJDBCDao {
 							+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	public static final String update_sql = "UPDATE dmextjar SET filename = ?, packageuid = ?, "
-			+ "data = ?, md5 = ?, uploadtime = ?, filetype = ? "
+			+ "data = ?, md5 = ?, uploadtime = ?, filetype = ?, "
 			+ "description = ? where extjaruid = ?";
+	
+	public static final String update_description_only_sql = "UPDATE dmextjar SET description = ? where extjaruid = ?";
+	public static final String update_filename_only_sql = "UPDATE dmextjar SET filename = ? where extjaruid = ?";
 	
 	@Autowired
     protected JdbcTemplate jtm;
@@ -109,6 +112,18 @@ public class DmExtJarJDBCDao {
 				jar.getMd5(), jar.getUploadtime(), jar.getFiletype(), jar.getDescription(), jar.getExtjaruid()};
 		
 		return jtm.update(update_sql, params);
+	}
+	
+	public int updateFileNameOnly(String extJarUid, String newFileName) throws DataAccessException{
+		Object[] params = new Object[] {newFileName, extJarUid};
+		
+		return jtm.update(update_filename_only_sql, params);
+	}
+	
+	public int updateDescriptionOnly(String extJarUid, String newDesc) throws DataAccessException{
+		Object[] params = new Object[] {newDesc, extJarUid};
+		
+		return jtm.update(update_description_only_sql, params);
 	}
 	
 	public int deleteByUid(String uid) throws DataAccessException{

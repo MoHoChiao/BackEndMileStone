@@ -44,6 +44,16 @@ public class TransformruleService {
 		return this.dao.save(rule);
 	}
 	
+	public Integer editRuleOnly(String newRule, String targetRule) throws IllegalArgumentException, Exception{
+		if(null == newRule || newRule.trim().isEmpty())
+			throw new IllegalArgumentException("New Rule can not be empty!");
+		
+		if(null == targetRule || targetRule.trim().isEmpty())
+			throw new IllegalArgumentException("Target Rule can not be empty!");
+		
+		return this.dao.updateRuleOnly(newRule, targetRule);
+	}
+	
 	public void deleteByRule(String rule) throws IllegalArgumentException, Exception{
 		if(null == rule || rule.isEmpty())
 			throw new IllegalArgumentException("Transformrule UID can not be empty!");

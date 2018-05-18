@@ -47,6 +47,8 @@ buildscript {
 			// for dis ui
 			'lib/com.netpro.dis.service.impl.jar',
 			// for dis ui
+			'lib/activemq-all-5.6.0.jar',
+			// for dis ui
 			'lib/com.netpro.dis.common.jar')
 	}
 }
@@ -119,6 +121,8 @@ dependencies {
 			'lib/com.netpro.dis.service.jar',
 			// for dis ui
 			'lib/com.netpro.dis.service.impl.jar',
+			// for dis ui
+			'lib/activemq-all-5.6.0.jar',
 			// for dis ui
 			'lib/com.netpro.dis.common.jar')
 	testCompile('org.springframework.boot:spring-boot-starter-test')

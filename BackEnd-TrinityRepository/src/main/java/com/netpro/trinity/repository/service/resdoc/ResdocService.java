@@ -60,6 +60,25 @@ public class ResdocService {
 		return this.dao.save(doc);
 	}
 	
+	public Integer editResNameOnly(String newResName, Resdoc doc) throws IllegalArgumentException, Exception{
+		if(null == newResName || newResName.trim().isEmpty())
+			throw new IllegalArgumentException("New ResName can not be empty!");
+		
+		String module = doc.getModule();
+		if(null == module || module.trim().isEmpty())
+			throw new IllegalArgumentException("Module Name can not be empty!");
+		
+		String resname = doc.getResname();
+		if(null == resname || resname.trim().isEmpty())
+			throw new IllegalArgumentException("ResName can not be empty!");
+		
+		String langcode = doc.getLangcode();
+		if(null == langcode || langcode.trim().isEmpty())
+			throw new IllegalArgumentException("Language Code can not be empty!");
+		
+		return this.dao.updateResNameOnly(newResName, module, resname, langcode);
+	}
+	
 	public void deleteByPKs(ResdocPKs pks) throws IllegalArgumentException, Exception{
 		if(null == pks)
 			throw new IllegalArgumentException("Resdoc pks can not be empty!");

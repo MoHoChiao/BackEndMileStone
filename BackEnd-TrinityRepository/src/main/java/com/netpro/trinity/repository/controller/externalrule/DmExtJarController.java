@@ -62,10 +62,23 @@ public class DmExtJarController {
 		}
 	}
 	
-	@PostMapping("/modify")
-	public ResponseEntity<?> modify(String packageUid, String description, MultipartFile file) {
+	@PostMapping("/add")
+	public ResponseEntity<?> addJar(String packageUid, String description, MultipartFile file) {
 		try {
-			return ResponseEntity.ok(this.service.modify(packageUid, description, file));
+			return ResponseEntity.ok(this.service.addJar(packageUid, description, file));
+		}catch(IllegalArgumentException e) {
+			DmExtJarController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			DmExtJarController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/editDescriptionOnly")
+	public ResponseEntity<?> editDescriptionOnly(String extJarUid, String newDesc) {
+		try {
+			return ResponseEntity.ok(this.service.editDescriptionOnly(extJarUid, newDesc));
 		}catch(IllegalArgumentException e) {
 			DmExtJarController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

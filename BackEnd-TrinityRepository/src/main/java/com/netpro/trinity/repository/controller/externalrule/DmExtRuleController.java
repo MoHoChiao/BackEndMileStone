@@ -1,7 +1,7 @@
 package com.netpro.trinity.repository.controller.externalrule;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.zip.ZipException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +26,22 @@ public class DmExtRuleController {
 	private DmExtRuleService service;
 	
 	@GetMapping("/findByJarUid")
-	public ResponseEntity<?> findRulesByDJarUid(String extJarUid) {
+	public ResponseEntity<?> findRulesByJarUid(String extJarUid) {
 		try {
 			return ResponseEntity.ok(this.service.getByExtJarUid(extJarUid));
+		}catch(IllegalArgumentException e) {
+			DmExtRuleController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			DmExtRuleController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/findByAllPKs")
+	public ResponseEntity<?> findRuleByAllPKs(String extJarUid, String ruleName) {
+		try {
+			return ResponseEntity.ok(this.service.getByAllPKs(extJarUid, ruleName));
 		}catch(IllegalArgumentException e) {
 			DmExtRuleController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -51,12 +64,18 @@ public class DmExtRuleController {
 		}
 	}
 	
-	@PostMapping("/addOne")
-	public ResponseEntity<?> addOneRule(@RequestBody DmExtRule rule) {
+	@GetMapping("/findNonSettingRulesByJarUid")
+	public ResponseEntity<?> findNonSettingRulesByJarUid(String extJarUid) {
 		try {
-			return ResponseEntity.ok(this.service.add(rule));
+			return ResponseEntity.ok(this.service.getNonSettingRulesByExtJarUid(extJarUid));
 		}catch(IllegalArgumentException e) {
 			DmExtRuleController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(ZipException e) {
+			DmExtRuleController.LOGGER.error("ZipException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(IOException e) {
+			DmExtRuleController.LOGGER.error("IOException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			DmExtRuleController.LOGGER.error("Exception; reason was:", e);
@@ -64,12 +83,18 @@ public class DmExtRuleController {
 		}
 	}
 	
-	@PostMapping("/addMany")
-	public ResponseEntity<?> addManyRules(String extJarUid, @RequestBody List<DmExtRule> rules) {
+	@GetMapping("/findSettingRulesByPackageUid")
+	public ResponseEntity<?> findSettingRulesByPackageUid(String packageUid) {
 		try {
-			return ResponseEntity.ok(this.service.add(extJarUid, rules));
+			return ResponseEntity.ok(this.service.getSettingRulesByPackageUid(packageUid));
 		}catch(IllegalArgumentException e) {
 			DmExtRuleController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(ZipException e) {
+			DmExtRuleController.LOGGER.error("ZipException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(IOException e) {
+			DmExtRuleController.LOGGER.error("IOException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			DmExtRuleController.LOGGER.error("Exception; reason was:", e);
@@ -77,10 +102,26 @@ public class DmExtRuleController {
 		}
 	}
 	
-	@PostMapping("/addBatch")
-	public ResponseEntity<?> addBatchRules(String extJarUid, @RequestBody List<DmExtRule> rules) {
+	@PostMapping("/add")
+	public ResponseEntity<?> addRule(@RequestBody DmExtRule rule) {
 		try {
-			return ResponseEntity.ok(this.service.addBatch(extJarUid, rules));
+			return ResponseEntity.ok(this.service.addRule(rule));
+		}catch(IllegalArgumentException e) {
+			DmExtRuleController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(IOException e) {
+			DmExtRuleController.LOGGER.error("IOException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			DmExtRuleController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/edit")
+	public ResponseEntity<?> editRule(String targetRuleName, @RequestBody DmExtRule rule) {
+		try {
+			return ResponseEntity.ok(this.service.editRule(targetRuleName, rule));
 		}catch(IllegalArgumentException e) {
 			DmExtRuleController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

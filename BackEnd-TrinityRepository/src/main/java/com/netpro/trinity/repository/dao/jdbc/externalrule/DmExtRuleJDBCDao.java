@@ -1,12 +1,10 @@
 package com.netpro.trinity.repository.dao.jdbc.externalrule;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -18,6 +16,9 @@ public class DmExtRuleJDBCDao {
 	public static final String insert_sql = "INSERT INTO dmextrule "
 							+ "(extjaruid, rulename, fullclasspath, active, description) "
 							+ "VALUES (?, ?, ?, ?, ?)";
+	public static final String update_sql = "UPDATE dmextrule SET rulename = ?, active = ?, description = ? " 
+							+ "WHERE extjaruid = ? AND rulename = ?";
+			
 	
 	@Autowired
     protected JdbcTemplate jtm;
@@ -35,6 +36,22 @@ public class DmExtRuleJDBCDao {
                 new BeanPropertyRowMapper(DmExtRule.class));
 
         return lists;
+    }
+	
+	public DmExtRule findByAllPKs(String extJarUid, String ruleName) throws DataAccessException{
+		String sql = "SELECT rule.extjaruid, rule.rulename, rule.fullclasspath, rule.active, rule.description "
+        		+ "FROM dmextrule rule "
+        		+ "WHERE rule.extjaruid = ? AND rule.rulename = ? "
+        		+ "ORDER BY rule.rulename";
+        Object[] param = new Object[] {extJarUid, ruleName};
+        
+        DmExtRule rule = null;
+        try {
+        	rule = (DmExtRule)jtm.queryForObject(
+        			sql, param, new BeanPropertyRowMapper<DmExtRule>(DmExtRule.class));
+        } catch (EmptyResultDataAccessException e) {}
+        
+        return rule;
     }
 	
 	public List<String> findFullClassPathsByExtJarUid(String extJarUid) throws DataAccessException{
@@ -59,31 +76,18 @@ public class DmExtRuleJDBCDao {
         return ret;
     }
 	
-	public int save(DmExtRule list) throws DataAccessException{
-		Object[] params = new Object[] {list.getExtjaruid(), list.getRulename(), list.getFullclasspath(), 
-				list.getActive(), list.getDescription()};
+	public int save(DmExtRule rule) throws DataAccessException{
+		Object[] params = new Object[] {rule.getExtjaruid(), rule.getRulename(), rule.getFullclasspath(), 
+				rule.getActive(), rule.getDescription()};
 		
 		return jtm.update(insert_sql, params);
 	}
 	
-	public int[] saveBatch(String extJarUid, List<DmExtRule> lists) throws DataAccessException{
-		int[] insertCounts = jtm.batchUpdate(insert_sql, new BatchPreparedStatementSetter() {
-			@Override
-			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				ps.setString(1, extJarUid);
-				ps.setString(2, lists.get(i).getRulename());
-				ps.setString(3, lists.get(i).getFullclasspath());
-				ps.setString(4, lists.get(i).getActive());
-				ps.setString(5, lists.get(i).getDescription());
-			}
-			
-			@Override
-			public int getBatchSize() {
-				return lists.size();
-			}
-		});
+	public int update(String oldRuleName, DmExtRule rule) throws DataAccessException{
+		Object[] params = new Object[] {rule.getRulename(), rule.getActive(), rule.getDescription(), 
+				rule.getExtjaruid(), oldRuleName};
 		
-        return insertCounts;
+		return jtm.update(update_sql, params);
 	}
 	
 	public int deleteByExtJarUid(String extJarUid) throws DataAccessException{

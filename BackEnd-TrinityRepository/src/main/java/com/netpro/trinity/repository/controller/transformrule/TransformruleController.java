@@ -57,7 +57,20 @@ public class TransformruleController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
-  
+	
+	@GetMapping("/editRuleOnly")
+	public ResponseEntity<?> editRuleOnly(String newRule, String targetRule) {
+		try {
+			return ResponseEntity.ok(this.service.editRuleOnly(newRule, targetRule));
+		}catch(IllegalArgumentException e) {
+			TransformruleController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			TransformruleController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/deleteByRule")
 	public ResponseEntity<?> deleteTransformruleByRule(String rule) {
 		try {
