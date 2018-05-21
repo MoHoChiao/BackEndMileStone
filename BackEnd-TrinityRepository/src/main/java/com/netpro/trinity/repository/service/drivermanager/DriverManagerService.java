@@ -60,6 +60,7 @@ public class DriverManagerService {
 	
 	//暫時寫死, 以後再來整合
 	private static final String JDBC_DRIVER_YML_PATH = "D:\\MyWork\\DataIntegrationService\\BackEndMileStone\\Mircoservice-Properties\\trinity-data-jdbc.yml";
+//	private static final String JDBC_DRIVER_YML_PATH = "./Mircoservice-Properties/trinity-data-jdbc.yml";
 		
 	@Autowired
 	private TrinityDataJDBC jdbcInfo;
