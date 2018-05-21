@@ -1,5 +1,6 @@
 package com.netpro.trinity.repository.controller.externalrule;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.netpro.trinity.repository.entity.externalrule.jpa.Dmextpackage;
 import com.netpro.trinity.repository.service.externalrule.DmExtPackageService;
@@ -92,7 +94,29 @@ public class DmExtPackageController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
-  
+	
+	@PostMapping("/import")
+	public ResponseEntity<?> importPackage(MultipartFile file) {
+		try {
+			return ResponseEntity.ok(this.service.importPackage(file));
+		}catch(IllegalArgumentException e) {
+			DmExtPackageController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(FileNotFoundException e) {
+			DmExtPackageController.LOGGER.error("FileNotFoundException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(NoSuchAlgorithmException e) {
+			DmExtPackageController.LOGGER.error("NoSuchAlgorithmException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(IOException e) {
+			DmExtPackageController.LOGGER.error("IOException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/delete")
 	public ResponseEntity<?> deletePackageByUid(String uid) {
 		try {

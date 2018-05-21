@@ -118,6 +118,15 @@ public class DmExtRuleService {
 		return retList;
 	}
 	
+//	public List<DmExtRule> getRulesByAgentUid(String agentUid) throws IllegalArgumentException, Exception{
+//		if(null == agentUid || agentUid.trim().isEmpty())
+//			throw new IllegalArgumentException("Agent Uid can not be empty!!");
+//		
+//		List<String> rulePKStringList = ruleUtil.getRulePKStringByAgentUID(agentUid);
+//		
+//		return ;
+//	}
+	
 	public DmExtRule addRule(DmExtRule rule) throws IllegalArgumentException, IOException, Exception{
 		String extjaruid = rule.getExtjaruid();
 		if(null == extjaruid || extjaruid.trim().isEmpty())

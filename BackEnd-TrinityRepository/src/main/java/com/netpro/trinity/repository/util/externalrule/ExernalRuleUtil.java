@@ -44,12 +44,12 @@ public class ExernalRuleUtil {
 	@Autowired
 	private TrinitySysSetting trinitySys;
 		
-	public List<DmExtRule> getRuleByAgentUID(String agentUID) throws IOException, Exception{
-		List<DmExtRule> ret = new ArrayList<DmExtRule>();
+	public List<String> getRulePKStringByAgentUID(String agentUid) throws IOException, Exception{
+		List<String> ret = new ArrayList<String>();
 		
 		Document doc = XMLUtil.toDocument(readEextruleCfgFile());
 		NodeList nl = doc.getElementsByTagName(Constant.TAG_AGENT);
-		Node agentHostNode = getNodeByAgentUID(nl, agentUID);
+		Node agentHostNode = getNodeByAgentUID(nl, agentUid);
 		
 		if (agentHostNode == null)
 			return ret;
@@ -67,11 +67,7 @@ public class ExernalRuleUtil {
 			
 			String temp[] = ruleName.split("\\.");
 			
-			DmExtRule key = new DmExtRule();
-			key.setExtjaruid(jaruid);
-			key.setRulename(temp[1]);
-			
-			ret.add(key);
+			ret.add(jaruid+":"+temp[1]);
 		}
 		
 		return ret;

@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -34,6 +36,8 @@ import com.netpro.trinity.repository.util.externalrule.ExernalRuleUtil;
 
 @Service
 public class DmExtPackageService {
+	private static final Logger LOGGER = LoggerFactory.getLogger(DmExtPackageService.class);
+	
 	public static final String[] PACKAGE_FIELD_VALUES = new String[] { "packagename" };
 	public static final Set<String> PACKAGE_FIELD_SET = new HashSet<>(Arrays.asList(PACKAGE_FIELD_VALUES));
 	
@@ -180,71 +184,76 @@ public class DmExtPackageService {
 		String tempRootPath = this.trinitySys.getDir().getExtlib() + File.separator + "temp";
 		ruleFileUtil.writeImportJarFile(bytes, tempRootPath, fileName);
 		
-		List<Map<String, String>> infoList = ruleFileUtil.getInfoFromJarConfigFile(tempRootPath, fileName);
-		if(null == infoList || infoList.isEmpty())
-			throw new FileNotFoundException("config.xml file can not be found in import jar file!");
-		
-		Map<String, String> packageInfo = infoList.get(0);//0的位置是取出package的name及desc資訊
-		String packageName = packageInfo.get("packageName").toUpperCase();
-		String packageDesc = packageInfo.get("packageDesc");
-		//取出package的name及desc資訊後, 把它刪掉, 只留Rule資訊(如果有的話)
-		infoList.remove(0);
-		
-		List<Dmextpackage> depList = this.dao.findBypackagenameIgnoreCase(packageName);//正常來說, 依設計只會有一筆資料
-		
-		if(depList.isEmpty()) {	//表示系統中沒有同名的External Package
-			//建立 Package
-			Dmextpackage new_dep = new Dmextpackage();
-			new_dep.setPackageuid(UUID.randomUUID().toString());
-			new_dep.setPackagename(packageName);
-			new_dep.setDescription(packageDesc);
-			this.dao.save(new_dep);
+		try {
+			List<Map<String, String>> infoList = ruleFileUtil.getInfoFromJarConfigFile(tempRootPath, fileName);
+			if(null == infoList || infoList.isEmpty())
+				throw new FileNotFoundException("config.xml file can not be found in import jar file!");
 			
-			//把原本在 temp 資料夾的檔案搬到此  Package 資料夾底下
-			File tempJarFile = new File(tempRootPath, fileName);
+			Map<String, String> packageInfo = infoList.get(0);//0的位置是取出package的name及desc資訊
+			String packageName = packageInfo.get("packageName").toUpperCase();
+			String packageDesc = packageInfo.get("packageDesc");
+			//從設定檔中取出package的name及desc資訊後, 把它刪掉, 只留Rule資訊(如果有的話)
+			infoList.remove(0);
 			
-			fileName = ruleFileUtil.fullFileName(packageName, fileName);
-			ruleFileUtil.checkDir(fileName);
-			File jarFile = new File(this.trinitySys.getDir().getExtlib(), fileName);
+			List<Dmextpackage> depList = this.dao.findBypackagenameIgnoreCase(packageName);//正常來說, 依設計只會有一筆資料
 			
-			Files.move(Paths.get(tempJarFile.getPath()), 
-					Paths.get(jarFile.getPath()), StandardCopyOption.REPLACE_EXISTING);
-			
-			//取得新檔案的資料
-			String md5 = FileDetailUtil.getFileMD5(jarFile);
-			String fileType = ruleFileUtil.checkFileType(jarFile);
-			//把新的檔案儲存至DB(DmExtJar)
-			DmExtJar new_dej = this.jarService.uploadToDb(fileName, new_dep.getPackageuid(), bytes, md5, fileType, packageDesc);
-			
-			for(Map<String, String> ruleInfo : infoList) {
-				String fullClass = ruleInfo.get("fullclass");
-				String ruleName = ruleInfo.get("ruleName");
-				String description = ruleInfo.get("description");
+			if(depList.isEmpty()) {	//表示系統中沒有同名的External Package
+				//建立 Package
+				Dmextpackage new_dep = new Dmextpackage();
+				new_dep.setPackageuid(UUID.randomUUID().toString());
+				new_dep.setPackagename(packageName);
+				new_dep.setDescription(packageDesc);
+				this.dao.save(new_dep);
 				
-				DmExtRule newRule = new DmExtRule();
-				newRule.setExtjaruid(new_dej.getExtjaruid());
-				newRule.setActive("1");
-				newRule.setDescription(description);
-				newRule.setFullclasspath(fullClass);
-				newRule.setRulename(ruleName);
-				this.ruleService.addRule(newRule);
+				//把原本在 temp 資料夾的檔案搬到此  Package 資料夾底下
+				File tempJarFile = new File(tempRootPath, fileName);
+				
+				fileName = ruleFileUtil.fullFileName(packageName, fileName);
+				ruleFileUtil.checkDir(fileName);
+				File jarFile = new File(this.trinitySys.getDir().getExtlib(), fileName);
+				
+				Files.move(Paths.get(tempJarFile.getPath()), 
+						Paths.get(jarFile.getPath()), StandardCopyOption.REPLACE_EXISTING);
+				
+				//取得新檔案的資料
+				String md5 = FileDetailUtil.getFileMD5(jarFile);
+				String fileType = ruleFileUtil.checkFileType(jarFile);
+				//把新的檔案儲存至DB(DmExtJar)
+				DmExtJar new_dej = this.jarService.uploadToDb(fileName, new_dep.getPackageuid(), bytes, md5, fileType, packageDesc);
+				
+				//從設定檔中取出rule的相關資訊, 再儲存至DB
+				for(Map<String, String> ruleInfo : infoList) {
+					String fullClass = ruleInfo.get("fullClass");
+					String ruleName = ruleInfo.get("ruleName");
+					String description = ruleInfo.get("description");
+					
+					DmExtRule newRule = new DmExtRule();
+					newRule.setExtjaruid(new_dej.getExtjaruid());
+					newRule.setActive("1");
+					newRule.setDescription(description);
+					newRule.setFullclasspath(fullClass);
+					newRule.setRulename(ruleName);
+					try {
+						this.ruleService.addRule(newRule);
+					}catch(Exception e) {
+						DmExtPackageService.LOGGER.error("Exception; reason was:", e);
+					}
+				}
+				
+				return true;
+			}else {
+				throw new IllegalArgumentException("Package Name - '"+packageName+"' already exists. Please delete it first!");
 			}
-		}else {
-			
+		}finally {
+			try {
+				File tempJarFile = new File(tempRootPath, fileName);
+				if(tempJarFile.exists())
+					tempJarFile.delete();
+			}catch(Exception e) {}
 		}
-		
-//		try {
-//			Document doc = getConfigDoc(fileName);
-//			if (doc == null)
-//				return NO_CONFIG + "";
-//			
-//			return parseConfig(doc, fileName) + "";
-//		} catch (Exception e) {
-//			return e.getMessage();
-//		}
-		return true;
 	}
 	
+//	public true publishPackage
 	
 	public void deleteByUid(String uid) throws IllegalArgumentException, IOException, Exception{
 		if(null == uid || uid.isEmpty())
