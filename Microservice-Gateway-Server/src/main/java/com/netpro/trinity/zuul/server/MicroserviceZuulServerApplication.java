@@ -59,7 +59,7 @@ public class MicroserviceZuulServerApplication {
 //        }else {
 //        	factory.setLocation("/");
 //        }
-        if(mkFileTempDir("D:/microservice-work/backend-trinity-repository/work/temp")) {
+        if(mkFileTempDir("D:/microservice-work/microservice-gateway-server/work/temp")) {
         	factory.setLocation("D:/microservice-work/microservice-gateway-server/work/temp");
         }else {
         	factory.setLocation("/");

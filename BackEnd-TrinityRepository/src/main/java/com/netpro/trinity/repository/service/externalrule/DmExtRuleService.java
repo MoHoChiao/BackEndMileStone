@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.repository.dao.jdbc.externalrule.DmExtRuleJDBCDao;
+import com.netpro.trinity.repository.dto.externalrule.Publication;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtJar;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtRule;
 import com.netpro.trinity.repository.entity.externalrule.jpa.Dmextpackage;
@@ -43,6 +44,10 @@ public class DmExtRuleService {
 	@Autowired
 	private ExernalRuleUtil ruleUtil;
 	
+	public List<DmExtRule> getAll() throws IllegalArgumentException, Exception{
+		return this.dao.findAll();
+	}
+	
 	public List<DmExtRule> getByExtJarUid(String extJarUid) throws IllegalArgumentException, Exception{
 		if(extJarUid == null || extJarUid.isEmpty())
 			throw new IllegalArgumentException("External Jar UID can not be empty!");
@@ -65,6 +70,13 @@ public class DmExtRuleService {
 			throw new IllegalArgumentException("External Jar UID can not be empty!");
 
 		return this.dao.findFullClassPathsByExtJarUid(extJarUid);
+	}
+	
+	public List<Publication> getPublishRulesByPackageUid(String packageUid) throws IllegalArgumentException, Exception{
+		if(packageUid == null || packageUid.isEmpty())
+			throw new IllegalArgumentException("External Package UID can not be empty!");
+
+		return this.dao.findPublishRulesByPackageUid(packageUid);
 	}
 	
 	public List<DmExtRule> getNonSettingRulesByExtJarUid(String extJarUid) throws IllegalArgumentException, 
@@ -117,15 +129,6 @@ public class DmExtRuleService {
 		}
 		return retList;
 	}
-	
-//	public List<DmExtRule> getRulesByAgentUid(String agentUid) throws IllegalArgumentException, Exception{
-//		if(null == agentUid || agentUid.trim().isEmpty())
-//			throw new IllegalArgumentException("Agent Uid can not be empty!!");
-//		
-//		List<String> rulePKStringList = ruleUtil.getRulePKStringByAgentUID(agentUid);
-//		
-//		return ;
-//	}
 	
 	public DmExtRule addRule(DmExtRule rule) throws IllegalArgumentException, IOException, Exception{
 		String extjaruid = rule.getExtjaruid();

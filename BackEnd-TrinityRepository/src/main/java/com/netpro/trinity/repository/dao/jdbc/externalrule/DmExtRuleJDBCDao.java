@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.netpro.trinity.repository.dto.externalrule.Publication;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtRule;
 
 @Repository  //宣告這是一個DAO類別
@@ -22,6 +23,19 @@ public class DmExtRuleJDBCDao {
 	
 	@Autowired
     protected JdbcTemplate jtm;
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<DmExtRule> findAll() throws DataAccessException{
+
+        String sql = "SELECT rule.extjaruid, rule.rulename, rule.fullclasspath, rule.active, rule.description "
+        		+ "FROM dmextrule rule "
+        		+ "ORDER BY rule.rulename";
+
+        List<DmExtRule> lists = (List<DmExtRule>) jtm.query(sql,
+                new BeanPropertyRowMapper(DmExtRule.class));
+
+        return lists;
+    }
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<DmExtRule> findByExtJarUid(String extJarUid) throws DataAccessException{
@@ -62,6 +76,21 @@ public class DmExtRuleJDBCDao {
         Object[] param = new Object[] {extJarUid};
 
         List<String> lists = (List<String>) jtm.queryForList(sql, param, String.class);
+        return lists;
+    }
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Publication> findPublishRulesByPackageUid(String packageUid) throws DataAccessException{
+
+        String sql = "SELECT der.rulename, der.fullclasspath, der.active, der.description, dej.extjaruid, dej.filename, dej.md5, dep.packageuid, dep.packagename "
+        		+ "FROM Dmextrule der, Dmextjar dej, Dmextpackage dep "
+        		+ "WHERE der.extjaruid = dej.extjaruid AND dej.packageuid = dep.packageuid AND dep.packageuid= ? "
+        		+ "ORDER BY dep.filename, der.rulename";
+        Object[] param = new Object[] {packageUid};
+
+        List<Publication> lists = (List<Publication>) jtm.query(sql, param,
+                new BeanPropertyRowMapper(Publication.class));
+
         return lists;
     }
 	

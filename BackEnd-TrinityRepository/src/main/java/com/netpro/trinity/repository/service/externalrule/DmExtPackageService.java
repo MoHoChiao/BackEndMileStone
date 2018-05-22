@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.netpro.trinity.repository.dao.jpa.externalrule.DmExtPackageJPADao;
+import com.netpro.trinity.repository.dto.externalrule.Publication;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtJar;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtRule;
 import com.netpro.trinity.repository.entity.externalrule.jpa.Dmextpackage;
@@ -90,6 +91,29 @@ public class DmExtPackageService {
 			getExternalJars(packages);
 		
 		return packages;
+	}
+	
+	public List<Publication> getPublicationByAgentUidAndPackageUid(String agentUid, String packageUid) throws IllegalArgumentException, Exception{
+		if(null == agentUid || agentUid.trim().isEmpty())
+			throw new IllegalArgumentException("Agent Uid can not be empty!!");
+		
+		if(null == packageUid || packageUid.trim().isEmpty())
+			throw new IllegalArgumentException("External Package Uid can not be empty!!");
+		
+		List<String> rulePKStringList = ruleFileUtil.getRulePKStringByAgentUID(agentUid);
+		
+		List<Publication> publicationRules = this.ruleService.getPublishRulesByPackageUid(packageUid);
+		for(Publication publicationRule : publicationRules) {
+			String jarUid = publicationRule.getExtjaruid();
+			String ruleName = publicationRule.getRulename();
+			if(rulePKStringList.contains(jarUid+":"+ruleName)) {
+				publicationRule.setPublished(true);
+			}else {
+				publicationRule.setPublished(false);
+			}
+		}
+		
+		return publicationRules;
 	}
 	
 	public Dmextpackage addPackage(Dmextpackage p) throws IllegalArgumentException, Exception{
@@ -253,7 +277,11 @@ public class DmExtPackageService {
 		}
 	}
 	
-//	public true publishPackage
+	public Boolean publishPackage() {
+		
+		
+		return true;
+	}
 	
 	public void deleteByUid(String uid) throws IllegalArgumentException, IOException, Exception{
 		if(null == uid || uid.isEmpty())

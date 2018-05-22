@@ -63,6 +63,19 @@ public class DmExtPackageController {
 		}
 	}
   
+	@GetMapping("/findPublicationByAgentUidAndPackageUid")
+	public ResponseEntity<?> findPublicationByAgentUidAndPackageUid(String agentUid, String packageUid) {
+		try {
+			return ResponseEntity.ok(this.service.getPublicationByAgentUidAndPackageUid(agentUid, packageUid));
+		}catch(IllegalArgumentException e) {
+			DmExtPackageController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@PostMapping("/add")
 	public ResponseEntity<?> addPackage(@RequestBody Dmextpackage p) {
 		try {
