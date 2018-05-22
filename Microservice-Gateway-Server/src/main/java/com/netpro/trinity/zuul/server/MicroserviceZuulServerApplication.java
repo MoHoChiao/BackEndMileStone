@@ -54,7 +54,7 @@ public class MicroserviceZuulServerApplication {
         MultipartConfigFactory factory = new MultipartConfigFactory();
         factory.setMaxFileSize("300MB");
         factory.setMaxRequestSize("300MB");
-//        if(mkFileTempDir("./microservice-work/backend-trinity-repository/work/temp")) {
+//        if(mkFileTempDir("./microservice-work/microservice-gateway-server/work/temp")) {
 //        	factory.setLocation("./microservice-work/microservice-gateway-server/work/temp");
 //        }else {
 //        	factory.setLocation("/");
