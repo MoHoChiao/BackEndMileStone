@@ -32,7 +32,6 @@ import com.netpro.trinity.repository.dto.externalrule.PublishRule;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtJar;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtRule;
 import com.netpro.trinity.repository.entity.externalrule.jpa.Dmextpackage;
-import com.netpro.trinity.repository.entity.jcsagent.jpa.JCSAgent;
 import com.netpro.trinity.repository.prop.TrinitySysSetting;
 import com.netpro.trinity.repository.service.jcsagent.JCSAgentService;
 import com.netpro.trinity.repository.util.Constant;

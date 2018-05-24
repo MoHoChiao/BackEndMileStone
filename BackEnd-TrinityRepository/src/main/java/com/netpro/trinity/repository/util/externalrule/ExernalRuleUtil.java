@@ -75,69 +75,6 @@ public class ExernalRuleUtil {
 		return ret;
 	}
 	
-//	public String test(List<Publication> publications) throws IOException, Exception{		
-//		Document doc = XMLUtil.toDocument(readEextruleCfgFile());
-//		NodeList rootNodeList = doc.getElementsByTagName("root");
-//		Node rootNode = rootNodeList.item(0);
-//		NodeList agentNodeList = doc.getElementsByTagName(Constant.TAG_AGENT);
-//		
-//		for(Publication publication : publications) {
-//			Node agentNode = getNodeByAgentUID(agentNodeList, publication.getAgentuid());
-//			
-//			if (agentNode == null) {
-//				Element new_agentNode = doc.createElement(Constant.TAG_AGENT);
-//				new_agentNode.setAttribute(Constant.TAG_ATTR_AGENTUID, publication.getAgentuid());
-//				rootNode.appendChild(new_agentNode);
-//				for(PublishRule publishRule : publication.getPublishRule()) {
-//					String new_ruleName = publishRule.getPackagename() + "." + publishRule.getRulename();
-//					if(publishRule.getPublished()) {
-//						Element new_ruleNode = doc.createElement(Constant.TAG_RULE);
-//						new_ruleNode.setAttribute(Constant.TAG_ATTR_ACTIVE, publishRule.getActive());
-//						new_ruleNode.setAttribute(Constant.TAG_ATTR_NAME, new_ruleName);
-//						new_ruleNode.setAttribute(Constant.TAG_ATTR_CLASSPATH, publishRule.getFullclasspath());
-//						new_ruleNode.setAttribute(Constant.TAG_ATTR_FILENAME, publishRule.getFilename());
-//						new_ruleNode.setAttribute(Constant.TAG_ATTR_JARUID, publishRule.getExtjaruid());
-//						new_ruleNode.setAttribute(Constant.TAG_ATTR_MD5, publishRule.getMd5());
-//						new_agentNode.appendChild(new_ruleNode);
-//					}
-//				}
-//			}else {
-//				NodeList ruleNodeList = agentNode.getChildNodes();
-//				List<String> ruleNames = new ArrayList<String>();
-//				for (int i = 0 ; i < ruleNodeList.getLength() ; i++){
-//					Node ruleNode = ruleNodeList.item(i);
-//					
-//					//只處理一般Node
-//					if(ruleNode.getNodeType() != 1)
-//						continue;
-//					
-//					String ruleName = FileDetailUtil.getNodeAttByName(ruleNode, Constant.TAG_ATTR_NAME);
-//					ruleNames.add(ruleName);
-//				}
-//								
-//				for(PublishRule publishRule : publication.getPublishRule()) {
-//					String new_ruleName = publishRule.getPackagename() + "." + publishRule.getRulename();
-//					if(ruleNames.contains(new_ruleName)) {
-//						if(publishRule.getPublished()) {
-//							Element new_ruleNode = doc.createElement(Constant.TAG_RULE);
-//							new_ruleNode.setAttribute(Constant.TAG_ATTR_ACTIVE, publishRule.getActive());
-//							new_ruleNode.setAttribute(Constant.TAG_ATTR_NAME, new_ruleName);
-//							new_ruleNode.setAttribute(Constant.TAG_ATTR_CLASSPATH, publishRule.getFullclasspath());
-//							new_ruleNode.setAttribute(Constant.TAG_ATTR_FILENAME, publishRule.getFilename());
-//							new_ruleNode.setAttribute(Constant.TAG_ATTR_JARUID, publishRule.getExtjaruid());
-//							new_ruleNode.setAttribute(Constant.TAG_ATTR_MD5, publishRule.getMd5());
-//							agentNode.replaceChild(new_ruleNode, ruleNode);
-//						}else {
-//							agentNode.removeChild(ruleNode);
-//						}
-//					}
-//				}
-//			}
-//		}
-//		
-//		return XMLUtil.toXML(doc);
-//	}
-	
 	private String readEextruleCfgFile() throws IOException{
 		StringBuffer sb = new StringBuffer();
 		BufferedReader br = null;
