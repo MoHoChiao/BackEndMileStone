@@ -68,6 +68,16 @@ public class JCSAgentService {
 		return agents;
 	}
 	
+	public List<String> getAllAgentNames() throws Exception{
+		List<String> names = this.dao.findAllAgentNames();
+		return names;
+	}
+	
+	public List<String> getAllAgentUids() throws Exception{
+		List<String> uids = this.dao.findAllAgentUids();
+		return uids;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public ResponseEntity<?> getByFilter(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
 								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{

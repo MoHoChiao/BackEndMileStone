@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.netpro.trinity.repository.dto.externalrule.Publication;
+import com.netpro.trinity.repository.dto.externalrule.PublishRule;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtRule;
 
 @Repository  //宣告這是一個DAO類別
@@ -80,16 +80,15 @@ public class DmExtRuleJDBCDao {
     }
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public List<Publication> findPublishRulesByPackageUid(String packageUid) throws DataAccessException{
+	public List<PublishRule> findAllExt() throws DataAccessException{
 
         String sql = "SELECT der.rulename, der.fullclasspath, der.active, der.description, dej.extjaruid, dej.filename, dej.md5, dep.packageuid, dep.packagename "
         		+ "FROM Dmextrule der, Dmextjar dej, Dmextpackage dep "
-        		+ "WHERE der.extjaruid = dej.extjaruid AND dej.packageuid = dep.packageuid AND dep.packageuid= ? "
-        		+ "ORDER BY dep.filename, der.rulename";
-        Object[] param = new Object[] {packageUid};
+        		+ "WHERE der.extjaruid = dej.extjaruid AND dej.packageuid = dep.packageuid "
+        		+ "ORDER BY dep.packagename, dej.filename, der.rulename";
 
-        List<Publication> lists = (List<Publication>) jtm.query(sql, param,
-                new BeanPropertyRowMapper(Publication.class));
+        List<PublishRule> lists = (List<PublishRule>) jtm.query(sql,
+                new BeanPropertyRowMapper(PublishRule.class));
 
         return lists;
     }

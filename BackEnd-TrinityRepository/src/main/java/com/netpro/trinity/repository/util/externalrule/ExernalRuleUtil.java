@@ -33,6 +33,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.netpro.trinity.repository.dto.externalrule.Publication;
+import com.netpro.trinity.repository.dto.externalrule.PublishRule;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtRule;
 import com.netpro.trinity.repository.prop.TrinitySysSetting;
 import com.netpro.trinity.repository.util.Constant;
@@ -73,6 +75,69 @@ public class ExernalRuleUtil {
 		return ret;
 	}
 	
+//	public String test(List<Publication> publications) throws IOException, Exception{		
+//		Document doc = XMLUtil.toDocument(readEextruleCfgFile());
+//		NodeList rootNodeList = doc.getElementsByTagName("root");
+//		Node rootNode = rootNodeList.item(0);
+//		NodeList agentNodeList = doc.getElementsByTagName(Constant.TAG_AGENT);
+//		
+//		for(Publication publication : publications) {
+//			Node agentNode = getNodeByAgentUID(agentNodeList, publication.getAgentuid());
+//			
+//			if (agentNode == null) {
+//				Element new_agentNode = doc.createElement(Constant.TAG_AGENT);
+//				new_agentNode.setAttribute(Constant.TAG_ATTR_AGENTUID, publication.getAgentuid());
+//				rootNode.appendChild(new_agentNode);
+//				for(PublishRule publishRule : publication.getPublishRule()) {
+//					String new_ruleName = publishRule.getPackagename() + "." + publishRule.getRulename();
+//					if(publishRule.getPublished()) {
+//						Element new_ruleNode = doc.createElement(Constant.TAG_RULE);
+//						new_ruleNode.setAttribute(Constant.TAG_ATTR_ACTIVE, publishRule.getActive());
+//						new_ruleNode.setAttribute(Constant.TAG_ATTR_NAME, new_ruleName);
+//						new_ruleNode.setAttribute(Constant.TAG_ATTR_CLASSPATH, publishRule.getFullclasspath());
+//						new_ruleNode.setAttribute(Constant.TAG_ATTR_FILENAME, publishRule.getFilename());
+//						new_ruleNode.setAttribute(Constant.TAG_ATTR_JARUID, publishRule.getExtjaruid());
+//						new_ruleNode.setAttribute(Constant.TAG_ATTR_MD5, publishRule.getMd5());
+//						new_agentNode.appendChild(new_ruleNode);
+//					}
+//				}
+//			}else {
+//				NodeList ruleNodeList = agentNode.getChildNodes();
+//				List<String> ruleNames = new ArrayList<String>();
+//				for (int i = 0 ; i < ruleNodeList.getLength() ; i++){
+//					Node ruleNode = ruleNodeList.item(i);
+//					
+//					//只處理一般Node
+//					if(ruleNode.getNodeType() != 1)
+//						continue;
+//					
+//					String ruleName = FileDetailUtil.getNodeAttByName(ruleNode, Constant.TAG_ATTR_NAME);
+//					ruleNames.add(ruleName);
+//				}
+//								
+//				for(PublishRule publishRule : publication.getPublishRule()) {
+//					String new_ruleName = publishRule.getPackagename() + "." + publishRule.getRulename();
+//					if(ruleNames.contains(new_ruleName)) {
+//						if(publishRule.getPublished()) {
+//							Element new_ruleNode = doc.createElement(Constant.TAG_RULE);
+//							new_ruleNode.setAttribute(Constant.TAG_ATTR_ACTIVE, publishRule.getActive());
+//							new_ruleNode.setAttribute(Constant.TAG_ATTR_NAME, new_ruleName);
+//							new_ruleNode.setAttribute(Constant.TAG_ATTR_CLASSPATH, publishRule.getFullclasspath());
+//							new_ruleNode.setAttribute(Constant.TAG_ATTR_FILENAME, publishRule.getFilename());
+//							new_ruleNode.setAttribute(Constant.TAG_ATTR_JARUID, publishRule.getExtjaruid());
+//							new_ruleNode.setAttribute(Constant.TAG_ATTR_MD5, publishRule.getMd5());
+//							agentNode.replaceChild(new_ruleNode, ruleNode);
+//						}else {
+//							agentNode.removeChild(ruleNode);
+//						}
+//					}
+//				}
+//			}
+//		}
+//		
+//		return XMLUtil.toXML(doc);
+//	}
+	
 	private String readEextruleCfgFile() throws IOException{
 		StringBuffer sb = new StringBuffer();
 		BufferedReader br = null;
@@ -103,6 +168,39 @@ public class ExernalRuleUtil {
 					bw.close();
 			} catch (IOException e) {}
 		}
+	}
+	
+	public String writeEextruleCfg(List<Publication> publications) throws Exception{
+		Document doc = XMLUtil.newDocument();
+		Element root = doc.createElement("root");
+		doc.appendChild(root);
+		
+		for (Publication publication : publications){
+			if(publication.getPublishRule().size() > 0) {	//size大於0表示此agent底下有rule的設定, 才可能需要建立agent節點
+				Element agentNode = doc.createElement(Constant.TAG_AGENT);
+				agentNode.setAttribute(Constant.TAG_ATTR_AGENTUID, publication.getAgentuid());
+				
+				for (PublishRule rule : publication.getPublishRule()){
+					if(rule.getPublished()) {	//當為published rule時, 才需要把此rule加入agent節點中
+						Element ruleNode = doc.createElement(Constant.TAG_RULE);
+						ruleNode.setAttribute(Constant.TAG_ATTR_ACTIVE, rule.getActive());
+						ruleNode.setAttribute(Constant.TAG_ATTR_NAME, rule.getPackagename() + "." +rule.getRulename());
+						ruleNode.setAttribute(Constant.TAG_ATTR_CLASSPATH, rule.getFullclasspath());
+						ruleNode.setAttribute(Constant.TAG_ATTR_FILENAME, rule.getFilename());
+						ruleNode.setAttribute(Constant.TAG_ATTR_JARUID, rule.getExtjaruid());
+						ruleNode.setAttribute(Constant.TAG_ATTR_MD5, rule.getMd5());
+						
+						agentNode.appendChild(ruleNode);
+					}
+				}
+				
+				if(agentNode.getChildNodes().getLength() > 0) {	//當此agent至少有一個published rule時, 則此agent節點才需要加進root節點
+					root.appendChild(agentNode);
+				}
+			}
+		}
+		String new_cfg = XMLUtil.toXML(doc);
+		return new_cfg;
 	}
 	
 	public void writeImportJarFile(byte[] bytes, String tempRootPath, String fileName) throws IOException, Exception {
@@ -196,233 +294,6 @@ public class ExernalRuleUtil {
 					zipFile.close();
 			}catch(Exception e) {}
 		}
-	}
-	
-//	private int parseConfig(Document doc, String fileName) throws Exception{
-//		Element root = doc.getDocumentElement();
-//		String packageName = root.getAttribute("name");
-//		String packageDesc = root.getAttribute("description") == null ? "" : root.getAttribute("description");
-//		Dmextpackage dep = _dmextruleService.queryPackageByName(packageName);
-//		
-//		if (packageName == null || packageName.isEmpty())
-//			return PACKAGE_NAME_EMPTY;
-//		
-//		packageName = packageName.toUpperCase();
-//		
-//		if (dep == null){
-//			//建立 Package
-//			dep = new Dmextpackage();
-//			dep.setPackageuid(UUID.randomUUID().toString());
-//			dep.setPackagename(packageName);
-//			dep.setDescription(packageDesc);
-//			_dmextruleService.insertPackage(dep);
-//			
-//			//把原本在 temp 資料夾的檔案搬到此  Package 資料夾底下
-//			File tf = new File(tempRootPath, fileName);
-//			
-//			fileName = fullFileName(packageName, fileName);
-//			checkDir(fileName);
-//			
-//			File f = new File(rootPath, fileName);
-//			tf.renameTo(f);
-//			String md5 = FileDetailUtil.getFileMD5(f);
-//			String fileType = checkFileType(f);
-//			FileInputStream fis = null;
-//			byte[] data;
-//			try {
-//				fis = new FileInputStream(f);
-//				data = new byte[(int)f.length()];
-//				fis.read(data);
-//			} finally{
-//				if (fis != null)
-//					fis.close();
-//			}
-//			
-//			//把此 Jar 檔案上傳到資料庫
-//			Dmextjar dej = new Dmextjar();
-//			dej.setExtjaruid(UUID.randomUUID().toString());
-//			dej.setFilename(fileName);
-//			dej.setPackageuid(dep.getPackageuid());
-//			dej.setData(data);
-//			dej.setMd5(md5);
-//			dej.setUploadtime(sdf.format(new Date()));
-//			dej.setFiletype(fileType);
-//			dej.setDescription("");
-//			_dmextruleService.insertLib(dej);
-//			JCSServerCommandUtil.sendCommandToServer("publishexternallib");
-//			
-//			NodeList nl = root.getChildNodes();
-//			for (int i = 0 ; i < nl.getLength() ; i++){
-//				Node ruleNode = nl.item(i);
-//				if (ruleNode.getNodeType() == Node.TEXT_NODE)
-//					continue;
-//				
-//				Map<String, String> atbMap = getAttributes(ruleNode.getAttributes());
-//				
-//				String fullClass = atbMap.get("fullclass");
-//				String rulename = atbMap.get("rulename");
-//				String description = atbMap.get("description");
-//				
-//				if (fullClass.isEmpty())
-//					return FULL_CLASS_PATH_EMPTY;
-//					
-//				if (rulename.isEmpty())
-//					return RULE_NAME_EMPTY;
-//				
-//				addRule(dej.getExtjaruid(), rulename, fullClass, "1", description);
-//			}
-//		} else {
-//			
-//			//把原本在 temp 資料夾的檔案搬到此  Package 資料夾底下
-//			File tf = new File(tempRootPath, fileName);
-//			
-//			fileName = fullFileName(packageName, fileName);
-//			checkDir(fileName);
-//			
-//			File f = new File(rootPath, fileName);
-//			
-//			//搬移檔案失敗表示此檔案已存在，表示需要使用覆蓋方式處理
-//			if (tf.renameTo(f)){
-//				String md5 = FileDetailUtil.getFileMD5(f);
-//				String fileType = checkFileType(f);
-//				byte[] data = new byte[(int)f.length()];
-//				
-//				//把此 Jar 檔案上傳到資料庫
-//				Dmextjar dej = new Dmextjar();
-//				dej.setExtjaruid(UUID.randomUUID().toString());
-//				dej.setFilename(fileName);
-//				dej.setPackageuid(dep.getPackageuid());
-//				dej.setData(data);
-//				dej.setMd5(md5);
-//				dej.setUploadtime(sdf.format(new Date()));
-//				dej.setFiletype(fileType);
-//				dej.setDescription("");
-//				_dmextruleService.insertLib(dej);
-//				JCSServerCommandUtil.sendCommandToServer("publishexternallib");
-//				
-//				NodeList nl = root.getChildNodes();
-//				for (int i = 0 ; i < nl.getLength() ; i++){
-//					Node ruleNode = nl.item(i);
-//					if (ruleNode.getNodeType() == Node.TEXT_NODE)
-//						continue;
-//					
-//					Map<String, String> atbMap = getAttributes(ruleNode.getAttributes());
-//					
-//					String fullClass = atbMap.get("fullclass");
-//					String rulename = atbMap.get("rulename");
-//					String description = atbMap.get("description");
-//					
-//					if (fullClass.isEmpty())
-//						return FULL_CLASS_PATH_EMPTY;
-//						
-//					if (rulename.isEmpty())
-//						return RULE_NAME_EMPTY;
-//					
-//					Dmextrule der = _dmextruleService.queryRuleByFullclass(dej.getExtjaruid(), fullClass);
-//					if (der != null){
-//						der.getId().setRulename(rulename);
-//						der.setActive("1");
-//						der.setDescription(description);
-//						der.setFullclasspath(fullClass);
-//						_dmextruleService.updateRule(rulename, der);
-//					} else {
-//						addRule(dej.getExtjaruid(), rulename, fullClass, "1", description);
-//					}
-//				}
-//			} else {
-//				f.delete();
-//				tf.renameTo(f);
-//				
-//				byte[] data = new byte[(int)f.length()];
-//				
-//				Dmextjar dej = _dmextruleService.queryDejByFileName(fileName);
-//				List<Dmextrule> derList = _dmextruleService.queryRuleBuJarUID(dej.getExtjaruid());
-//				List<String> dbDerList = new ArrayList<String>();
-//				List<String> ruleList = new ArrayList<String>();
-//				
-//				for (Dmextrule der : derList)
-//					dbDerList.add(der.getFullclasspath());
-//				
-//				NodeList nl = root.getChildNodes();
-//				for (int i = 0 ; i < nl.getLength() ; i++){
-//					Node ruleNode = nl.item(i);
-//					if (ruleNode.getNodeType() == Node.TEXT_NODE)
-//						continue;
-//					
-//					Map<String, String> atbMap = getAttributes(ruleNode.getAttributes());
-//					String fullClass = atbMap.get("fullclass");
-//					String rulename = atbMap.get("rulename");
-//					String description = atbMap.get("description");
-//					
-//					if (fullClass.isEmpty())
-//						return FULL_CLASS_PATH_EMPTY;
-//						
-//					if (rulename.isEmpty())
-//						return RULE_NAME_EMPTY;
-//					
-//					if (fullClass.isEmpty())
-//						return FULL_CLASS_PATH_EMPTY;
-//						
-//					ruleList.add(fullClass);
-//					
-//					if (!dbDerList.contains(fullClass))
-//						addRule(dej.getExtjaruid(), rulename, fullClass, "1", description);
-//				}
-//				
-//				//若覆蓋的 Jar 檔，把原先設定的Rule 中所指定的 Class 刪除了，則要把此 Rule 的 active 改成 0
-//				for (Dmextrule der : derList){
-//					if (!ruleList.contains(der.getFullclasspath())){
-//						der.setActive("0");
-//						_dmextruleService.update(der);
-//					} else {
-//						der.setActive("1");
-//						_dmextruleService.update(der);
-//					}
-//				}
-//				
-//				String md5 = FileDetailUtil.getFileMD5(f);
-//				String fileType = checkFileType(f);
-//				String cfg = SettingRuleFileUtil.updateOverrideRuleActive(derList, md5);
-//				if (cfg.trim().length() != 0)
-//					SettingRuleFileUtil.writeCfg(cfg);
-//				
-//				dej.setData(data);
-//				dej.setMd5(md5);
-//				dej.setFiletype(fileType);
-//				dej.setUploadtime(sdf.format(new Date()));
-//				_dmextruleService.updateLib(dej);
-//				JCSServerCommandUtil.sendCommandToServer("publishexternallib");
-//			}
-//		}
-//		
-//		return SUCCESS;
-//	}
-	
-	public String writeExtRuleCfg(Map<String, List<Map<String, String>>> dataMap) throws Exception{
-		Document doc = XMLUtil.newDocument();
-		Element root = doc.createElement("root");
-		doc.appendChild(root);
-		
-		for (Map.Entry<String, List<Map<String, String>>> entry : dataMap.entrySet()){
-			Element agentNode = doc.createElement(Constant.TAG_AGENT);
-			agentNode.setAttribute(Constant.TAG_ATTR_AGENTUID, entry.getKey());
-			root.appendChild(agentNode);
-			
-			for (Map<String, String> map : entry.getValue()){
-				Element ruleNode = doc.createElement(Constant.TAG_RULE);
-				ruleNode.setAttribute(Constant.TAG_ATTR_ACTIVE, map.get(Constant.TAG_ATTR_ACTIVE));
-				ruleNode.setAttribute(Constant.TAG_ATTR_NAME, map.get(Constant.TAG_ATTR_NAME));
-				ruleNode.setAttribute(Constant.TAG_ATTR_CLASSPATH, map.get(Constant.TAG_ATTR_CLASSPATH));
-				ruleNode.setAttribute(Constant.TAG_ATTR_FILENAME, map.get(Constant.TAG_ATTR_FILENAME));
-				ruleNode.setAttribute(Constant.TAG_ATTR_JARUID, map.get(Constant.TAG_ATTR_JARUID));
-				ruleNode.setAttribute(Constant.TAG_ATTR_MD5, map.get(Constant.TAG_ATTR_MD5));
-				
-				agentNode.appendChild(ruleNode);
-			}
-		}
-		String cfg = XMLUtil.toXML(doc);
-		writeEextruleCfgFile(cfg);
-		return cfg;
 	}
 	
 	public String updateCfgPackageName(List<String> jarUIDs, String pName) throws IOException, Exception{

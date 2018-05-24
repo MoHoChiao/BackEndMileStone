@@ -17,6 +17,12 @@ public interface JCSAgentJPADao extends JpaRepository<JCSAgent, String> {
 	@Query("select count(agent)>0 from JCSAgent agent where agent.agentname=:agentname AND 1=1")
 	Boolean existByName(@Param("agentname") String agentname);
 	
+	@Query("select agentname from JCSAgent")
+	List<String> findAllAgentNames();
+	
+	@Query("select agentuid from JCSAgent")
+	List<String> findAllAgentUids();
+	
 	//agentname field
 	List<JCSAgent> findByagentname(String name);
 	List<JCSAgent> findByagentname(String name, Sort sort);

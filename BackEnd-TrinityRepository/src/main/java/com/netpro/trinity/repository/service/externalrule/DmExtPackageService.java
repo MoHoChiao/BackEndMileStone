@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,10 +28,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.netpro.trinity.repository.dao.jpa.externalrule.DmExtPackageJPADao;
 import com.netpro.trinity.repository.dto.externalrule.Publication;
+import com.netpro.trinity.repository.dto.externalrule.PublishRule;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtJar;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtRule;
 import com.netpro.trinity.repository.entity.externalrule.jpa.Dmextpackage;
+import com.netpro.trinity.repository.entity.jcsagent.jpa.JCSAgent;
 import com.netpro.trinity.repository.prop.TrinitySysSetting;
+import com.netpro.trinity.repository.service.jcsagent.JCSAgentService;
 import com.netpro.trinity.repository.util.Constant;
 import com.netpro.trinity.repository.util.drivermanager.FileDetailUtil;
 import com.netpro.trinity.repository.util.externalrule.ExernalRuleUtil;
@@ -52,6 +56,8 @@ public class DmExtPackageService {
 	private DmExtJarService jarService;
 	@Autowired
 	private DmExtRuleService ruleService;
+	@Autowired
+	private JCSAgentService agentService;
 	
 	@Autowired
 	private ExernalRuleUtil ruleFileUtil;
@@ -93,17 +99,17 @@ public class DmExtPackageService {
 		return packages;
 	}
 	
-	public List<Publication> getPublicationByAgentUidAndPackageUid(String agentUid, String packageUid) throws IllegalArgumentException, Exception{
+	public List<PublishRule> getPublicationsByAgentUid(String agentUid) throws IllegalArgumentException, Exception{
 		if(null == agentUid || agentUid.trim().isEmpty())
 			throw new IllegalArgumentException("Agent Uid can not be empty!!");
 		
-		if(null == packageUid || packageUid.trim().isEmpty())
-			throw new IllegalArgumentException("External Package Uid can not be empty!!");
+		if(!this.agentService.existByUid(agentUid))
+			throw new IllegalArgumentException("Agent Uid does not exist!!");
 		
 		List<String> rulePKStringList = ruleFileUtil.getRulePKStringByAgentUID(agentUid);
 		
-		List<Publication> publicationRules = this.ruleService.getPublishRulesByPackageUid(packageUid);
-		for(Publication publicationRule : publicationRules) {
+		List<PublishRule> publicationRules = this.ruleService.getAllExt();
+		for(PublishRule publicationRule : publicationRules) {
 			String jarUid = publicationRule.getExtjaruid();
 			String ruleName = publicationRule.getRulename();
 			if(rulePKStringList.contains(jarUid+":"+ruleName)) {
@@ -114,6 +120,39 @@ public class DmExtPackageService {
 		}
 		
 		return publicationRules;
+	}
+	
+	public List<PublishRule> getPublicationsByAgentUid(String agentUid, Boolean hasPublished) throws IllegalArgumentException, Exception{
+		if(null == agentUid || agentUid.trim().isEmpty())
+			throw new IllegalArgumentException("Agent Uid can not be empty!!");
+		
+		if(!this.agentService.existByUid(agentUid))
+			throw new IllegalArgumentException("Agent Uid does not exist!!");
+		
+		if(null == hasPublished)
+			hasPublished = true;
+		
+		List<String> rulePKStringList = ruleFileUtil.getRulePKStringByAgentUID(agentUid);
+		
+		List<PublishRule> publicationRules = this.ruleService.getAllExt();
+		List<PublishRule> onlyPublishedRules = new LinkedList<PublishRule>();
+		for(PublishRule publicationRule : publicationRules) {
+			String jarUid = publicationRule.getExtjaruid();
+			String ruleName = publicationRule.getRulename();
+			if(rulePKStringList.contains(jarUid+":"+ruleName)) {
+				if(hasPublished) {
+					publicationRule.setPublished(true);
+					onlyPublishedRules.add(publicationRule);
+				}
+			}else {
+				if(!hasPublished) {
+					publicationRule.setPublished(false);
+					onlyPublishedRules.add(publicationRule);
+				}
+			}
+		}
+		
+		return onlyPublishedRules;
 	}
 	
 	public Dmextpackage addPackage(Dmextpackage p) throws IllegalArgumentException, Exception{
@@ -277,9 +316,30 @@ public class DmExtPackageService {
 		}
 	}
 	
-	public Boolean publishPackage() {
+	public Boolean publishPackage(List<Publication> publications) throws NoSuchAlgorithmException, IOException, Exception {
+		//取得系統中存在的所有agents
+		List<String> allAgentUids = this.agentService.getAllAgentUids();
 		
+		//這裡處理前端傳來的publications
+		for(Publication publication : publications) {
+			if(allAgentUids.contains(publication.getAgentuid()))
+				allAgentUids.remove(publication.getAgentuid());//剩下的都是未在前端點選設定的agents
+		}
 		
+		//把前端有點選設定的agent,以及所有其它未點選設定的agent,通通放到publications裡面
+		for(String agentUid : allAgentUids) {
+			List<PublishRule> rules = this.getPublicationsByAgentUid(agentUid);
+			if(rules.size() > 0) {
+				Publication publication = new Publication();
+				publication.setAgentuid(agentUid);
+				publication.setPublishRule(rules);
+				publications.add(publication);
+			}
+		}
+		
+		String new_cfg = ruleFileUtil.writeEextruleCfg(publications);	//組成新的extrule.xml
+		ruleFileUtil.writeEextruleCfgFile(new_cfg);	//寫出成檔案, 替換原本的extrule.xml
+		this.ruleService.upLoadCfgToDB(new_cfg);	//把新的extrule.xml寫入DB
 		return true;
 	}
 	

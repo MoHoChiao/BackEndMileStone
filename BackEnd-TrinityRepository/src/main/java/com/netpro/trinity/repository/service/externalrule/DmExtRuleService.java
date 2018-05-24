@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.repository.dao.jdbc.externalrule.DmExtRuleJDBCDao;
-import com.netpro.trinity.repository.dto.externalrule.Publication;
+import com.netpro.trinity.repository.dto.externalrule.PublishRule;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtJar;
 import com.netpro.trinity.repository.entity.externalrule.jdbc.DmExtRule;
 import com.netpro.trinity.repository.entity.externalrule.jpa.Dmextpackage;
@@ -48,6 +48,10 @@ public class DmExtRuleService {
 		return this.dao.findAll();
 	}
 	
+	public List<PublishRule> getAllExt() throws IllegalArgumentException, Exception{
+		return this.dao.findAllExt();
+	}
+	
 	public List<DmExtRule> getByExtJarUid(String extJarUid) throws IllegalArgumentException, Exception{
 		if(extJarUid == null || extJarUid.isEmpty())
 			throw new IllegalArgumentException("External Jar UID can not be empty!");
@@ -70,13 +74,6 @@ public class DmExtRuleService {
 			throw new IllegalArgumentException("External Jar UID can not be empty!");
 
 		return this.dao.findFullClassPathsByExtJarUid(extJarUid);
-	}
-	
-	public List<Publication> getPublishRulesByPackageUid(String packageUid) throws IllegalArgumentException, Exception{
-		if(packageUid == null || packageUid.isEmpty())
-			throw new IllegalArgumentException("External Package UID can not be empty!");
-
-		return this.dao.findPublishRulesByPackageUid(packageUid);
 	}
 	
 	public List<DmExtRule> getNonSettingRulesByExtJarUid(String extJarUid) throws IllegalArgumentException, 

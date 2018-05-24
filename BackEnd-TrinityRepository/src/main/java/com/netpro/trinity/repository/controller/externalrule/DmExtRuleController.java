@@ -38,6 +38,19 @@ public class DmExtRuleController {
 		}
 	}
 	
+	@GetMapping("/findAllExt")
+	public ResponseEntity<?> findAllExt() {
+		try {
+			return ResponseEntity.ok(this.service.getAllExt());
+		}catch(IllegalArgumentException e) {
+			DmExtRuleController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			DmExtRuleController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/findByJarUid")
 	public ResponseEntity<?> findRulesByJarUid(String extJarUid) {
 		try {
@@ -68,19 +81,6 @@ public class DmExtRuleController {
 	public ResponseEntity<?> findFullClassPathsByJarUid(String extJarUid) {
 		try {
 			return ResponseEntity.ok(this.service.getFullClassPathsByExtJarUid(extJarUid));
-		}catch(IllegalArgumentException e) {
-			DmExtRuleController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			DmExtRuleController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
-	@GetMapping("/findPublishRulesByPackageUid")
-	public ResponseEntity<?> findPublishRulesByPackageUid(String packageUid) {
-		try {
-			return ResponseEntity.ok(this.service.getPublishRulesByPackageUid(packageUid));
 		}catch(IllegalArgumentException e) {
 			DmExtRuleController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

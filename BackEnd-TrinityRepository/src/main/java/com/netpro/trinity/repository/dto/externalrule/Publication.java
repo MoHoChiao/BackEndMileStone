@@ -1,97 +1,35 @@
 package com.netpro.trinity.repository.dto.externalrule;
 
+import java.util.List;
+
 public class Publication {
-	private String rulename;
-	private String fullclasspath;
-	private String active;
-	private String description;
+	private String agentuid;
+	private String agentname;
+	private List<PublishRule> publishRule;
 	
-	private String extjaruid;
-	private String packageuid;
-	private String packagename;
-	private String filename;
-	private String md5;
-	
-	//for publish only
-	private Boolean published;
-	
-	public String getExtjaruid() {
-		return extjaruid;
+	public String getAgentuid() {
+		return agentuid;
 	}
-
-	public void setExtjaruid(String extjaruid) {
-		this.extjaruid = extjaruid;
+	public void setAgentuid(String agentuid) {
+		this.agentuid = agentuid;
 	}
-
-	public String getRulename() {
-		return rulename;
+	public String getAgentname() {
+		return agentname;
 	}
-
-	public void setRulename(String rulename) {
-		this.rulename = rulename;
+	public void setAgentname(String agentname) {
+		this.agentname = agentname;
 	}
-
-	public String getFullclasspath() {
-		return fullclasspath;
+	public List<PublishRule> getPublishRule() {
+		return publishRule;
 	}
-
-	public void setFullclasspath(String fullclasspath) {
-		this.fullclasspath = fullclasspath;
-	}
-
-	public String getActive() {
-		return active;
-	}
-
-	public void setActive(String active) {
-		this.active = active;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
+	public void setPublishRule(List<PublishRule> publishRule) {
+		this.publishRule = publishRule;
 	}
 	
-	public Boolean getPublished() {
-		return published;
-	}
-
-	public void setPublished(Boolean published) {
-		this.published = published;
-	}
-
-	public String getPackageuid() {
-		return packageuid;
-	}
-
-	public void setPackageuid(String packageuid) {
-		this.packageuid = packageuid;
-	}
-
-	public String getPackagename() {
-		return packagename;
-	}
-
-	public void setPackagename(String packagename) {
-		this.packagename = packagename;
-	}
-
-	public String getFilename() {
-		return filename;
-	}
-
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
-
-	public String getMd5() {
-		return md5;
-	}
-
-	public void setMd5(String md5) {
-		this.md5 = md5;
+	@Override
+	public String toString() {
+		return "Publication{" + "agentuid='" + agentuid + '\'' + ", "
+				+ "agentname='" + agentname + '\'' + ", "
+				+ "publishRule='" + publishRule + '\'' + '}';
 	}
 }

@@ -71,6 +71,32 @@ public class JCSAgentController {
 		}
 	}
 	
+	@GetMapping("/findAllAgentNames")
+	public ResponseEntity<?> findAllAgentNames() {
+		try {
+			return ResponseEntity.ok(this.service.getAllAgentNames());
+		}catch(IllegalArgumentException e) {
+			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/findAllAgentUids")
+	public ResponseEntity<?> findAllAgentUids() {
+		try {
+			return ResponseEntity.ok(this.service.getAllAgentUids());
+		}catch(IllegalArgumentException e) {
+			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			JCSAgentController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@PostMapping("/findByFilter")
 	public ResponseEntity<?> findAgentsByFilter(@RequestBody FilterInfo filter) {
 		try {
