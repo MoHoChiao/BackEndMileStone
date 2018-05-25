@@ -7,10 +7,11 @@ spring:
       max-file-size: 300MB # 設置單文件的最大長度
       max-request-size: 300MB # 设置最大的请求文件的大小
       file-size-threshold: 30MB  # 設置最大的請求文件之大小
-      location: data/tmp  # 上傳檔案的臨時目錄
   jackson: 
     default-property-inclusion: NON_NULL
 server:
   port: 9001                                 # Process啟動的port
+  tomcat:
+    basedir: ./
 encrypt:
   key: trinity

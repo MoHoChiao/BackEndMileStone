@@ -1,7 +1,9 @@
 trinity-prop-setting: 
   server: 
-    host: 127.0.0.1
-    port: 8001
+    dis-host: 127.0.0.1
+    dis-port: 8088
+    microservice-host: 127.0.0.1
+    microservice-port: 8080
   encrypt: 
     key: 'trinity'
   apps: 

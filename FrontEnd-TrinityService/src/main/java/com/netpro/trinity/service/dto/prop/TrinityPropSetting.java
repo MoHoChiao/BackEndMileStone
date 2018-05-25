@@ -53,21 +53,34 @@ public class TrinityPropSetting
 	
 	
 	public static class Server {
-		private String host;
-		private String port;
+		private String disHost;
+		private String disPort;
+		private String microserviceHost;
+		private String microservicePort;
 		
-		public String getHost() {
-			return host;
+		public String getDisHost() {
+			return disHost;
 		}
-		public void setHost(String host) {
-			this.host = host;
+		public void setDisHost(String disHost) {
+			this.disHost = disHost;
 		}
-		
-		public String getPort() {
-			return port;
+		public String getDisPort() {
+			return disPort;
 		}
-		public void setPort(String port) {
-			this.port = port;
+		public void setDisPort(String disPort) {
+			this.disPort = disPort;
+		}
+		public String getMicroserviceHost() {
+			return microserviceHost;
+		}
+		public void setMicroserviceHost(String microserviceHost) {
+			this.microserviceHost = microserviceHost;
+		}
+		public String getMicroservicePort() {
+			return microservicePort;
+		}
+		public void setMicroservicePort(String microservicePort) {
+			this.microservicePort = microservicePort;
 		}
 	}
 	

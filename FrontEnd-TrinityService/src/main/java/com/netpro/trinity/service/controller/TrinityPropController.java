@@ -26,9 +26,18 @@ public class TrinityPropController {
 	public ResponseEntity<?> findAllApps() {
 		String methodKey = "TrinityPropController#findAllApps(...)";
 		try {
-			String host = trinityProp.getServer().getHost();
-			String port = trinityProp.getServer().getPort();
+			String disHost = trinityProp.getServer().getDisHost();
+			String disPort = trinityProp.getServer().getDisPort();
+			String microserviceHost = trinityProp.getServer().getMicroserviceHost();
+			String microservicePort = trinityProp.getServer().getMicroservicePort();
 			for(App app : trinityProp.getApps()) {
+				String host = disHost;
+				String port = disPort;
+				if(app.getName().trim().equals("ResourceSetter")) {
+					host = microserviceHost;
+					port = microservicePort;
+				}
+				
 				if(app.getUrl().indexOf("http://") == -1)
 					app.setUrl("http://"+host+":"+port+"/"+app.getUrl());
 			}
@@ -39,13 +48,11 @@ public class TrinityPropController {
 	    }
 	}
 	
-	@GetMapping("/find-server-url")
-	public ResponseEntity<?> findServerUrl() {
-		String methodKey = "TrinityPropController#findServerUrl(...)";
+	@GetMapping("/find-service-info")
+	public ResponseEntity<?> findServiceInfo() {
+		String methodKey = "TrinityPropController#findServiceInfo(...)";
 		try {
-			String host = trinityProp.getServer().getHost();
-			String port = trinityProp.getServer().getPort();
-			return ResponseEntity.ok("http://"+host+":"+port);
+			return ResponseEntity.ok(trinityProp.getServer());
 		}catch (Exception e) {
 			TrinityPropController.LOGGER.error("Exception; reason was:", e.getCause());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ExceptionMsgFormat.get(500, methodKey, e.getCause().toString()));

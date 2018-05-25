@@ -42,8 +42,8 @@ public class JnlpLib {
 	public String getJFDesignerContent(HttpServletRequest req, List<Disconfig> uiapPosition) throws Exception {	
 		String separator = System.getProperty("file.separator");
 		String filePath = trinitySys.getDir().getSoftware();
-		String host = trinityProp.getServer().getHost();
-		String port = trinityProp.getServer().getPort();
+		String host = trinityProp.getServer().getDisHost();
+		String port = trinityProp.getServer().getDisPort();
 		String serverURL = "http://"+host+":"+port;
 		
 		FileInputStream ints = new FileInputStream(filePath + separator + "JFDesigner.jnlp.template");
@@ -66,8 +66,8 @@ public class JnlpLib {
 	public String getTaskConsoleContent(HttpServletRequest req, List<Disconfig> uiapPosition) throws Exception {	
 		String separator = System.getProperty("file.separator");
 		String filePath = trinitySys.getDir().getSoftware();
-		String host = trinityProp.getServer().getHost();
-		String port = trinityProp.getServer().getPort();
+		String host = trinityProp.getServer().getDisHost();
+		String port = trinityProp.getServer().getDisPort();
 		String serverURL = "http://"+host+":"+port;
 		String encryptKey = trinityProp.getEncrypt().getKey();
 		String userid = repo.getDatasource().get("username");
@@ -97,8 +97,8 @@ public class JnlpLib {
 	public String getMetamanContent(HttpServletRequest req, List<Disconfig> metamanPosition) throws Exception {	
 		String separator = System.getProperty("file.separator");
 		String filePath = trinitySys.getDir().getSoftware();
-		String host = trinityProp.getServer().getHost();
-		String port = trinityProp.getServer().getPort();
+		String host = trinityProp.getServer().getDisHost();
+		String port = trinityProp.getServer().getDisPort();
 		String serverURL = "http://"+host+":"+port;
 		
 		FileInputStream ints = new FileInputStream(filePath + separator + "Metaman.jnlp.template");
@@ -120,8 +120,8 @@ public class JnlpLib {
 	public String getUpdaterContent(HttpServletRequest req, List<Disconfig> uiapPosition) throws Exception {	
 		String separator = System.getProperty("file.separator");
 		String filePath = trinitySys.getDir().getSoftware();
-		String host = trinityProp.getServer().getHost();
-		String port = trinityProp.getServer().getPort();
+		String host = trinityProp.getServer().getDisHost();
+		String port = trinityProp.getServer().getDisPort();
 		String serverURL = "http://"+host+":"+port;
 		
 		FileInputStream ints = new FileInputStream(filePath + separator + "Updater.jnlp.template");

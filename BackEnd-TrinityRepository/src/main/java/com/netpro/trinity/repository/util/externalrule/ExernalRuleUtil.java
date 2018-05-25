@@ -79,17 +79,23 @@ public class ExernalRuleUtil {
 		StringBuffer sb = new StringBuffer();
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new FileReader(new File(this.trinitySys.getDir().getExtlib(), Constant.EXT_RULE_CFG)));
-			
-			String temp = "";
-			while ((temp = br.readLine()) != null)
-				sb.append(temp);
+			File xmlFile = new File(this.trinitySys.getDir().getExtlib(), Constant.EXT_RULE_CFG);
+			if(xmlFile.exists()) {
+				br = new BufferedReader(new FileReader(xmlFile));
+				
+				String temp = "";
+				while ((temp = br.readLine()) != null)
+					sb.append(temp);
+				
+				return sb.toString();
+			}else {
+				writeEextruleCfgFile("<root/>");
+				return "<root/>";
+			}
 		} finally {
 			if (br != null)
 				br.close();
 		}
-		
-		return sb.toString();
 	}
 	
 	public void writeEextruleCfgFile(String xmlData) throws IOException{

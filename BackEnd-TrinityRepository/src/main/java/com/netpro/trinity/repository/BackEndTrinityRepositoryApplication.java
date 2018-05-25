@@ -32,16 +32,16 @@ public class BackEndTrinityRepositoryApplication {
         MultipartConfigFactory factory = new MultipartConfigFactory();
         factory.setMaxFileSize("300MB");
         factory.setMaxRequestSize("300MB");
-//        if(mkFileTempDir("./microservice-work/backend-trinity-repository/work/temp")) {
-//        	factory.setLocation("./microservice-work/backend-trinity-repository/work/temp");
+//        if(mkFileTempDir("microservice-work/backend-trinity-repository/work/temp")) {
+//        	factory.setLocation("microservice-work/backend-trinity-repository/work/temp");
 //        }else {
 //        	factory.setLocation("/");
 //        }
-        if(mkFileTempDir("D:/microservice-work/backend-trinity-repository/work/temp")) {
-        	factory.setLocation("D:/microservice-work/backend-trinity-repository/work/temp");
-        }else {
-        	factory.setLocation("/");
-        }
+//        if(mkFileTempDir("D:/microservice-work/backend-trinity-repository/work/temp")) {
+//        	factory.setLocation("D:/microservice-work/backend-trinity-repository/work/temp");
+//        }else {
+//        	factory.setLocation("/");
+//        }
         
         return factory.createMultipartConfig();
     }
