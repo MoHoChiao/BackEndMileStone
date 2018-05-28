@@ -1,5 +1,7 @@
 server:
-  port: 8888                            # 此Config Server Process啟動的port
+  port: 8080                                    # 指定這台Server啟動的port
+  tomcat:
+    basedir: ./
 eureka:
   client:
     serviceUrl:                                                 # http://localhost:8761/eureka/,表示用戶或微服務要與Eureka Server溝通的地址,默認即為左顯示,若有多個Eureka Server地址可以用逗號隔開
@@ -8,15 +10,13 @@ eureka:
     prefer-ip-address: true                                     # 是否把自己的ip註冊到Eureka Server上,若為false表示會註冊此微服務所在電腦的hostname到Eureka Server上
 spring:
   application:
-     name: microservice-config-server
-  profiles:
-     active: native                     # 本地檔案,無GIT
-  cloud:
-    config:
-      server:
-        native:
-          #本地檔案,無GIT,直接指定一個你想存放各個微服務之property檔的位置
-          search-locations: file:../Trinity-Properties
-management:
-  security:
-    enabled: false                      # 把安全性關掉,這裡是方便測試
+    name: microservice-gateway-server           # 指定要注冊到Eureka Server上的應用程式之名稱
+  http:
+    multipart:
+      enabled: true   # 啟用http上傳
+      max-file-size: 300MB # 設置單文件的最大長度
+      max-request-size: 300MB # 設置最大的請求文件之大小
+      file-size-threshold: 30MB  # 當上傳檔案到達2MB時, 寫入磁碟
+      location: data/tmp  # 上傳檔案的臨時目錄
+  jackson: 
+    default-property-inclusion: NON_NULL
