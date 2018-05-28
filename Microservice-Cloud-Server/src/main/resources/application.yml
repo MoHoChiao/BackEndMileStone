@@ -13,5 +13,5 @@ security:
   basic:
     enabled: true               # 啟動一個基於安全的HTTP basic的認證
   user:
-    name: leoliu                # 配置可以登入的user帳號
-    password: mypass            # 配置可以登入的user密碼
+    name: root                # 配置可以登入的user帳號
+    password: trinity            # 配置可以登入的user密碼

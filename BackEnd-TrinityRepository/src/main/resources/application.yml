@@ -1,3 +1,13 @@
+server:
+  port: 9001                                 # Process啟動的port
+  tomcat:
+    basedir: ./
+eureka:
+  client:
+    serviceUrl:                                                 # http://localhost:8761/eureka/,表示用戶或微服務要與Eureka Server溝通的地址,默認即為左顯示,若有多個Eureka Server地址可以用逗號隔開
+      defaultZone: http://root:trinity@localhost:8761/eureka/  # 若Eureka Server有設定基本認證時,需加上"帳號:密碼"的格式
+  instance:
+    prefer-ip-address: true                                     # 是否把自己的ip註冊到Eureka Server上,若為false表示會註冊此微服務所在電腦的hostname到Eureka Server上
 spring:
   application:
     name: backend-trinity-repository         # 在eureka server的應用程式名稱
@@ -9,9 +19,13 @@ spring:
       file-size-threshold: 30MB  # 設置最大的請求文件之大小
   jackson: 
     default-property-inclusion: NON_NULL
-server:
-  port: 9001                                 # Process啟動的port
-  tomcat:
-    basedir: ./
+  cloud:
+    config:
+      name: trinity-repo-setting,trinity-data-jdbc,trinity-sys-setting
+      uri: http://localhost:8888/      # 這種直接指定IP的方式並不優雅,當你有兩台以上Config Server時,也不會做到load balanced,下面方法較優
+      #discovery:
+        #enabled: true                 # 如果把各台Config Server也已經註冊到Eureka Server,開啟它就可以自動到某台Config Server捉取property了
+        #service-id: configserver      # 指定Config Server在Eureka Server中的服務ID
+      profile: default                 # 本地檔案,無GIT,用default沒差
 encrypt:
   key: trinity
