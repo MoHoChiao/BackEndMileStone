@@ -9,6 +9,9 @@ eureka:
 logging:
   level:
     com.itmuch.cloud.study.user.feign.UserFeignClient: DEBUG    # 把Feign Client接口的logging級別設為DEBUG，因為Feign的Logger Level只能對DEBUG模式有用
+feign:
+  hystrix:
+    enabled: true                                               #把Feign的Hystrix功能打開,即每個Feign Client的接口都會具備容錯機制(超時,切斷,恢復,隔離...等等)
 spring:
   application:
     name: frontend-trinity-service                    # 指定要注冊到Eureka Server上的應用程式之名稱
