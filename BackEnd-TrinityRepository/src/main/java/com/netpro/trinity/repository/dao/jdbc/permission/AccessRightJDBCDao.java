@@ -31,7 +31,7 @@ public class AccessRightJDBCDao {
 	public List<AccessRight> findByPeopleUid(String uid) throws DataAccessException{
 
         String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "
-        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as delete, a.flag4 as edit, "
+        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as edit, a.flag4 as delete, "
         		+ "a.flag5 as run, a.flag6 as reRun, a.flag7 as grant, a.flag8 as import_export "
         		+ "FROM accessright a "
         		+ "WHERE a.peopleuid = ? "
@@ -48,7 +48,7 @@ public class AccessRightJDBCDao {
 	public List<AccessRight> findByObjectUid(String uid) throws DataAccessException{
 
         String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "
-        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as delete, a.flag4 as edit, "
+        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as edit, a.flag4 as delete, "
         		+ "a.flag5 as run, a.flag6 as reRun, a.flag7 as grant, a.flag8 as import_export "
         		+ "FROM accessright a "
         		+ "WHERE a.objectuid = ? "
@@ -65,7 +65,7 @@ public class AccessRightJDBCDao {
 	public List<AccessRight> findUserExByObjectUid(String uid) throws DataAccessException{
 
         String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "
-        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as delete, a.flag4 as edit, "
+        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as edit, a.flag4 as delete, "
         		+ "a.flag5 as run, a.flag6 as reRun, a.flag7 as grant, a.flag8 as import_export, "
         		+ "b.userid as peopleid, b.username as peoplename "
         		+ "FROM accessright a, trinityuser b "
@@ -83,7 +83,7 @@ public class AccessRightJDBCDao {
 	public List<AccessRight> findRoleExByObjectUid(String uid) throws DataAccessException{
 
         String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "
-        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as delete, a.flag4 as edit, "
+        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as edit, a.flag4 as delete, "
         		+ "a.flag5 as run, a.flag6 as reRun, a.flag7 as grant, a.flag8 as import_export, "
         		+ "b.rolename as peoplename "
         		+ "FROM accessright a, role b "
@@ -100,7 +100,7 @@ public class AccessRightJDBCDao {
 	public AccessRight findByAllPKs(String peopleUid, String objectUid) throws EmptyResultDataAccessException, DataAccessException{
 
         String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "
-        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as delete, a.flag4 as edit, "
+        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as edit, a.flag4 as delete, "
         		+ "a.flag5 as run, a.flag6 as reRun, a.flag7 as grant, a.flag8 as import_export "
         		+ "FROM accessright a "
         		+ "WHERE a.peopleuid = ? AND a.objectuid = ?";
@@ -116,7 +116,7 @@ public class AccessRightJDBCDao {
 	public List<AccessRight> findFunctionalPermissionByPeopleUid(String uid) throws DataAccessException{
 
         String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "
-        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as delete, a.flag4 as edit, "
+        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as edit, a.flag4 as delete, "
         		+ "a.flag5 as run, a.flag6 as reRun, a.flag7 as grant, a.flag8 as import_export "
         		+ "FROM accessright a "
         		+ "WHERE a.peopleuid = ? AND a.objectuid like ? "
@@ -142,13 +142,13 @@ public class AccessRightJDBCDao {
 	
 	public int add(AccessRight list) throws DataAccessException{
 		Object[] params = new Object[] {list.getPeopleuid(), list.getObjectuid(), 
-				list.getView(), list.getAdd(), list.getDelete(), list.getEdit(), list.getRun(), list.getReRun(), list.getGrant(), list.getImport_export()};
+				list.getView(), list.getAdd(), list.getEdit(), list.getDelete(), list.getRun(), list.getReRun(), list.getGrant(), list.getImport_export()};
 		
 		return jtm.update(insert_sql, params);
 	}
 	
 	public int update(AccessRight list) throws DataAccessException{
-		Object[] params = new Object[] {list.getView(), list.getAdd(), list.getDelete(), list.getEdit(), 
+		Object[] params = new Object[] {list.getView(), list.getAdd(), list.getEdit(), list.getDelete(), 
 				list.getRun(), list.getReRun(), list.getGrant(), list.getImport_export(), list.getPeopleuid(), list.getObjectuid(),};
 		
 		return jtm.update(update_sql, params);
@@ -162,8 +162,8 @@ public class AccessRightJDBCDao {
 				ps.setString(2, lists.get(i).getObjectuid());
 				ps.setString(3, lists.get(i).getView());
 				ps.setString(4, lists.get(i).getAdd());
-				ps.setString(5, lists.get(i).getDelete());
-				ps.setString(6, lists.get(i).getEdit());
+				ps.setString(5, lists.get(i).getEdit());
+				ps.setString(6, lists.get(i).getDelete());
 				ps.setString(7, lists.get(i).getRun());
 				ps.setString(8, lists.get(i).getReRun());
 				ps.setString(9, lists.get(i).getGrant());
@@ -185,8 +185,8 @@ public class AccessRightJDBCDao {
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				ps.setString(1, lists.get(i).getView());
 				ps.setString(2, lists.get(i).getAdd());
-				ps.setString(3, lists.get(i).getDelete());
-				ps.setString(4, lists.get(i).getEdit());
+				ps.setString(3, lists.get(i).getEdit());
+				ps.setString(4, lists.get(i).getDelete());
 				ps.setString(5, lists.get(i).getRun());
 				ps.setString(6, lists.get(i).getReRun());
 				ps.setString(7, lists.get(i).getGrant());
