@@ -14,6 +14,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import com.netpro.trinity.zuul.server.filter.AuthFilter;
+
 /*
  * Spring Boot啟動的核心,它會開啟所有的自動配置以及載入相關的annotation(@Bean,@Entity...)進入Spring IOC Container
  * @SpringBootApplication為@Configuration,@EnableAutoConfiguration,@ComponentScan這些annotation的組合式annotation
@@ -31,6 +33,11 @@ import org.springframework.web.filter.CorsFilter;
  */
 @EnableEurekaClient
 public class MicroserviceZuulServerApplication {
+	@Bean
+	public AuthFilter authFilter() {
+		return new AuthFilter();
+	}
+	
 	@Bean
 	public CorsFilter corsFilter() {
 	    final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
