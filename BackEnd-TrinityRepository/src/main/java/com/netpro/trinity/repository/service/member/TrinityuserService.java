@@ -302,7 +302,7 @@ public class TrinityuserService {
 		char[] secret = password == null ? new char[0] : password.toCharArray();
 		String msg = this.validatePassword(request, false, userid, secret, localAcc, exeAcc);
 		if(!"LDAP".equals(msg) && !"OK".equals(msg) && 
-				(!("EMPTY").equals(msg) || !config.getAuthmode().equals("1")) || localAcc)
+				(!("Password can not be empty").equals(msg) || !config.getAuthmode().equals("1")) || localAcc)
 			throw new ACException(msg);
 		
 		user.setPassword(Crypto.getEncryptString(password, encryptKey));
@@ -394,7 +394,7 @@ public class TrinityuserService {
 		String password = user.getPassword();
 		char[] secret = password == null ? new char[0] : password.toCharArray();
 		String msg = this.validatePassword(request, true, old_user.getUserid(), secret, localAcc, exeAcc);
-		if(!"LDAP".equals(msg) && !"OK".equals(msg) && !("EMPTY").equals(msg))
+		if(!"LDAP".equals(msg) && !"OK".equals(msg) && !("Password can not be empty").equals(msg))
 			throw new ACException(msg);
 		
 		if(null ==  user.getSsoid())
@@ -468,7 +468,7 @@ public class TrinityuserService {
 			Boolean localAcc, Boolean exeAcc) throws Exception{
 		
 		if(secret.length == 0) {
-			return "EMPTY";
+			return "Password can not be empty";
 		}
 		
 		EnumSet<ErrorCodes> errors = EnumSet.noneOf(ErrorCodes.class);
