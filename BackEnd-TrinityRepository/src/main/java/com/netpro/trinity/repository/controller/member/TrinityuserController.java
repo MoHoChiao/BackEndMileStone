@@ -75,6 +75,19 @@ public class TrinityuserController {
 		}
 	}
 	
+	@GetMapping("/findByID")
+	public ResponseEntity<?> findUsersByID(String id) {
+		try {
+			return ResponseEntity.ok(this.service.getByID(id));
+		}catch(IllegalArgumentException e) {
+			TrinityuserController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			TrinityuserController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/findByType")
 	public ResponseEntity<?> findUsersByType(String type) {
 		try {
@@ -119,13 +132,8 @@ public class TrinityuserController {
 			user = this.service.add(request, user);
 			return ResponseEntity.ok(user);
 		}catch(ACException e) {
-			if(e.getErrorCode().isWarning()) {
-				TrinityuserController.LOGGER.error("ACException; reason was:", e);
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-			}else {
-				TrinityuserController.LOGGER.warn(e.getMessage());
-				return ResponseEntity.ok(user);
-			}
+			TrinityuserController.LOGGER.error("ACException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(SQLException e) {
 			TrinityuserController.LOGGER.error("SQLException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -143,13 +151,8 @@ public class TrinityuserController {
 		try {
 			return ResponseEntity.ok(this.service.edit(request, user));
 		}catch(ACException e) {
-			if(e.getErrorCode().isWarning()) {
-				TrinityuserController.LOGGER.error("ACException; reason was:", e);
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-			}else {
-				TrinityuserController.LOGGER.warn(e.getMessage());
-				return ResponseEntity.ok(user);
-			}
+			TrinityuserController.LOGGER.error("ACException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(SQLException e) {
 			TrinityuserController.LOGGER.error("SQLException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

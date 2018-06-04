@@ -2,10 +2,12 @@ package com.netpro.trinity.repository.service.member;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +31,8 @@ import org.springframework.stereotype.Service;
 
 import com.netpro.ac.ACException;
 import com.netpro.ac.DefaultCredentialsService;
+import com.netpro.ac.ErrorCodes;
+import com.netpro.ac.TrinityPrincipal;
 import com.netpro.ac.dao.JdbcDaoFactoryImpl;
 import com.netpro.ac.dto.AccessDetailsDto;
 import com.netpro.ac.util.CookieUtils;
@@ -38,7 +42,9 @@ import com.netpro.trinity.repository.dto.filter.FilterInfo;
 import com.netpro.trinity.repository.dto.filter.Ordering;
 import com.netpro.trinity.repository.dto.filter.Paging;
 import com.netpro.trinity.repository.dto.filter.Querying;
+import com.netpro.trinity.repository.entity.configuration.jpa.Trinityconfig;
 import com.netpro.trinity.repository.entity.member.jpa.Trinityuser;
+import com.netpro.trinity.repository.service.configuration.TrinityconfigService;
 import com.netpro.trinity.repository.service.notification.NotificationListService;
 import com.netpro.trinity.repository.service.permission.AccessRightService;
 import com.netpro.trinity.repository.util.Constant;
@@ -64,6 +70,8 @@ public class TrinityuserService {
 	private NotificationListService n_listService;
 	@Autowired
 	private AccessRightService accessService;
+	@Autowired
+	private TrinityconfigService configService;
 	@Autowired	//自動注入DataSource物件
 	private DataSource dataSource;
 	@Autowired
@@ -97,6 +105,19 @@ public class TrinityuserService {
 		Trinityuser user = this.dao.findOne(uid);
 		if(null == user)
 			throw new IllegalArgumentException("Trinity User UID does not exist!(" + uid + ")");
+		
+		setMailsAndAC(user);
+		
+		return user;
+	}
+	
+	public Trinityuser getByID(String id) throws IllegalArgumentException, Exception{
+		if(id == null || id.trim().isEmpty())
+			throw new IllegalArgumentException("Trinity User ID can not be empty!");
+		
+		Trinityuser user = this.dao.findByuserid(id);
+		if(null == user)
+			throw new IllegalArgumentException("Trinity User ID does not exist!(" + id + ")");
 		
 		setMailsAndAC(user);
 		
@@ -268,16 +289,33 @@ public class TrinityuserService {
 			user.setOnlyforexecution("0");
 		
 		String password = user.getPassword();
-		if(null == password || password.trim().length() < 1)
-			throw new Exception("User Password can not be empty!");
-		password = Crypto.getEncryptString(password, encryptKey);
-		user.setPassword(password);
+//		if(null == password || password.trim().isEmpty())
+//			throw new Exception("User Password can not be empty!");
+		
+		boolean localAcc = true;
+		if(user.getLocalaccount().equals("0"))
+			localAcc = false;
+		boolean exeAcc = true;
+		if(user.getOnlyforexecution().equals("0"))
+			exeAcc = false;
+		Trinityconfig config = configService.getByUid("4.0");
+		char[] secret = password == null ? new char[0] : password.toCharArray();
+		String msg = this.validatePassword(request, false, userid, secret, localAcc, exeAcc);
+		if(!"LDAP".equals(msg) && !"OK".equals(msg) && 
+				(!("EMPTY").equals(msg) || !config.getAuthmode().equals("1")) || localAcc)
+			throw new ACException(msg);
+		
+		user.setPassword(Crypto.getEncryptString(password, encryptKey));
 		
 		if(null ==  user.getSsoid())
 			user.setSsoid("");
 		
+		if(null == user.getHomedir())
+			user.setHomedir("");
+		
 		user.setUsertype("G");
-		user.setCreateduseruid("root");
+		Trinityuser reqUser = getUserFormRequest(request);
+		user.setCreateduseruid(reqUser.getUseruid());
 		
 		/*
 		 * because lastupdatetime column is auto created value, it can not be reload new value.
@@ -285,10 +323,12 @@ public class TrinityuserService {
 		 */
 		user.setLastupdatetime(new Date());
 		
+		user.setPwdchangetime("");
+		
 		Trinityuser new_user = this.dao.save(user);
 		new_user.setXmldata(null);//不需要回傳
 		
-		saveCredentials(request, userid, password == null ? new char[0] : password.toCharArray());
+		saveCredentials(request, userid, secret);
 		
 		return new_user;
 	}
@@ -301,13 +341,6 @@ public class TrinityuserService {
 		Trinityuser old_user = this.dao.findOne(uid);
 		if(null == old_user)
 			throw new IllegalArgumentException("Trinity User Uid does not exist!(" + uid + ")");
-		
-		String userid = user.getUserid();
-		if(null == userid || userid.trim().isEmpty())
-			throw new IllegalArgumentException("Trinity User Id can not be empty!");
-		
-		if(this.dao.existByID(userid) && !old_user.getUserid().equalsIgnoreCase(userid))
-			throw new IllegalArgumentException("Duplicate Trinity User ID!");
 		
 		String username = user.getUsername();
 		if(null == username || username.trim().isEmpty())
@@ -352,28 +385,41 @@ public class TrinityuserService {
 		if(null == onlyforexecution || (!onlyforexecution.equals("1") && !onlyforexecution.equals("0")))
 			user.setOnlyforexecution("0");
 		
+		boolean localAcc = true;
+		if(user.getLocalaccount().equals("0"))
+			localAcc = false;
+		boolean exeAcc = true;
+		if(user.getOnlyforexecution().equals("0"))
+			exeAcc = false;
 		String password = user.getPassword();
-		if(null == password || password.trim().length() < 1)
-			throw new Exception("User Password can not be empty!");
-		password = Crypto.getEncryptString(password, encryptKey);
-		user.setPassword(password);
+		char[] secret = password == null ? new char[0] : password.toCharArray();
+		String msg = this.validatePassword(request, true, old_user.getUserid(), secret, localAcc, exeAcc);
+		if(!"LDAP".equals(msg) && !"OK".equals(msg) && !("EMPTY").equals(msg))
+			throw new ACException(msg);
 		
 		if(null ==  user.getSsoid())
 			user.setSsoid("");
 		
-		user.setUsertype("G");
-		user.setCreateduseruid("root");
+		if(null == user.getHomedir())
+			user.setHomedir("");
 		
-		/*
-		 * because lastupdatetime column is auto created value, it can not be reload new value.
-		 * here, we force to give value to lastupdatetime column.
-		 */
-		user.setLastupdatetime(new Date());
+		old_user.setUsername(user.getUsername());
+		old_user.setActivate(user.getActivate());
+		old_user.setMobile(user.getMobile());
+		old_user.setEmail(user.getEmail());
+		old_user.setDefaultlang(user.getDefaultlang());
+		old_user.setDescription(user.getDescription());
+		old_user.setSsoid(user.getSsoid());
+		old_user.setLocalaccount(user.getLocalaccount());
+		old_user.setOnlyforexecution(user.getOnlyforexecution());
+		old_user.setHomedir(user.getHomedir());
+		old_user.setXmldata(user.getXmldata());
+		old_user.setLastupdatetime(new Date());
 		
-		Trinityuser new_user = this.dao.save(user);
+		Trinityuser new_user = this.dao.save(old_user);
 		new_user.setXmldata(null);//不需要回傳
 
-		saveCredentials(request, userid, password == null ? new char[0] : password.toCharArray());
+		saveCredentials(request, old_user.getUserid(), secret);
 		
 		return new_user;
 	}
@@ -418,6 +464,61 @@ public class TrinityuserService {
 		return this.dao.exists(uid);
 	}
 	
+	public String validatePassword(HttpServletRequest request, Boolean isEdit, String userid, char[] secret, 
+			Boolean localAcc, Boolean exeAcc) throws Exception{
+		
+		if(secret.length == 0) {
+			return "EMPTY";
+		}
+		
+		EnumSet<ErrorCodes> errors = EnumSet.noneOf(ErrorCodes.class);
+		
+		try {
+			if(isEdit) {
+				String token = CookieUtils.getCookieValue(request, TrinityWebV2Utils.CNAME_ACCESS_TOKEN);
+				credentialsService.validateCredentialsPolicy(token, userid, secret, encryptKey);
+			} else {
+				credentialsService.validateCredentialsPolicy(userid, secret, false);
+			}
+		}catch(ACException e) {
+			if(!e.getErrorCode().isWarning()) {
+				errors.add(e.getErrorCode());
+				for(Throwable t : e.getSuppressed()) {
+					if(t instanceof ACException) {
+						ErrorCodes err = ((ACException) t).getErrorCode();
+						if(!err.isWarning()) {
+							errors.add(err);
+						}
+					}
+				}
+			}
+		}
+		
+		if(errors.isEmpty()) {
+			return "OK";
+		}else if(errors.contains(ErrorCodes.EAC63001)) {
+			if(!localAcc) {
+				return "LDAP";
+			}else {
+				return "OK";
+			}
+		}else if(errors.contains(ErrorCodes.EAC62000)) {
+			return "Duplicate password";
+		}else if(errors.contains(ErrorCodes.EAC62001)) {
+			return "Password length is too short";
+		}else if(errors.contains(ErrorCodes.EAC62002) || errors.contains(ErrorCodes.EAC62003) 
+				|| errors.contains(ErrorCodes.EAC62004) || errors.contains(ErrorCodes.EAC62005)){
+			return "Weak password";
+		}else {
+			StringBuilder msg = new StringBuilder();
+			for(ErrorCodes code : errors) {
+				msg.append(code.getMessage()).append('\n');
+			}
+			msg.setLength(msg.length() == 0 ? 0 : msg.length() - 1);
+			return msg.toString();
+		}
+	}
+	
 	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{
 		if(paging.getNumber() == null)
 			paging.setNumber(0);
@@ -442,6 +543,21 @@ public class TrinityuserService {
 			order = new Order(direct, ordering.getOrderField());
 		
 		return new Sort(order);
+	}
+	
+	private Trinityuser getUserFormRequest(HttpServletRequest request) throws ACException, SQLException, IllegalArgumentException, Exception{
+		Trinityuser user = new Trinityuser();
+		
+		String accessToken = CookieUtils.getCookieValue(request, TrinityWebV2Utils.CNAME_ACCESS_TOKEN);
+		Principal principal = TrinityWebV2Utils.doValidateAccessTokenAndReturnPrincipal(accessToken);
+		if(!"".equals(principal.getName()) && principal instanceof TrinityPrincipal) {
+			TrinityPrincipal trinityPrinc = (TrinityPrincipal) principal;
+			
+			String userid = trinityPrinc.getName();
+			user = this.dao.findByuserid(userid);
+		}
+		
+		return user;
 	}
 	
 	private void saveCredentials(HttpServletRequest request, String userid, char[] secret) throws ACException, SQLException, Exception{

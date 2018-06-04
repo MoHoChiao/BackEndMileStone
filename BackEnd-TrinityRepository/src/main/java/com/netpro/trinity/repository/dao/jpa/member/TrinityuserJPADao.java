@@ -19,6 +19,9 @@ public interface TrinityuserJPADao extends JpaRepository<Trinityuser, String> { 
 	@Query("select count(user)>0 from trinityuser user where user.userid=:userid AND 1=1")
 	Boolean existByID(@Param("userid") String userid);
 	
+	//userid field
+	Trinityuser findByuserid(String id);
+	
 	//username field
 	List<Trinityuser> findByusername(String name);
 	List<Trinityuser> findByusername(String name, Sort sort);
