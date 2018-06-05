@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.dto.filter;
+package com.netpro.trinity.repository.dto.inquire;
 
 public class Ordering {
 	private String orderType;

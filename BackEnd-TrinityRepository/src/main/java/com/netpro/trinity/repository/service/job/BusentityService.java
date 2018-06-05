@@ -20,10 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.repository.dao.jpa.job.BusentityJPADao;
-import com.netpro.trinity.repository.dto.filter.FilterInfo;
-import com.netpro.trinity.repository.dto.filter.Ordering;
-import com.netpro.trinity.repository.dto.filter.Paging;
-import com.netpro.trinity.repository.dto.filter.Querying;
+import com.netpro.trinity.repository.dto.inquire.FilterInfo;
+import com.netpro.trinity.repository.dto.inquire.Ordering;
+import com.netpro.trinity.repository.dto.inquire.Paging;
+import com.netpro.trinity.repository.dto.inquire.Querying;
 import com.netpro.trinity.repository.entity.job.jpa.Busentity;
 import com.netpro.trinity.repository.service.objectalias.ObjectAliasService;
 import com.netpro.trinity.repository.util.Constant;

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netpro.trinity.repository.dto.filter.FilterInfo;
+import com.netpro.trinity.repository.dto.inquire.FilterInfo;
 import com.netpro.trinity.repository.entity.frequency.WorkingCalendarPattern;
 import com.netpro.trinity.repository.entity.frequency.jpa.WorkingCalendar;
 import com.netpro.trinity.repository.service.frequency.WorkingCalendarService;

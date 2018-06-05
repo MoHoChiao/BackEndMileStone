@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.ac.ACException;
-import com.netpro.trinity.repository.dto.filter.FilterInfo;
+import com.netpro.trinity.repository.dto.inquire.FilterInfo;
 import com.netpro.trinity.repository.entity.member.jpa.Trinityuser;
 import com.netpro.trinity.repository.service.member.TrinityuserService;
 
