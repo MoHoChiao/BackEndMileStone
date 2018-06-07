@@ -21,7 +21,7 @@ spring:
     default-property-inclusion: NON_NULL
   cloud:
     config:
-      name: trinity-repo-setting,trinity-data-jdbc,trinity-sys-setting
+      name: trinity-repo-setting,trinity-prop-setting,trinity-data-jdbc,trinity-sys-setting
       uri: http://localhost:8888/      # 這種直接指定IP的方式並不優雅,當你有兩台以上Config Server時,也不會做到load balanced,下面方法較優
       #discovery:
         #enabled: true                 # 如果把各台Config Server也已經註冊到Eureka Server,開啟它就可以自動到某台Config Server捉取property了
