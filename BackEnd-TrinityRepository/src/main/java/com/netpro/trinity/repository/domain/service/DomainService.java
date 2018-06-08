@@ -326,7 +326,7 @@ public class DomainService {
 		return this.dao.exists(uid);
 	}
 	
-	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{	
+	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{
 		if(paging.getNumber() == null)
 			paging.setNumber(0);
 		
