@@ -43,6 +43,18 @@ public class RoleMemberJDBCDao {
         return lists;
     }
 	
+	public List<String> findRoleUidsByUserUid(String uid) throws DataAccessException{
+
+        String sql = "SELECT rm.roleuid "
+        		+ "FROM rolemember rm "
+				+ "WHERE rm.useruid = ? "
+        		+ "ORDER BY rm.lastupdatetime DESC";
+        Object[] param = new Object[] {uid};
+
+        List<String> lists = (List<String>) jtm.queryForList(sql, param, String.class);
+        return lists;
+    }
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<RoleMember> findUserFullNameByRoleUid(String uid) throws DataAccessException{
 

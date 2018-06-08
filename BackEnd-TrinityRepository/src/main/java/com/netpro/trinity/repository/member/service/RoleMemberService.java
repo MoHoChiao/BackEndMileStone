@@ -34,6 +34,13 @@ public class RoleMemberService {
 		return this.dao.findUserUidsByRoleUid(uid);
 	}
 	
+	public List<String> getRoleUidsByUserUid(String uid) throws IllegalArgumentException, Exception{
+		if(null == uid || uid.isEmpty())
+			throw new IllegalArgumentException("User UID can not be empty!");
+				
+		return this.dao.findRoleUidsByUserUid(uid);
+	}
+	
 	public List<RoleMember> getUserFullNameByRoleUid(String uid) throws IllegalArgumentException, Exception{
 		if(null == uid || uid.isEmpty())
 			throw new IllegalArgumentException("Role UID can not be empty!");

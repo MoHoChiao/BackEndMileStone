@@ -221,4 +221,15 @@ public class AccessRightJDBCDao {
 		Object[] param = new Object[] {peopleUid, objectUid};
 		return jtm.update(sql, param);
 	}
+	
+	public Boolean isAdminEditMode() throws DataAccessException{
+        String sql = "SELECT Option3 "
+        		+ "FROM FunctionSetting";
+        
+        String ret = (String) jtm.queryForObject(sql, String.class);
+        if("1".equals(ret))
+        	return true;
+        else
+        	return false;
+    }
 }

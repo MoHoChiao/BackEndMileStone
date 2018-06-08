@@ -10,6 +10,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.netpro.trinity.repository.filter.dto.PermissionTable;
+import com.netpro.trinity.repository.member.entity.Trinityuser;
+import com.netpro.trinity.repository.member.service.RoleMemberService;
+import com.netpro.trinity.repository.member.service.TrinityuserService;
 import com.netpro.trinity.repository.permission.dao.AccessRightJDBCDao;
 import com.netpro.trinity.repository.permission.entity.AccessRight;
 
@@ -19,6 +23,11 @@ public class AccessRightService {
 	
 	@Autowired
 	private AccessRightJDBCDao dao;
+	
+	@Autowired
+	private TrinityuserService userService;
+	@Autowired
+	private RoleMemberService roleMemberService;
 	
 	public List<AccessRight> getByPeopleUid(String peopleUid) throws IllegalArgumentException, Exception{
 		if(peopleUid == null || peopleUid.isEmpty())
@@ -316,5 +325,40 @@ public class AccessRightService {
 			throw new IllegalArgumentException("Object Uid can not be empty!");
 		
 		this.dao.deleteByPKs(peopleUid, objectUid);
+	}
+	
+	public void loadPermissionTable(String userid) throws IllegalArgumentException, Exception {
+		//Permission Table initial
+		PermissionTable permissionTable = new PermissionTable();
+		
+		Trinityuser user = userService.getByID(userid);
+		
+		//判斷是否為root帳號
+		permissionTable.setRoot(false);
+		if(user.getUsertype().equals("R"))
+			permissionTable.setRoot(true);
+		
+		//判斷是否為admin edit mode
+		permissionTable.setAdminEditMode(this.dao.isAdminEditMode());
+		
+		//把此useruid所屬的所有role之uids找出來
+		List<String> roleUids = roleMemberService.getRoleUidsByUserUid(user.getUseruid());
+		List<List<AccessRight>> accessRightListForRoles = new ArrayList<List<AccessRight>>();
+		permissionTable.setAdmin(false);
+		permissionTable.setAccountManager(false);
+		for(String roleUid : roleUids) {
+			//判斷是否為admin role帳號
+			if("Role1".equals(roleUid))
+				permissionTable.setAdmin(true);
+			//判斷是否為account manager帳號
+			if("Role5".equals(roleUid))
+				permissionTable.setAccountManager(true);
+			
+			//把此useruid所屬的每一個role的access right存入accessRightListForRoles
+			List<AccessRight> accessRightForRoles = this.dao.findByPeopleUid(roleUid);
+			accessRightListForRoles.add(accessRightForRoles);
+		}
+		
+		
 	}
 }

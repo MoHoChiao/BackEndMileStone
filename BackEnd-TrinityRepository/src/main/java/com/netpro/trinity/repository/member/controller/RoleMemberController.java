@@ -47,6 +47,19 @@ public class RoleMemberController {
 		}
 	}
 	
+	@GetMapping("/findRoleUidsByUserUid")
+	public ResponseEntity<?> findRoleUidsByUserUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.getRoleUidsByUserUid(uid));
+		}catch(IllegalArgumentException e) {
+			RoleMemberController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			RoleMemberController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@GetMapping("/findFullNameByRoleUid")
 	public ResponseEntity<?> findUserFullNameByRoleUid(String uid) {
 		try {
