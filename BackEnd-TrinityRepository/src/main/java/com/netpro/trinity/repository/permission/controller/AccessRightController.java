@@ -241,4 +241,17 @@ public class AccessRightController {
 		}
 		return ResponseEntity.ok(peopleUid);
 	}
+	
+	@GetMapping("/loadPermissionTableByUserId")
+	public ResponseEntity<?> loadPermissionTableByUserId(String userId) {
+		try {
+			return ResponseEntity.ok(this.service.loadPermissionTable(userId));
+		}catch(IllegalArgumentException e) {
+			AccessRightController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AccessRightController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
 }

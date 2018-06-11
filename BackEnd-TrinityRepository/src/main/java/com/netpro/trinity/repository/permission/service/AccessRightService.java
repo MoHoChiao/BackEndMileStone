@@ -10,11 +10,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.netpro.trinity.repository.filter.dto.PermissionTable;
 import com.netpro.trinity.repository.member.entity.Trinityuser;
 import com.netpro.trinity.repository.member.service.RoleMemberService;
 import com.netpro.trinity.repository.member.service.TrinityuserService;
 import com.netpro.trinity.repository.permission.dao.AccessRightJDBCDao;
+import com.netpro.trinity.repository.permission.dto.AgentFuncPermission;
+import com.netpro.trinity.repository.permission.dto.AliasRefFuncPermission;
+import com.netpro.trinity.repository.permission.dto.ConnectionFuncPermission;
+import com.netpro.trinity.repository.permission.dto.DomainFuncPermission;
+import com.netpro.trinity.repository.permission.dto.ExternalRuleFuncPermission;
+import com.netpro.trinity.repository.permission.dto.FileSourceFuncPermission;
+import com.netpro.trinity.repository.permission.dto.FrequencyFuncPermission;
+import com.netpro.trinity.repository.permission.dto.ObjectPermission;
+import com.netpro.trinity.repository.permission.dto.PerformanceFuncPermission;
+import com.netpro.trinity.repository.permission.dto.PermissionTable;
 import com.netpro.trinity.repository.permission.entity.AccessRight;
 
 @Service
@@ -327,7 +336,7 @@ public class AccessRightService {
 		this.dao.deleteByPKs(peopleUid, objectUid);
 	}
 	
-	public void loadPermissionTable(String userid) throws IllegalArgumentException, Exception {
+	public PermissionTable loadPermissionTable(String userid) throws IllegalArgumentException, Exception {
 		//Permission Table initial
 		PermissionTable permissionTable = new PermissionTable();
 		
@@ -359,6 +368,148 @@ public class AccessRightService {
 			accessRightListForRoles.add(accessRightForRoles);
 		}
 		
+		//儲存對object的權限, key為object uid, value是ObjectPermission
+		Map<String, ObjectPermission> object_map = new HashMap<String, ObjectPermission>();
 		
+		//找出該useruid所屬的所有roles對object及object function的權限
+		for(int i = 0; i < accessRightListForRoles.size(); i++) {
+			for(AccessRight index : accessRightListForRoles.get(i)) {
+				String objectUid = index.getObjectuid();
+				if("function-connection".equals(objectUid.trim())) {
+					ConnectionFuncPermission connFunc = new ConnectionFuncPermission();
+					if("1".equals(index.getView()))
+						connFunc.setView(true);
+					if("1".equals(index.getAdd()))
+						connFunc.setAdd(true);
+					if("1".equals(index.getEdit()))
+						connFunc.setModify(true);
+					if("1".equals(index.getDelete()))
+						connFunc.setDelete(true);
+					permissionTable.setConnection_func(connFunc);
+				}else if("function-jcsagent".equals(objectUid.trim())) {
+					AgentFuncPermission agentFunc = new AgentFuncPermission();
+					if("1".equals(index.getView()))
+						agentFunc.setView(true);
+					if("1".equals(index.getAdd()))
+						agentFunc.setAdd(true);
+					if("1".equals(index.getEdit()))
+						agentFunc.setModify(true);
+					if("1".equals(index.getDelete()))
+						agentFunc.setDelete(true);
+					permissionTable.setAgent_func(agentFunc);
+				}else if("function-frequency".equals(objectUid.trim())) {
+					FrequencyFuncPermission freqFunc = new FrequencyFuncPermission();
+					if("1".equals(index.getView()))
+						freqFunc.setView(true);
+					if("1".equals(index.getAdd()))
+						freqFunc.setAdd(true);
+					if("1".equals(index.getEdit()))
+						freqFunc.setModify(true);
+					if("1".equals(index.getDelete()))
+						freqFunc.setDelete(true);
+					permissionTable.setFrequency_func(freqFunc);
+				}else if("function-domain".equals(objectUid.trim())) {
+					DomainFuncPermission domainFunc = new DomainFuncPermission();
+					if("1".equals(index.getView()))
+						domainFunc.setView(true);
+					if("1".equals(index.getAdd()))
+						domainFunc.setAdd(true);
+					if("1".equals(index.getEdit()))
+						domainFunc.setModify(true);
+					if("1".equals(index.getDelete()))
+						domainFunc.setDelete(true);
+					permissionTable.setDomain_func(domainFunc);
+				}else if("function-filesource".equals(objectUid.trim())) {
+					FileSourceFuncPermission filesourceFunc = new FileSourceFuncPermission();
+					if("1".equals(index.getView()))
+						filesourceFunc.setView(true);
+					if("1".equals(index.getAdd()))
+						filesourceFunc.setAdd(true);
+					if("1".equals(index.getEdit()))
+						filesourceFunc.setModify(true);
+					if("1".equals(index.getDelete()))
+						filesourceFunc.setDelete(true);
+					permissionTable.setFilesource_func(filesourceFunc);
+				}else if("function-aliasref".equals(objectUid.trim())) {
+					AliasRefFuncPermission aliasFunc = new AliasRefFuncPermission();
+					if("1".equals(index.getView()))
+						aliasFunc.setView(true);
+					if("1".equals(index.getAdd()))
+						aliasFunc.setAdd(true);
+					if("1".equals(index.getEdit()))
+						aliasFunc.setModify(true);
+					if("1".equals(index.getDelete()))
+						aliasFunc.setDelete(true);
+					permissionTable.setAlias_func(aliasFunc);
+				}else if("function-extrule".equals(objectUid.trim())) {
+					ExternalRuleFuncPermission extruleFunc = new ExternalRuleFuncPermission();
+					if("1".equals(index.getView()))
+						extruleFunc.setView(true);
+					if("1".equals(index.getAdd()))
+						extruleFunc.setAdd(true);
+					if("1".equals(index.getEdit()))
+						extruleFunc.setModify(true);
+					if("1".equals(index.getDelete()))
+						extruleFunc.setDelete(true);
+					permissionTable.setExtrule_func(extruleFunc);
+				}else if("function-performance".equals(objectUid.trim())) {
+					PerformanceFuncPermission performanceFunc = new PerformanceFuncPermission();
+					if("1".equals(index.getView()))
+						performanceFunc.setView(true);
+					if("1".equals(index.getAdd()))
+						performanceFunc.setAdd(true);
+					if("1".equals(index.getEdit()))
+						performanceFunc.setModify(true);
+					if("1".equals(index.getDelete()))
+						performanceFunc.setDelete(true);
+					permissionTable.setPerformance_func(performanceFunc);
+				}else if(objectUid.trim().indexOf("function-") == -1){
+					ObjectPermission objPermission = new ObjectPermission();
+					objPermission.setObjuid(objectUid.trim());
+					if("1".equals(index.getView()))
+						objPermission.setView(true);
+					if("1".equals(index.getAdd()))
+						objPermission.setAdd(true);
+					if("1".equals(index.getEdit()))
+						objPermission.setModify(true);
+					if("1".equals(index.getDelete()))
+						objPermission.setDelete(true);
+					if("1".equals(index.getRun()))
+						objPermission.setRun(true);
+					if("1".equals(index.getReRun()))
+						objPermission.setRerun(true);
+					if("1".equals(index.getGrant()))
+						objPermission.setGrant(true);
+					object_map.put(objectUid.trim(), objPermission);
+				}
+			}
+		}
+		
+		//找出該useruid所屬的所有roles對object的權限
+		List<AccessRight> accessRightForUser = this.dao.findByPeopleUid(user.getUseruid());
+		for(AccessRight access : accessRightForUser) {
+			String objectUid = access.getObjectuid();
+			
+			ObjectPermission objPermission = new ObjectPermission();
+			objPermission.setObjuid(objectUid.trim());
+			if("1".equals(access.getView()))
+				objPermission.setView(true);
+			if("1".equals(access.getAdd()))
+				objPermission.setAdd(true);
+			if("1".equals(access.getEdit()))
+				objPermission.setModify(true);
+			if("1".equals(access.getDelete()))
+				objPermission.setDelete(true);
+			if("1".equals(access.getRun()))
+				objPermission.setRun(true);
+			if("1".equals(access.getReRun()))
+				objPermission.setRerun(true);
+			if("1".equals(access.getGrant()))
+				objPermission.setGrant(true);
+			object_map.put(objectUid.trim(), objPermission);
+		}
+		permissionTable.setObject_map(object_map);
+		
+		return permissionTable;
 	}
 }
