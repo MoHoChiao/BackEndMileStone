@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.netpro.trinity.repository.drivermanager.dto.DriverInfo;
-import com.netpro.trinity.repository.prop.TrinityDataJDBC;
+import com.netpro.trinity.repository.prop.dto.TrinityDataJDBC;
 
 @Component
 public class MetadataDriverManager {

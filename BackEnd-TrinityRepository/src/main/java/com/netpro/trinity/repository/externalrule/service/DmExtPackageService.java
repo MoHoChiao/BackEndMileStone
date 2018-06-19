@@ -35,7 +35,7 @@ import com.netpro.trinity.repository.externalrule.entity.DmExtJar;
 import com.netpro.trinity.repository.externalrule.entity.DmExtRule;
 import com.netpro.trinity.repository.externalrule.entity.Dmextpackage;
 import com.netpro.trinity.repository.externalrule.lib.ExernalRuleUtil;
-import com.netpro.trinity.repository.prop.TrinitySysSetting;
+import com.netpro.trinity.repository.prop.dto.TrinitySysSetting;
 import com.netpro.trinity.repository.util.Constant;
 
 @Service

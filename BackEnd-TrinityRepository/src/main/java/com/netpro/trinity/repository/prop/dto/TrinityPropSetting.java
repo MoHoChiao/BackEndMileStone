@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.prop;
+package com.netpro.trinity.repository.prop.dto;
 
 import java.util.ArrayList;
 import java.util.List;

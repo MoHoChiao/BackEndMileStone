@@ -47,7 +47,7 @@ import com.netpro.trinity.repository.dto.inquire.Paging;
 import com.netpro.trinity.repository.dto.inquire.Querying;
 import com.netpro.trinity.repository.filesource.service.FileSourceService;
 import com.netpro.trinity.repository.job.service.JobstepService;
-import com.netpro.trinity.repository.prop.TrinityDataJDBC;
+import com.netpro.trinity.repository.prop.dto.TrinityDataJDBC;
 import com.netpro.trinity.repository.util.Constant;
 import com.netpro.trinity.repository.util.Crypto;
 import com.netpro.trinity.repository.util.XMLDataUtility;

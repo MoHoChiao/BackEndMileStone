@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.netpro.trinity.repository.prop.TrinitySysSetting;
+import com.netpro.trinity.repository.prop.dto.TrinitySysSetting;
 
 @Component
 public class DriverLoader {

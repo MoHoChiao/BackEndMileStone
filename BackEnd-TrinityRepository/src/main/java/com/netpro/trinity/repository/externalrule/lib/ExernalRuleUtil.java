@@ -37,7 +37,7 @@ import com.netpro.trinity.repository.drivermanager.lib.FileDetailUtil;
 import com.netpro.trinity.repository.externalrule.dto.Publication;
 import com.netpro.trinity.repository.externalrule.dto.PublishRule;
 import com.netpro.trinity.repository.externalrule.entity.DmExtRule;
-import com.netpro.trinity.repository.prop.TrinitySysSetting;
+import com.netpro.trinity.repository.prop.dto.TrinitySysSetting;
 import com.netpro.trinity.repository.util.Constant;
 import com.netpro.trinity.repository.util.XMLUtil;
 

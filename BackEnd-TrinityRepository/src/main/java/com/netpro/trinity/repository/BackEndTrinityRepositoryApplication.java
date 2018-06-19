@@ -1,6 +1,6 @@
 package com.netpro.trinity.repository;
 
-import java.io.File;
+//import java.io.File;
 
 import javax.servlet.MultipartConfigElement;
 
@@ -50,11 +50,11 @@ public class BackEndTrinityRepositoryApplication {
 		SpringApplication.run(BackEndTrinityRepositoryApplication.class, args);
 	}
 	
-	private boolean mkFileTempDir(String path) {
-		File f = new File(path);
-		if(f.exists())
-			return true;
-		
-		return f.mkdirs();
-	}
+//	private boolean mkFileTempDir(String path) {
+//		File f = new File(path);
+//		if(f.exists())
+//			return true;
+//		
+//		return f.mkdirs();
+//	}
 }

@@ -49,8 +49,8 @@ import com.netpro.trinity.repository.drivermanager.dto.JarFileInfo;
 import com.netpro.trinity.repository.drivermanager.lib.JCSServerCommandUtil;
 import com.netpro.trinity.repository.drivermanager.lib.MetadataDriverMaintain;
 import com.netpro.trinity.repository.drivermanager.lib.PublishFileUtil;
-import com.netpro.trinity.repository.prop.TrinityDataJDBC;
-import com.netpro.trinity.repository.prop.TrinitySysSetting;
+import com.netpro.trinity.repository.prop.dto.TrinityDataJDBC;
+import com.netpro.trinity.repository.prop.dto.TrinitySysSetting;
 import com.netpro.trinity.repository.util.ZipFileUtil;
 
 @Service

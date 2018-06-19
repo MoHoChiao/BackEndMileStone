@@ -1,4 +1,4 @@
-package com.netpro.trinity.repository.prop;
+package com.netpro.trinity.repository.prop.dto;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
