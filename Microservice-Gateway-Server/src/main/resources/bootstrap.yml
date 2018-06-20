@@ -17,6 +17,10 @@ zuul:
     connect-timeout-millis: 60000
     socket-timeout-millis: 60000
   routes:
+    Auth-Service: 
+      path: /auth-service/**
+      sensitiveHeaders: 
+      serviceId: 'auth-service'
     FrontEnd-TrinityService: 
       path: /frontend-trinity-service/**
       sensitiveHeaders: 
