@@ -1,8 +1,17 @@
 package com.netpro.trinity.service;
 
+import org.apache.tomcat.jdbc.pool.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Bean;
+
+import com.netpro.trinity.service.util.Crypto;
 
 /*
  * Spring Boot啟動的核心,它會開啟所有的自動配置以及載入相關的annotation(@Bean,@Entity...)進入Spring IOC Container
@@ -20,8 +29,57 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
  * 掃瞄Entity Bean的Package及其下的Sub-Package
  */
 //@EntityScan( basePackages = {"com.netpro.trinity.service.util.entity"} )
+
+@EnableFeignClients
+/*
+ * 啟動Hystrix
+ */
+@EnableHystrix
+/*
+ * for filter
+ */
 public class TrinityServiceApplication {
 
+	private static final Logger LOG = LoggerFactory.getLogger(TrinityServiceApplication.class);
+
+	@Value("${spring.datasource.driver-class-name}")
+	private String dbDriverClassName;
+
+	@Value("${spring.datasource.url}")
+	private String dbUrl;
+
+	@Value("${spring.datasource.username}")
+	private String dbUsername;
+
+	@Value("${spring.datasource.password}")
+	private String dbPassword;
+	
+	@Value("${spring.datasource.tomcat.max-active}")
+	private Integer max_active;
+	
+	@Value("${spring.datasource.tomcat.initial-size}")
+	private Integer initial_size;
+	
+	@Value("${spring.datasource.tomcat.max-wait}")
+	private Integer max_wait;
+
+	@Value("${trinity-prop-setting.encrypt.key}")
+	private String encryptKey;
+	
+	@Bean
+	public DataSource dataSource() {
+		DataSource dataSource = new DataSource();
+		dataSource.setDriverClassName(dbDriverClassName);
+		dataSource.setUrl(dbUrl);
+		dataSource.setUsername(dbUsername);
+		dataSource.setPassword(Crypto.decryptPassword(dbPassword, encryptKey));
+		dataSource.setMaxActive(max_active);
+		dataSource.setInitialSize(initial_size);
+		dataSource.setMaxWait(max_wait);
+		LOG.info("special for trinity apps dataSource url: " + dataSource.getUrl());
+		return dataSource;
+	}
+	
 	public static void main(String[] args) {
 		SpringApplication.run(TrinityServiceApplication.class, args);
 	}

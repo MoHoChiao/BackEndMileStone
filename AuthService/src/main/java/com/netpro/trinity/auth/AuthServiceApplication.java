@@ -12,6 +12,8 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 
+import com.netpro.trinity.auth.util.Crypto;
+
 /*
  * Spring Boot啟動的核心,它會開啟所有的自動配置以及載入相關的annotation(@Bean,@Entity...)進入Spring IOC Container
  * @SpringBootApplication為@Configuration,@EnableAutoConfiguration,@ComponentScan這些annotation的組合式annotation
@@ -60,59 +62,22 @@ public class AuthServiceApplication {
 	@Value("${spring.datasource.tomcat.max-wait}")
 	private Integer max_wait;
 
+	@Value("${trinity-prop-setting.encrypt.key}")
+	private String encryptKey;
+	
 	@Bean
 	public DataSource dataSource() {
 		DataSource dataSource = new DataSource();
 		dataSource.setDriverClassName(dbDriverClassName);
 		dataSource.setUrl(dbUrl);
 		dataSource.setUsername(dbUsername);
-		dataSource.setPassword(dbPassword);
+		dataSource.setPassword(Crypto.decryptPassword(dbPassword, encryptKey));
 		dataSource.setMaxActive(max_active);
 		dataSource.setInitialSize(initial_size);
 		dataSource.setMaxWait(max_wait);
 		LOG.info("special for trinity apps dataSource url: " + dataSource.getUrl());
 		return dataSource;
 	}
-	
-//	@Bean
-//	public EmbeddedServletContainerFactory servletContainerFactory() {
-//	    return new TomcatEmbeddedServletContainerFactory() {
-//
-//	        @Override
-//	        protected TomcatEmbeddedServletContainer getTomcatEmbeddedServletContainer(
-//	                Tomcat tomcat) {
-//	            // Ensure that the webapps directory exists
-//	            new File(tomcat.getServer().getCatalinaBase(), "webapps").mkdirs();
-//
-//	            try {
-//	            	System.setProperty("trinity.prop", "D:\\Trinity\\DISServer\\cfg\\trinity.properties");
-//	            	System.setProperty("software.dir", "D:\\Trinity\\DISServer\\data\\software");
-//	            	System.setProperty("DATABASE_DRIVER", dbDriverClassName);
-//	            	System.setProperty("DATABASE_URL", dbUrl);
-//	            	System.setProperty("DATABASE_USER", dbUsername);
-//	            	System.setProperty("DATABASE_PASSWORD", dbPassword);
-////	            	System.setProperty("com.netpro.dis.server.config.dir", "D:\\Trinity\\DISServer\\cfg");
-////	            	System.setProperty("log.dir", "D:\\MyWork\\log");
-//	            	
-////	            	Context context0 = tomcat.addWebapp("/software", "D:\\MyWork\\micro_services\\com.netpro.trinity.home.war");
-////	            	context0.setParentClassLoader(getClass().getClassLoader());
-//	            	
-//	                Context context1 = tomcat.addWebapp("/WebTaskConsole", "D:\\MyWork\\micro_services\\WebTaskConsole.war");
-//	                context1.setParentClassLoader(getClass().getClassLoader());
-//	                
-//	                Context context2 = tomcat.addWebapp("/OperationLog", "D:\\MyWork\\micro_services\\OperationLog.war");
-//	                context2.setParentClassLoader(getClass().getClassLoader());
-//	                
-//	                Context context3 = tomcat.addWebapp("/DisUI", "D:\\MyWork\\micro_services\\DisUI.war");
-//	                context3.setParentClassLoader(getClass().getClassLoader());
-//	            } catch (ServletException ex) {
-//	                throw new IllegalStateException("Failed to add webapp", ex);
-//	            }
-//	            return super.getTomcatEmbeddedServletContainer(tomcat);
-//	        }
-//
-//	    };
-//	}
 	
 	public static void main(String[] args) {
 		SpringApplication.run(AuthServiceApplication.class, args);

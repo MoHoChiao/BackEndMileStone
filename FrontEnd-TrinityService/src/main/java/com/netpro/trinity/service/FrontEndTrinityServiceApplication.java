@@ -20,7 +20,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.Bean;
-
+import com.netpro.trinity.service.util.Crypto;
 /*
  * Spring Boot啟動的核心,它會開啟所有的自動配置以及載入相關的annotation(@Bean,@Entity...)進入Spring IOC Container
  * @SpringBootApplication為@Configuration,@EnableAutoConfiguration,@ComponentScan這些annotation的組合式annotation
@@ -68,13 +68,16 @@ public class FrontEndTrinityServiceApplication {
 	@Value("${spring.datasource.tomcat.max-wait}")
 	private Integer max_wait;
 
+	@Value("${trinity-prop-setting.encrypt.key}")
+	private String encryptKey;
+	
 	@Bean
 	public DataSource dataSource() {
 		DataSource dataSource = new DataSource();
 		dataSource.setDriverClassName(dbDriverClassName);
 		dataSource.setUrl(dbUrl);
 		dataSource.setUsername(dbUsername);
-		dataSource.setPassword(dbPassword);
+		dataSource.setPassword(Crypto.decryptPassword(dbPassword, encryptKey));
 		dataSource.setMaxActive(max_active);
 		dataSource.setInitialSize(initial_size);
 		dataSource.setMaxWait(max_wait);
