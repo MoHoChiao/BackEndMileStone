@@ -1,0 +1,17 @@
+server:
+  port: 8761                    # 指定這台Eureka Server啟動的port
+eureka:
+  client:
+    registerWithEureka: false   # 表示是否把自己註冊到Eureka server中,默認就為true,通常在Eureka Cluster Servers使用,此處若設false表示Eureka Server只有一台時
+    fetchRegistry: false        # 表示是否要從其它的Eureka Server取得各微服務所註冊的消息,通常在Eureka Cluster Servers之間同步微服務資訊,默認為true,此處若設false表示Eureka Server只有一台時
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/                  # http://localhost:8761/eureka/,用戶或微服務要與Eureka Server溝通的地址,默認即為左顯示,若有多個地址可以用逗號隔開
+spring:
+  application:
+    name: microservice-cloud-server
+security:
+  basic:
+    enabled: true               # 啟動一個基於安全的HTTP basic的認證
+  user:
+    name: root                # 配置可以登入的user帳號
+    password: trinity            # 配置可以登入的user密碼
