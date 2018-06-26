@@ -10,8 +10,8 @@ eureka:
     prefer-ip-address: true                                     # 是否把自己的ip註冊到Eureka Server上,若為false表示會註冊此微服務所在電腦的hostname到Eureka Server上
 spring:
   application:
-    name: backend-trinity-repository         # 在eureka server的應用程式名稱
-  http:
+    name: trinity-service         # 在eureka server的應用程式名稱
+  servlet:
     multipart:
       enabled: true   # 啟用http上傳
       max-file-size: 300MB # 設置單文件的最大長度

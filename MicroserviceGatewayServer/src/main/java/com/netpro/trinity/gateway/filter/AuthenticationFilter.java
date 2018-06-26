@@ -1,23 +1,23 @@
-package com.netpro.trinity.zuul.server.filter;
+package com.netpro.trinity.gateway.filter;
+
+import java.security.Principal;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import com.netpro.trinity.zuul.server.filter.lib.AuthcLib;
+import com.netpro.ac.TrinityPrincipal;
+import com.netpro.ac.util.CookieUtils;
+import com.netpro.ac.util.TrinityWebV2Utils;
 
 public class AuthenticationFilter extends ZuulFilter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationFilter.class);
 	
 	protected static final String SEND_ERROR_FILTER_RAN = "sendErrorFilter.ran";
-	
-	@Autowired
-	private AuthcLib authcLib;
 	
 	@Override
 	public boolean shouldFilter() {
@@ -36,7 +36,7 @@ public class AuthenticationFilter extends ZuulFilter {
 		
 		String URI = httpRequest.getRequestURI();
 		if(!URI.endsWith("authentication/gen-authn") && !URI.endsWith("authentication/find-authn") && !URI.endsWith("trinity-prop-setting/find-all-apps")) {
-			String authResult = authcLib.checkAuthc(httpRequest);
+			String authResult = this.checkAuthn(httpRequest);
 			if(!authResult.equals("Authentication Success.")) {
 				ctx.setSendZuulResponse(false);
 				ctx.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED);
@@ -61,4 +61,17 @@ public class AuthenticationFilter extends ZuulFilter {
 		return 1;
 	}
 
+	private String checkAuthn(HttpServletRequest request) {
+		try {
+			String accessToken = CookieUtils.getCookieValue(request, TrinityWebV2Utils.CNAME_ACCESS_TOKEN);
+			Principal principal = TrinityWebV2Utils.doValidateAccessTokenAndReturnPrincipal(accessToken);
+			if(!"".equals(principal.getName()) && principal instanceof TrinityPrincipal) {
+				return "Authentication Success.";
+			}else {
+				return "Authentication Fail!";
+			}
+		}catch(Exception e) {
+			return "Authentication Error : " + e.getMessage();
+		}
+	}
 }
