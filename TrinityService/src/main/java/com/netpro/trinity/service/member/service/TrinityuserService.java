@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -45,7 +46,6 @@ import com.netpro.trinity.service.dto.Querying;
 import com.netpro.trinity.service.member.dao.TrinityuserJPADao;
 import com.netpro.trinity.service.member.entity.Trinityuser;
 import com.netpro.trinity.service.notification.service.NotificationListService;
-import com.netpro.trinity.service.permission.service.AccessRightService;
 import com.netpro.trinity.service.util.Constant;
 import com.netpro.trinity.service.util.Crypto;
 import com.netpro.trinity.service.util.NetworkUtil;
@@ -67,8 +67,8 @@ public class TrinityuserService {
 	private RoleMemberService r_memberService;
 	@Autowired
 	private NotificationListService n_listService;
-	@Autowired
-	private AccessRightService accessService;
+//	@Autowired
+//	private AccessRightService accessService;
 	@Autowired
 	private TrinityconfigService configService;
 	@Autowired	//自動注入DataSource物件
@@ -101,7 +101,11 @@ public class TrinityuserService {
 		if(null == uid || uid.isEmpty())
 			throw new IllegalArgumentException("Trinity User UID can not be empty!");
 		
-		Trinityuser user = this.dao.findById(uid).get();
+		Trinityuser user = null;
+		try {
+			user = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == user)
 			throw new IllegalArgumentException("Trinity User UID does not exist!(" + uid + ")");
 		
@@ -337,7 +341,11 @@ public class TrinityuserService {
 		if(null == uid || uid.trim().isEmpty())
 			throw new IllegalArgumentException("Trinity User Uid can not be empty!");
 
-		Trinityuser old_user = this.dao.findById(uid).get();
+		Trinityuser old_user = null;
+		try {
+			old_user = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_user)
 			throw new IllegalArgumentException("Trinity User Uid does not exist!(" + uid + ")");
 		
@@ -430,7 +438,7 @@ public class TrinityuserService {
 		this.g_memberService.deleteByUserUid(uid);
 		this.r_memberService.deleteByUserUid(uid);
 		this.n_listService.deleteByDestinationUid(uid);
-		this.accessService.deleteByPeopleUid(uid);
+//		this.accessService.deleteByPeopleUid(uid);
 		this.dao.deleteById(uid);
 	}
 	

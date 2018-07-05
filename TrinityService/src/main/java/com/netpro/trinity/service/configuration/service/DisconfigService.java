@@ -1,6 +1,7 @@
 package com.netpro.trinity.service.configuration.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,11 @@ public class DisconfigService {
 		if(null == pks.getConfigname() || pks.getConfigname().trim().isEmpty())
 			throw new IllegalArgumentException("Config Name can not be empty!");
 		
-		
-		Disconfig config = this.dao.findById(pks).get();
+		Disconfig config = null;
+		try {
+			config = this.dao.findById(pks).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(config == null)
 			throw new IllegalArgumentException("Disconfig pks does not exist!(" + pks.getModule() + ", " + pks.getConfigname() + ")");
 

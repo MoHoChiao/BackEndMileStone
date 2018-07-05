@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import java.lang.reflect.InvocationTargetException;
@@ -53,9 +54,14 @@ public class JobService {
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Job UID can not be empty!");
 		
-		Job job = this.dao.findById(uid).get();
-		if(job == null)
+		Job job = null;
+		try {
+			job = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
+		if(null ==job)
 			throw new IllegalArgumentException("Job UID does not exist!(" + uid + ")");
+		
 		setExtraXmlProp(job);
 		return job;
 	}
@@ -90,8 +96,12 @@ public class JobService {
 		if(uid == null || uid.isEmpty())
 			return path;
 		
-		Job job = this.dao.findById(uid).get();
-		if(job == null)
+		Job job = null;
+		try {
+			job = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		
+		if(null == job)
 			return path;
 		
 		String jobUid = job.getJobuid();
@@ -485,6 +495,13 @@ public class JobService {
 			throw new IllegalArgumentException("Domain Uid can not be empty!");
 		
 		return this.dao.existByDomainuid(domainuid);
+	}
+	
+	public boolean existByAgentuid(String filesourceuid) throws IllegalArgumentException, Exception {
+		if(null == filesourceuid || filesourceuid.trim().length() <= 0)
+			throw new IllegalArgumentException("File Source Uid can not be empty!");
+		
+		return this.dao.existByFilesourceuid(filesourceuid);
 	}
 	
 	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{	

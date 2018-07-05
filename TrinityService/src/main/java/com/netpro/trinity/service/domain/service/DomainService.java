@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -59,7 +60,11 @@ public class DomainService {
 		if(null == uid || uid.isEmpty())
 			throw new IllegalArgumentException("Domain UID can not be empty!");
 		
-		Domain domain = this.dao.findById(uid).get();
+		Domain domain = null;
+		try {
+			domain = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == domain)
 			throw new IllegalArgumentException("Domain UID does not exist!(" + uid + ")");
 		
@@ -243,7 +248,11 @@ public class DomainService {
 		if(null == domainuid || domainuid.trim().isEmpty())
 			throw new IllegalArgumentException("Domain Uid can not be empty!");
 
-		Domain old_domain = this.dao.findById(domainuid).get();
+		Domain old_domain = null;
+		try {
+			old_domain = this.dao.findById(domainuid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_domain)
 			throw new IllegalArgumentException("Domain Uid does not exist!(" + domainuid + ")");
 		

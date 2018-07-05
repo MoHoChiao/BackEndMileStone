@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -41,9 +42,9 @@ public class FrequencyService {
 	@Autowired
 	private FrequencyListService listService;
 	@Autowired
-	FrequencyRelationService relService;
+	private FrequencyRelationService relService;
 	@Autowired
-	FreqExcludeService feService;
+	private FreqExcludeService feService;
 	@Autowired
 	private JobService jobService;
 	@Autowired
@@ -70,7 +71,11 @@ public class FrequencyService {
 		if(uid == null || uid.trim().isEmpty())
 			throw new IllegalArgumentException("Frequency UID can not be empty!");
 		
-		Frequency freq = this.dao.findById(uid).get();
+		Frequency freq = null;
+		try {
+			freq = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == freq)
 			throw new IllegalArgumentException("Frequency UID does not exist!(" + uid + ")");
 		
@@ -388,7 +393,11 @@ public class FrequencyService {
 		if(null == frequencyuid || frequencyuid.trim().length() <= 0)
 			throw new IllegalArgumentException("Frequency Uid can not be empty!");
 		
-		Frequency old_freq = this.dao.findById(frequencyuid).get();
+		Frequency old_freq = null;
+		try {
+			old_freq = this.dao.findById(frequencyuid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_freq)
 			throw new IllegalArgumentException("Frequency Uid does not exist!(" + frequencyuid + ")");
 		

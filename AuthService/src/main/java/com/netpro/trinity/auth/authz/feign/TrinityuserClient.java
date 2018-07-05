@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.netpro.trinity.auth.authz.dto.Trinityuser;
-import com.netpro.trinity.auth.authz.feign.util.CustomizedFeignClientConfiguration;
+import com.netpro.trinity.auth.feign.util.CustomizedFeignClientConfiguration;
 
 import feign.hystrix.FallbackFactory;
 /*
@@ -17,7 +17,7 @@ import feign.hystrix.FallbackFactory;
  * configuration:可設定Feign Client的配置類別,這個配置主要是控制logging的層級
  * fallbackFactory:這裡是Feign結合Hystrix的fall back function之配置
  */
-@FeignClient(name = "backend-trinity-repository", configuration = CustomizedFeignClientConfiguration.class, fallbackFactory = TrinityuserClientFallback.class)
+@FeignClient(name = "trinity-service", configuration = CustomizedFeignClientConfiguration.class, fallbackFactory = TrinityuserClientFallback.class)
 public interface TrinityuserClient {
 	
 	@RequestMapping(value = "/trinity-user/findByID", method = RequestMethod.GET)

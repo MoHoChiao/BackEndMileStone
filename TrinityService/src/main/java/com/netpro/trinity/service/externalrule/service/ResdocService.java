@@ -1,6 +1,7 @@
 package com.netpro.trinity.service.externalrule.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -33,7 +34,11 @@ public class ResdocService {
 		if(null == pks.getLangcode() || pks.getLangcode().trim().isEmpty())
 			throw new IllegalArgumentException("Language Code can not be empty!");
 		
-		Resdoc doc = this.dao.findById(pks).get();
+		Resdoc doc = null;
+		try {
+			doc = this.dao.findById(pks).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(doc == null)
 			throw new IllegalArgumentException("Resdoc pks does not exist!(" + pks.getModule() + 
 					", " + pks.getResname() + ", " + pks.getResname() + ")");

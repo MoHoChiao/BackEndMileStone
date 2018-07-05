@@ -11,7 +11,7 @@ spring:
   datasource:
     platform: org.eclipse.persistence.platform.database.PostgreSQLPlatform
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/trinity113
+    url: jdbc:postgresql://127.0.0.1:5432/trinity113
     username: trinity
     password: trinity
     tomcat:

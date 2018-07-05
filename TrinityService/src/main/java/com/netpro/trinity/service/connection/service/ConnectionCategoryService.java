@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,7 +47,11 @@ public class ConnectionCategoryService {
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Connection Category UID can not be empty!");
 		
-		ConnectionCategory category = this.dao.findById(uid).get();
+		ConnectionCategory category = null;
+		try {
+			category = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(category == null)
 			throw new IllegalArgumentException("Connection Category UID does not exist!(" + uid + ")");
 
@@ -165,8 +170,12 @@ public class ConnectionCategoryService {
 		String uid = category.getConncategoryuid();
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Connection Category Uid can not be empty!");
-
-		ConnectionCategory old_category = this.dao.findById(uid).get();
+		
+		ConnectionCategory old_category = null;
+		try {
+			old_category = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_category)
 			throw new IllegalArgumentException("Connection Category Uid does not exist!(" + uid + ")");
 		

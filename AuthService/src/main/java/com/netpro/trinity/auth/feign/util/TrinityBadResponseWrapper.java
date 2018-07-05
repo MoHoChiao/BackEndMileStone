@@ -1,4 +1,4 @@
-package com.netpro.trinity.auth.authz.feign.util;
+package com.netpro.trinity.auth.feign.util;
 
 import org.springframework.http.HttpHeaders;
 

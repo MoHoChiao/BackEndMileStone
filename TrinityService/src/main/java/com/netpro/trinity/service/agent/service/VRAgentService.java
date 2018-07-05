@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -50,7 +51,11 @@ public class VRAgentService {
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Virtual Agent UID can not be empty!");
 		
-		VRAgent vrAgent = this.dao.findById(uid).get();
+		VRAgent vrAgent = null;
+		try {
+			vrAgent = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		
 		if(null == vrAgent)
 			throw new IllegalArgumentException("Virtual Agent UID does not exist!(" + uid + ")");
 		
@@ -225,8 +230,12 @@ public class VRAgentService {
 		String vr_agentuid = vragent.getVirtualagentuid();
 		if(null == vr_agentuid || vr_agentuid.trim().length() <= 0)
 			throw new IllegalArgumentException("Virtual Agent Uid can not be empty!");
-
-		VRAgent old_vragent = this.dao.findById(vr_agentuid).get();
+		
+		VRAgent old_vragent = null;
+		try {
+			old_vragent = this.dao.findById(vr_agentuid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_vragent)
 			throw new IllegalArgumentException("Virtual Agent Uid does not exist!(" + vr_agentuid + ")");
 		

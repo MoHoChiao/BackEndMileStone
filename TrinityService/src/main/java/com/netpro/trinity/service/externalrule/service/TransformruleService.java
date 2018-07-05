@@ -1,6 +1,7 @@
 package com.netpro.trinity.service.externalrule.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -22,8 +23,16 @@ public class TransformruleService {
 	public Transformrule getByRule(String rule) throws IllegalArgumentException, Exception{
 		if(null == rule || rule.isEmpty())
 			throw new IllegalArgumentException("Transformrule UID can not be empty!");
-				
-		return this.dao.findById(rule).get();
+		
+		Transformrule transformrule = null;
+		try {
+			transformrule = this.dao.findById(rule).get();
+		}catch(NoSuchElementException e) {}
+		
+		if(null == transformrule)
+			throw new IllegalArgumentException("Rule Uid does not exist!(" + rule + ")");
+		
+		return transformrule;
 	}
 	
 	public Transformrule modify(Transformrule rule) throws IllegalArgumentException, Exception{

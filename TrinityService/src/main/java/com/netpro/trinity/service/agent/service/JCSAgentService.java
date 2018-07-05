@@ -1,18 +1,25 @@
 package com.netpro.trinity.service.agent.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,15 +30,24 @@ import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.service.agent.dao.JCSAgentJPADao;
 import com.netpro.trinity.service.agent.entity.JCSAgent;
+import com.netpro.trinity.service.configuration.service.MonitorconfigService;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.dto.Ordering;
 import com.netpro.trinity.service.dto.Paging;
 import com.netpro.trinity.service.dto.Querying;
+import com.netpro.trinity.service.job.service.JobService;
+import com.netpro.trinity.service.member.service.TrinityuserService;
+import com.netpro.trinity.service.objectalias.service.ObjectAliasService;
+import com.netpro.trinity.service.permission.dto.AccessRight;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
+import com.netpro.trinity.service.util.ACUtil;
 import com.netpro.trinity.service.util.Constant;
 import com.netpro.trinity.service.util.XMLDataUtility;
 
 @Service
 public class JCSAgentService {
+	private static final Logger LOGGER = LoggerFactory.getLogger(JCSAgentService.class);
+	
 	public static final String[] AGENT_FIELD_VALUES = new String[] { "agentname", "activate", "host", "port", "description" };
 	public static final Set<String> AGENT_FIELD_SET = new HashSet<>(Arrays.asList(AGENT_FIELD_VALUES));
 	
@@ -40,6 +56,20 @@ public class JCSAgentService {
 	
 	@Autowired
 	private JCSAgentJPADao dao;
+	
+	@Autowired
+	private TrinityuserService userService;
+	@Autowired
+	private JobService jobService;
+	@Autowired
+	private ObjectAliasService objectAliasService;
+	@Autowired
+	private VRAgentListService vAgentListService;
+	@Autowired
+	private MonitorconfigService monitorService;
+	
+	@Autowired
+	private PermissionClient permissionClient;
 	
 	public List<JCSAgent> getAll() throws Exception{
 		List<JCSAgent> agents = this.dao.findAll();
@@ -51,7 +81,11 @@ public class JCSAgentService {
 		if(null == uid || uid.isEmpty())
 			throw new IllegalArgumentException("Agent UID can not be empty!");
 		
-		JCSAgent agent = this.dao.findById(uid).get();
+		JCSAgent agent = null;
+		try {
+			agent = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == agent)
 			throw new IllegalArgumentException("Agent UID does not exist!(" + uid + ")");
 		setExtraXmlProp(agent);
@@ -193,7 +227,7 @@ public class JCSAgentService {
 		}
 	}
 	
-	public JCSAgent add(JCSAgent agent) throws IllegalArgumentException, Exception{
+	public JCSAgent add(HttpServletRequest request, JCSAgent agent) throws IllegalArgumentException, Exception{
 		agent.setAgentuid(UUID.randomUUID().toString());
 		
 		String agentname = agent.getAgentname();
@@ -277,6 +311,9 @@ public class JCSAgentService {
 		 */
 		setExtraXmlProp(new_agent);
 		
+		//default permission insert
+		this.modifyPermissionByObjectUid(new_agent.getAgentuid(), request);
+		
 		return new_agent;
 	}
 	
@@ -285,7 +322,11 @@ public class JCSAgentService {
 		if(null == agentuid || agentuid.trim().length() <= 0)
 			throw new IllegalArgumentException("JCSAgent Uid can not be empty!");
 
-		JCSAgent old_agent = this.dao.findById(agentuid).get();
+		JCSAgent old_agent = null;
+		try {
+			old_agent = this.dao.findById(agentuid).get();
+		}catch(NoSuchElementException e) {}
+		
 		if(null == old_agent)
 			throw new IllegalArgumentException("JCSAgent Uid does not exist!(" + agentuid + ")");
 		
@@ -377,14 +418,28 @@ public class JCSAgentService {
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("JCSAgent Uid can not be empty!");
 		
-		this.dao.deleteById(uid);
+		if(jobService.existByFrequencyuid(uid)) {
+			throw new IllegalArgumentException("Referenceing by job");
+		}else if(objectAliasService.existByObjectuid(uid)) {
+			throw new IllegalArgumentException("Referenceing by Object Alias");
+		}else if(vAgentListService.existByAgentuid(uid)) {
+			throw new IllegalArgumentException("Referenceing by Virtual Agent");
+		}else {
+			try {
+				this.monitorService.deleteByUid(uid);
+			}catch(EmptyResultDataAccessException e) {}	//可能不存在, 所以不影響刪除agent
+			
+			this.dao.deleteById(uid);
+			
+			this.permissionClient.deleteByObjectUid(uid);	//刪掉該agent所有的permission
+		}
 	}
 	
 	public boolean existByUid(String uid) throws Exception {
 		return this.dao.existsById(uid);
 	}
 	
-	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{	
+	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{
 		if(paging.getNumber() == null)
 			paging.setNumber(0);
 		
@@ -439,5 +494,32 @@ public class JCSAgentService {
 		xmlMap.put("cpuweight", agent.getCpuweight());
 		String xmldata = xmlUtil.parseHashMapToXMLString(xmlMap, false);
 		agent.setXmldata(xmldata);
+	}
+	
+	private void modifyPermissionByObjectUid(String objectUid, HttpServletRequest request) {
+		try {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			String peopleUid = userService.getByID(peopleId).getUseruid();
+			if(null == peopleUid || peopleUid.trim().isEmpty() || "trinity".equals(peopleUid.trim()))
+				return;
+			
+			List<AccessRight> accessRights = new ArrayList<AccessRight>();
+			AccessRight accessRight = new AccessRight();
+			accessRight.setPeopleuid(peopleUid);
+			accessRight.setObjectuid(objectUid);
+			accessRight.setAdd("1");
+			accessRight.setDelete("0");
+			accessRight.setEdit("0");
+			accessRight.setGrant("0");
+			accessRight.setImport_export("0");
+			accessRight.setReRun("0");
+			accessRight.setRun("0");
+			accessRight.setView("0");
+			accessRights.add(accessRight);
+			
+			this.permissionClient.modifyByObjectUid(objectUid, accessRights);
+		} catch (Exception e) {
+			JCSAgentService.LOGGER.error("Exception; reason was:", e);
+		}
 	}
 }

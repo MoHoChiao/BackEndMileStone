@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -46,6 +47,7 @@ import com.netpro.trinity.service.dto.Paging;
 import com.netpro.trinity.service.dto.Querying;
 import com.netpro.trinity.service.filesource.service.FileSourceService;
 import com.netpro.trinity.service.job.service.JobstepService;
+import com.netpro.trinity.service.objectalias.service.ObjectAliasService;
 import com.netpro.trinity.service.prop.dto.TrinityDataJDBC;
 import com.netpro.trinity.service.util.Constant;
 import com.netpro.trinity.service.util.Crypto;
@@ -80,6 +82,8 @@ public class ConnectionService {
 	private FileSourceService filesourceService;
 	@Autowired
 	private JobstepService jobstepService;
+	@Autowired
+	private ObjectAliasService objectAliasService;
 	
 	@Autowired
 	private TrinityDataJDBC jdbcInfo;
@@ -117,7 +121,11 @@ public class ConnectionService {
 		if(uid == null || uid.trim().isEmpty())
 			throw new IllegalArgumentException("Connection UID can not be empty!");
 		
-		Connection conn = this.dao.findById(uid).get();
+		Connection conn = null;
+		try {
+			conn = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(conn == null)
 			throw new IllegalArgumentException("Connection UID does not exist!(" + uid + ")");
 		
@@ -472,7 +480,11 @@ public class ConnectionService {
 		if(null == connectionuid || connectionuid.trim().length() <= 0)
 			throw new IllegalArgumentException("Connection Uid can not be empty!");
 		
-		Connection old_conn = this.dao.findById(connectionuid).get();
+		Connection old_conn = null;
+		try {
+			old_conn = this.dao.findById(connectionuid).get();
+		}catch(NoSuchElementException e) {}
+		
 		if(null == old_conn)
 			throw new IllegalArgumentException("Connection Uid does not exist!(" + connectionuid + ")");
 		
@@ -527,6 +539,9 @@ public class ConnectionService {
 		
 		if(jobstepService.existByConnectionuid(uid))
 			throw new IllegalArgumentException("Referenced By JobStep!");
+		
+		if(objectAliasService.existByObjectuid(uid))
+			throw new IllegalArgumentException("Referenceing by Object Alias");
 		
 		this.dao.deleteById(uid);
 		this.relService.deleteByConnectionUid(uid);

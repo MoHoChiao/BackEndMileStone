@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,7 +47,11 @@ public class FrequencyCategoryService {
 		if(null == uid || uid.isEmpty())
 			throw new IllegalArgumentException("Frequency Category UID can not be empty!");
 		
-		FrequencyCategory category = this.dao.findById(uid).get();
+		FrequencyCategory category = null;
+		try {
+			category = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == category)
 			throw new IllegalArgumentException("Frequency Category UID does not exist!(" + uid + ")");
 
@@ -166,7 +171,11 @@ public class FrequencyCategoryService {
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Frequency Category Uid can not be empty!");
 
-		FrequencyCategory old_category = this.dao.findById(uid).get();
+		FrequencyCategory old_category = null;
+		try {
+			old_category = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_category)
 			throw new IllegalArgumentException("Frequency Category Uid does not exist!(" + uid + ")");
 		

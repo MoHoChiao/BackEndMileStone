@@ -3,6 +3,7 @@ package com.netpro.trinity.service.configuration.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,11 @@ public class MonitorconfigService {
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Monitor Config UID(Machine UID) can not be empty!");
 		
-		Monitorconfig config = this.dao.findById(uid).get();
+		Monitorconfig config = null;
+		try {
+			config = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == config) {
 			config = new Monitorconfig();
 			config.setResourcemonitor(false);
@@ -87,6 +92,13 @@ public class MonitorconfigService {
 	
 	public boolean existByUid(String uid) throws Exception {
 		return this.dao.existsById(uid);
+	}
+	
+	public void deleteByUid(String uid) throws IllegalArgumentException, Exception{
+		if(null == uid || uid.trim().length() <= 0)
+			throw new IllegalArgumentException("Monitor Config UID can not be empty!");
+		
+		this.dao.deleteById(uid);
 	}
 	
 	private Monitorconfig checkConfigData(Monitorconfig config) throws Exception {

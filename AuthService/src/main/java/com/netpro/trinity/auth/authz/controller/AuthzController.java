@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.auth.authz.entity.AccessRight;
-import com.netpro.trinity.auth.authz.feign.util.TrinityBadResponseWrapper;
 import com.netpro.trinity.auth.authz.service.AuthzService;
+import com.netpro.trinity.auth.feign.util.TrinityBadResponseWrapper;
+import com.netpro.trinity.auth.util.ACUtil;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/authorization")
@@ -106,7 +107,7 @@ public class AuthzController {
 	}
 	
 	@PostMapping("/addOne")
-	public ResponseEntity<?> addOneAccessRight(@RequestBody AccessRight list) {
+	public ResponseEntity<?> addOneAccessRight(HttpServletRequest request, @RequestBody AccessRight list) {
 		try {
 			return ResponseEntity.ok(this.service.add(list));
 		}catch(IllegalArgumentException e) {
@@ -115,11 +116,13 @@ public class AuthzController {
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}finally {
+			reloadPermission(request);
 		}
 	}
 	
 	@PostMapping("/addMany")
-	public ResponseEntity<?> addManyAccessRight(@RequestBody List<AccessRight> lists) {
+	public ResponseEntity<?> addManyAccessRight(HttpServletRequest request, @RequestBody List<AccessRight> lists) {
 		try {
 			return ResponseEntity.ok(this.service.add(lists));
 		}catch(IllegalArgumentException e) {
@@ -128,11 +131,13 @@ public class AuthzController {
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}finally {
+			reloadPermission(request);
 		}
 	}
 	
 	@PostMapping("/updateOne")
-	public ResponseEntity<?> updateOneAccessRight(@RequestBody AccessRight list) {
+	public ResponseEntity<?> updateOneAccessRight(HttpServletRequest request, @RequestBody AccessRight list) {
 		try {
 			return ResponseEntity.ok(this.service.update(list));
 		}catch(IllegalArgumentException e) {
@@ -141,11 +146,13 @@ public class AuthzController {
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}finally {
+			reloadPermission(request);
 		}
 	}
 	
 	@PostMapping("/updateMany")
-	public ResponseEntity<?> updateManyAccessRight(@RequestBody List<AccessRight> lists) {
+	public ResponseEntity<?> updateManyAccessRight(HttpServletRequest request, @RequestBody List<AccessRight> lists) {
 		try {
 			return ResponseEntity.ok(this.service.update(lists));
 		}catch(IllegalArgumentException e) {
@@ -154,31 +161,37 @@ public class AuthzController {
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}finally {
+			reloadPermission(request);
 		}
 	}
 	
 	@PostMapping("/addBatch")
-	public ResponseEntity<?> addBatchAccessRight(@RequestBody List<AccessRight> lists) {
+	public ResponseEntity<?> addBatchAccessRight(HttpServletRequest request, @RequestBody List<AccessRight> lists) {
 		try {
 			return ResponseEntity.ok(this.service.addBatch(lists));
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}finally {
+			reloadPermission(request);
 		}
 	}
 	
 	@PostMapping("/updateBatch")
-	public ResponseEntity<?> updateBatchAccessRight(@RequestBody List<AccessRight> lists) {
+	public ResponseEntity<?> updateBatchAccessRight(HttpServletRequest request, @RequestBody List<AccessRight> lists) {
 		try {
 			return ResponseEntity.ok(this.service.updateBatch(lists));
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}finally {
+			reloadPermission(request);
 		}
 	}
 	
 	@PostMapping("/modifyByPeopleUid")
-	public ResponseEntity<?> modifyAccessRightByPeopleUid(String peopleUid, @RequestBody List<AccessRight> lists) {
+	public ResponseEntity<?> modifyAccessRightByPeopleUid(HttpServletRequest request, String peopleUid, @RequestBody List<AccessRight> lists) {
 		try {
 			return ResponseEntity.ok(this.service.modifyByPeopleUid(peopleUid, lists));
 		}catch(IllegalArgumentException e) {
@@ -187,11 +200,13 @@ public class AuthzController {
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}finally {
+			reloadPermission(request);
 		}
 	}
 	
 	@PostMapping("/modifyByObjectUid")
-	public ResponseEntity<?> modifyAccessRightByObjectUid(String objectUid, @RequestBody List<AccessRight> lists) {
+	public ResponseEntity<?> modifyAccessRightByObjectUid(HttpServletRequest request, String objectUid, @RequestBody List<AccessRight> lists) {
 		try {
 			return ResponseEntity.ok(this.service.modifyByObjectUid(objectUid, lists));
 		}catch(IllegalArgumentException e) {
@@ -200,11 +215,13 @@ public class AuthzController {
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}finally {
+			reloadPermission(request);
 		}
 	}
 	
 	@GetMapping("/deleteByPeopleUid")
-	public ResponseEntity<?> deleteAccessRightByPeopleUid(String peopleUid) {
+	public ResponseEntity<?> deleteAccessRightByPeopleUid(HttpServletRequest request, String peopleUid) {
 		try {
 			this.service.deleteByPeopleUid(peopleUid);
 		}catch(IllegalArgumentException e) {
@@ -213,12 +230,14 @@ public class AuthzController {
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}finally {
+			reloadPermission(request);
 		}
 		return ResponseEntity.ok(peopleUid);
 	}
 	
 	@GetMapping("/deleteByObjectUid")
-	public ResponseEntity<?> deleteAccessRightByObjectUid(String objectUid) {
+	public ResponseEntity<?> deleteAccessRightByObjectUid(HttpServletRequest request, String objectUid) {
 		try {
 			this.service.deleteByObjectUid(objectUid);
 		}catch(IllegalArgumentException e) {
@@ -227,12 +246,14 @@ public class AuthzController {
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}finally {
+			reloadPermission(request);
 		}
 		return ResponseEntity.ok(objectUid);
 	}
 	
 	@GetMapping("/deleteByPKs")
-	public ResponseEntity<?> deleteAccessRightByPKs(String peopleUid, String objectUid) {
+	public ResponseEntity<?> deleteAccessRightByPKs(HttpServletRequest request, String peopleUid, String objectUid) {
 		try {
 			this.service.deleteByPKs(peopleUid, objectUid);
 		}catch(IllegalArgumentException e) {
@@ -241,14 +262,16 @@ public class AuthzController {
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}finally {
+			reloadPermission(request);
 		}
 		return ResponseEntity.ok(peopleUid);
 	}
 	
 	@GetMapping("/loadPermissionTableByUserId")
-	public ResponseEntity<?> loadPermissionTableByUserId(HttpServletRequest request, String userId) {
+	public ResponseEntity<?> loadPermissionTableByUserId(String userId) {
 		try {
-			return ResponseEntity.ok(this.service.loadPermissionTable(request, userId));
+			return ResponseEntity.ok(this.service.loadPermissionTable(userId));
 		} catch (TrinityBadResponseWrapper e) {
 			AuthzController.LOGGER.error("TrinityBadResponseWrapper; reason was:\n"+e.getBody());
 			return ResponseEntity.status(e.getStatus()).body(e.getBody());
@@ -258,6 +281,32 @@ public class AuthzController {
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/findPermissionTableByUserId")
+	public ResponseEntity<?> findPermissionTableByUserId(String userId) {
+		try {
+			return ResponseEntity.ok(this.service.getPermissionTable(userId));
+		}catch(IllegalArgumentException e) {
+			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AuthzController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	private void reloadPermission(HttpServletRequest request) {
+		String userId = ACUtil.getUserIdFromAC(request);
+		if(null != userId && !userId.trim().isEmpty()) {
+			try {
+				this.service.loadPermissionTable(userId);
+			} catch (IllegalArgumentException e) {
+				AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			} catch (Exception e) {
+				AuthzController.LOGGER.error("Exception; reason was:", e);
+			}
 		}
 	}
 }

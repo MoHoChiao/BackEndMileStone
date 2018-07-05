@@ -3,6 +3,7 @@ package com.netpro.trinity.service.job.service;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import java.lang.reflect.InvocationTargetException;
@@ -44,7 +45,11 @@ public class JobFlowService {
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Flow UID can not be empty!");
 		
-		JobFlow flow = this.dao.findById(uid).get();
+		JobFlow flow = null;
+		try {
+			flow = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(flow == null)
 			throw new IllegalArgumentException("Flow UID does not exist!(" + uid + ")");
 		setExtraXmlProp(flow);

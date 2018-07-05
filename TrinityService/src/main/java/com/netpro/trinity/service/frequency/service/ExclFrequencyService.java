@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -58,7 +59,11 @@ public class ExclFrequencyService {
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Exclude Frequency UID can not be empty!");
 		
-		ExclFrequency excl = this.dao.findById(uid).get();
+		ExclFrequency excl = null;
+		try {
+			excl = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == excl) {
 			if(uid.trim().equalsIgnoreCase("global")) {	//for global excl freq
 				return excl;	//null即傳空字串回前端
@@ -74,7 +79,12 @@ public class ExclFrequencyService {
 	}
 	
 	public ExclFrequency getByGlobal(Boolean withoutDetail) throws IllegalArgumentException, Exception{
-		ExclFrequency excl = this.dao.findById("global").get();
+		
+		ExclFrequency excl = null;
+		try {
+			excl = this.dao.findById("global").get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == excl) {
 			return excl;
 		}
@@ -241,7 +251,11 @@ public class ExclFrequencyService {
 		if(null == excludefrequencyuid || excludefrequencyuid.trim().length() <= 0)
 			throw new IllegalArgumentException("Exclude Frequency Uid can not be empty!");
 		
-		ExclFrequency old_excl = this.dao.findById(excludefrequencyuid).get();
+		ExclFrequency old_excl = null;
+		try {
+			old_excl = this.dao.findById(excludefrequencyuid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_excl)
 			throw new IllegalArgumentException("Exclude Frequency Uid does not exist!(" + excludefrequencyuid + ")");
 		

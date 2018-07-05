@@ -27,15 +27,15 @@ import com.netpro.ac.util.CookieUtils;
 import com.netpro.ac.util.TrinityWebV2Utils;
 import com.netpro.trinity.auth.authn.dto.ReturnLoginInfo;
 import com.netpro.trinity.auth.authn.dto.TrinityPropSetting;
-import com.netpro.trinity.auth.authz.feign.util.TrinityServiceStatus;
-import com.netpro.trinity.auth.authz.feign.util.TrinityServiceStatusMsg;
+import com.netpro.trinity.auth.feign.util.TrinityServiceStatus;
+import com.netpro.trinity.auth.feign.util.TrinityServiceStatusMsg;
 
 @Service
 public class AuthnService {
 	
 	@Autowired
 	private TrinityPropSetting trinityProp;
-	
+		
 	@Autowired	//自動注入DataSource物件
 	private DataSource dataSource;
 	
@@ -103,6 +103,7 @@ public class AuthnService {
 				TrinityWebV2Utils.issueHttpOnlyCookies(response, trinityPrinc, expireSeconds, true);
 				info.setUserinfo(userInfo);
 				info.setUsertype(trinityPrinc.isPowerUser() ? "R" : "G");
+								
 				return info;
 			}
 		} finally {

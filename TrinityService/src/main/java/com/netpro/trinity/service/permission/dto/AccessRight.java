@@ -1,4 +1,4 @@
-package com.netpro.trinity.service.permission.entity;
+package com.netpro.trinity.service.permission.dto;
 
 public class AccessRight {
 	private String peopleuid;

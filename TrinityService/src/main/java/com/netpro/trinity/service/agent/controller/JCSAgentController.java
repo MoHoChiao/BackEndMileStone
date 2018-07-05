@@ -2,6 +2,8 @@ package com.netpro.trinity.service.agent.controller;
 
 import java.lang.reflect.InvocationTargetException;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,9 +125,9 @@ public class JCSAgentController {
 	}
   
 	@PostMapping("/add")
-	public ResponseEntity<?> addAgent(@RequestBody JCSAgent agent) {
+	public ResponseEntity<?> addAgent(HttpServletRequest request, @RequestBody JCSAgent agent) {
 		try {
-			return ResponseEntity.ok(this.service.add(agent));
+			return ResponseEntity.ok(this.service.add(request, agent));
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

@@ -1,14 +1,12 @@
-package com.netpro.trinity.auth.authz.feign.util;
+package com.netpro.trinity.service.feign.util;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.google.common.base.Strings;
 import com.netpro.ac.util.CookieUtils;
 import com.netpro.ac.util.TrinityWebV2Utils;
 

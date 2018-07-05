@@ -3,6 +3,7 @@ package com.netpro.trinity.service.job.service;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import java.lang.reflect.InvocationTargetException;
@@ -44,7 +45,11 @@ public class JobcategoryService {
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Job Category UID can not be empty!");
 		
-		Jobcategory category = this.dao.findById(uid).get();
+		Jobcategory category = null;
+		try {
+			category = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(category == null)
 			throw new IllegalArgumentException("Job Category UID does not exist!(" + uid + ")");
 		return category;

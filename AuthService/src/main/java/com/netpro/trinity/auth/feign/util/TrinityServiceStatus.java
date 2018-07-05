@@ -1,4 +1,4 @@
-package com.netpro.trinity.auth.authz.feign.util;
+package com.netpro.trinity.auth.feign.util;
 
 public class TrinityServiceStatus {
 	public static String ERROR = "Error";

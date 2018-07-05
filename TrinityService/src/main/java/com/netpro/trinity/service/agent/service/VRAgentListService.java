@@ -100,4 +100,11 @@ public class VRAgentListService {
 		
 		this.dao.deleteByVRAgentUid(uid);
 	}
+	
+	public boolean existByAgentuid(String agentUid) throws IllegalArgumentException, Exception {
+		if(null == agentUid || agentUid.trim().length() <= 0)
+			throw new IllegalArgumentException("Object Uid can not be empty!");
+		
+		return this.dao.existByAgentUid(agentUid);
+	}
 }

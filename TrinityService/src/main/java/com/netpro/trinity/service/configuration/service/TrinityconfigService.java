@@ -2,6 +2,7 @@ package com.netpro.trinity.service.configuration.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +30,11 @@ public class TrinityconfigService {
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Trinity Config UID can not be empty!");
 		
-		Trinityconfig config = this.dao.findById(uid).get();
+		Trinityconfig config = null;
+		try {
+			config = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(config == null)
 			throw new IllegalArgumentException("Trinity Config UID does not exist!(" + uid + ")");
 
@@ -42,8 +47,13 @@ public class TrinityconfigService {
 		String uid = config.getVersionid();
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Trinity Config Uid can not be empty!");
-
-		Trinityconfig old_config = this.dao.findById(uid).get();
+		
+		Trinityconfig old_config = null;
+		try {
+			old_config = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		
+		 
 		if(null == old_config)
 			throw new IllegalArgumentException("Trinity Config Uid does not exist!(" + uid + ")");
 		

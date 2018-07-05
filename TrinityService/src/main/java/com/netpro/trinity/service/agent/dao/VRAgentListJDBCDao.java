@@ -81,4 +81,16 @@ public class VRAgentListJDBCDao {
 		Object[] param = new Object[] {uid};
 		return jtm.update(sql, param);
 	}
+	
+	public Boolean existByAgentUid(String agentUid) throws DataAccessException{
+
+        String sql = "SELECT COUNT(list) > 0 "
+        		+ "FROM jcsvirtualagentlist list "
+        		+ "WHERE agentuid=? AND 1=1";
+        Object[] param = new Object[] {agentUid};
+        
+        Boolean ret = (Boolean) jtm.queryForObject(sql, Boolean.class, param);
+
+        return ret;
+    }
 }

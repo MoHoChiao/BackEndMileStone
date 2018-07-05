@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -62,7 +63,11 @@ public class NotificationService {
 		if(uid == null || uid.trim().isEmpty())
 			throw new IllegalArgumentException("Notification UID can not be empty!");
 		
-		Notification notice = this.dao.findById(uid).get();
+		Notification notice = null;
+		try {
+			notice = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == notice)
 			return new Notification();
 		
@@ -93,7 +98,11 @@ public class NotificationService {
 		if(null == uid || uid.trim().isEmpty())
 			return add(notice);
 		
-		Notification old_notice = this.dao.findById(uid).get();
+		Notification old_notice = null;
+		try {
+			old_notice = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_notice)
 			return add(notice);
 		else
@@ -222,7 +231,11 @@ public class NotificationService {
 			throw new IllegalArgumentException("Notification Uid can not be empty!");
 		uid = uid.trim();
 		
-		Notification old_notice = this.dao.findById(uid).get();
+		Notification old_notice = null;
+		try {
+			old_notice = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_notice)
 			throw new IllegalArgumentException("Notification Uid does not exist!(" + uid + ")");
 		

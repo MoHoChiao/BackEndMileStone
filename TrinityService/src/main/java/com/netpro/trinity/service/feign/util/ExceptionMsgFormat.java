@@ -1,4 +1,4 @@
-package com.netpro.trinity.auth.authz.feign.util;
+package com.netpro.trinity.service.feign.util;
 
 import static java.lang.String.format;
 

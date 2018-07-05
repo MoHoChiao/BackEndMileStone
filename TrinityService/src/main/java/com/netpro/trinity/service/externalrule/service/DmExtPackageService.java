@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -71,7 +72,11 @@ public class DmExtPackageService {
 		if(null == uid || uid.isEmpty())
 			throw new IllegalArgumentException("External Package UID can not be empty!");
 		
-		Dmextpackage p = this.dao.findById(uid).get();
+		Dmextpackage p = null;
+		try {
+			p = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == p)
 			throw new IllegalArgumentException("External Package UID does not exist!(" + uid + ")");
 		
@@ -190,7 +195,11 @@ public class DmExtPackageService {
 		if(null == description || description.trim().isEmpty())
 			description = "";
 		
-		Dmextpackage p = this.dao.findById(packageuid).get();
+		Dmextpackage p = null;
+		try {
+			p = this.dao.findById(packageuid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == p)
 			throw new IllegalArgumentException("External Package UID does not exist!(" + packageuid + ")");
 		String oldPackageName = p.getPackagename();

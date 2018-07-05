@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +26,12 @@ import com.netpro.trinity.auth.authz.dto.Trinityuser;
 import com.netpro.trinity.auth.authz.entity.AccessRight;
 import com.netpro.trinity.auth.authz.feign.RoleMemberClient;
 import com.netpro.trinity.auth.authz.feign.TrinityuserClient;
-import com.netpro.trinity.auth.authz.feign.util.TrinityBadResponseWrapper;
+import com.netpro.trinity.auth.feign.util.TrinityBadResponseWrapper;
 
 @Service
 public class AuthzService {
+	public static ConcurrentHashMap<String, PermissionTable> PermissionGlobalMap = new ConcurrentHashMap<String, PermissionTable>();
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthzService.class);
 	
 	@Autowired
@@ -211,7 +212,7 @@ public class AuthzService {
 			return new_lists;
 		
 		Map<String, AccessRight> oldAccessRightMap = new HashMap<String, AccessRight>();
-		Map<String, AccessRight> newAccessRightMap = new HashMap<String, AccessRight>();		
+		Map<String, AccessRight> newAccessRightMap = new HashMap<String, AccessRight>();
 		
 		List<AccessRight> oldAccessRightList = this.dao.findByPeopleUid(peopleUid);
 		for(AccessRight accessRight : oldAccessRightList) {
@@ -339,7 +340,10 @@ public class AuthzService {
 		this.dao.deleteByPKs(peopleUid, objectUid);
 	}
 	
-	public PermissionTable loadPermissionTable(HttpServletRequest request, String userid) throws IllegalArgumentException, TrinityBadResponseWrapper, Exception {
+	public PermissionTable loadPermissionTable(String userid) throws IllegalArgumentException, TrinityBadResponseWrapper, Exception {
+		if(null == userid || userid.trim().isEmpty())
+			throw new IllegalArgumentException("Authorization fail! User ID can not be empty. Please check your authentication again.");
+		
 		//Permission Table initial
 		PermissionTable permissionTable = new PermissionTable();
 		
@@ -513,6 +517,89 @@ public class AuthzService {
 		}
 		permissionTable.setObject_map(object_map);
 		
+		AuthzService.PermissionGlobalMap.put(userid, permissionTable);	//load完之後, 存入global
+		
 		return permissionTable;
 	}
+	
+	public PermissionTable getPermissionTable(String userid) throws IllegalArgumentException, TrinityBadResponseWrapper, Exception {
+		if(null == userid || userid.trim().isEmpty())
+			throw new IllegalArgumentException("Authorization fail! User ID can not be empty. Please check your authentication again.");
+		
+		PermissionTable permissionTable = AuthzService.PermissionGlobalMap.get(userid);
+		
+		if(null == permissionTable)
+			permissionTable = loadPermissionTable(userid);
+		
+		return permissionTable;
+	}
+	
+//	public Boolean checkPermission(String userid, String functionName, String permissionFlag) throws IllegalArgumentException, TrinityBadResponseWrapper, Exception {
+//		PermissionTable permissionTable = this.getPermissionTable(userid);
+//		
+//		if(permissionTable.isRoot())return true;
+//		else if(permissionTable.isAdmin())return true;
+//		else{
+//			Boolean flagValue = getFlagValue(permissionFlag);
+//				
+//			switch (functionName) {
+//            	case "connection":
+//            		if(null == permissionTable.getConnection_func())
+//                    if(XML(permissionTable.child("connection")[0]).attribute(flag).toString()=="0")return false;
+//                    else return true;
+//                    break;
+//                case "frequency":
+//                    if(XML(permissionTable.child("frequency")[0]).attribute(flag).toString()=="0")return false;
+//                    else return true;
+//                    break;
+//				case "domain":
+//                    if(XML(permissionTable.child("domain")[0]).attribute(flag).toString()=="0")return false;
+//                    else return true;
+//                    break;
+//                case "agent":
+//                    if(XML(permissionTable.child("agent")[0]).attribute(flag).toString()=="0")return false;
+//                    else return true;
+//                    break;
+//                case "filesrc":
+//                    if(XML(permissionTable.child("filesrc")[0]).attribute(flag).toString()=="0")return false;
+//                    else return true;
+//                    break;
+//                case "metadata":
+//                    if(XML(permissionTable.child("metadata")[0]).attribute(flag).toString()=="0")return false;
+//                    else return true;
+//                    break;
+//				case "entityvar":
+//					if(XML(permissionTable.child("entityvar")[0]).attribute(flag).toString()=="0")return false;
+//					else return true;
+//					break;
+//				case "profile":
+//					if(XML(permissionTable.child("profile")[0]).attribute(flag).toString()=="0")return false;
+//					else return true;
+//					break;
+//				case "aliasref":
+//					if(XML(permissionTable.child("aliasref")[0]).attribute(flag).toString()=="0")return false;
+//					else return true;
+//					break;
+//				case "extrule":
+//					if(XML(permissionTable.child("extrule")[0]).attribute(flag).toString()=="0")return false;
+//					else return true;
+//					break;
+//				case "performance":
+//					if(XML(permissionTable.child("performance")[0]).attribute(flag).toString()=="0")return false;
+//					else return true;
+//					break;
+//                default:
+//                	CustomAlert.error("func not found.");
+//        			break;
+//			}
+//		}
+//		return false;		
+//	}
+//	
+//	private Boolean getFlagValue(String permissionFlag) {
+//		if(	permissionFlag!="view" && permissionFlag!="add" && permissionFlag!="edit" && permissionFlag!="delete")
+//			throw new IllegalArgumentException("Authorization fail! Permission Flag does not exist.(" +  permissionFlag+ ")");
+//		
+//		
+//	}
 }

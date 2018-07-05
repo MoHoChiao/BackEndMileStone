@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,7 +47,11 @@ public class UsergroupService {
 		if(null == uid || uid.isEmpty())
 			throw new IllegalArgumentException("User Group UID can not be empty!");
 		
-		Usergroup group = this.dao.findById(uid).get();
+		Usergroup group = null;
+		try {
+			group = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == group)
 			throw new IllegalArgumentException("User Group UID does not exist!(" + uid + ")");
 		return group;
@@ -169,7 +174,11 @@ public class UsergroupService {
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("User Group Uid can not be empty!");
 
-		Usergroup old_group = this.dao.findById(uid).get();
+		Usergroup old_group = null;
+		try {
+			old_group = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_group)
 			throw new IllegalArgumentException("User Group Uid does not exist!(" + uid + ")");
 		

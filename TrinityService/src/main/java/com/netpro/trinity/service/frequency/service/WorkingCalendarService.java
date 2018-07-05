@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -68,7 +69,11 @@ public class WorkingCalendarService {
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Working Calendar UID can not be empty!");
 		
-		WorkingCalendar wc = this.dao.findById(uid).get();
+		WorkingCalendar wc = null;
+		try {
+			wc = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == wc)
 			throw new IllegalArgumentException("Working Calendar UID does not exist!(" + uid + ")");
 		
@@ -232,7 +237,11 @@ public class WorkingCalendarService {
 		if(wc_uid.trim().equalsIgnoreCase("SYSTEMDAY"))
 			throw new IllegalArgumentException("System day can not be edited!");
 		
-		WorkingCalendar old_wc = this.dao.findById(wc_uid).get();
+		WorkingCalendar old_wc = null;
+		try {
+			old_wc = this.dao.findById(wc_uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_wc)
 			throw new IllegalArgumentException("Working Calendar Uid does not exist!(" + wc_uid + ")");
 		

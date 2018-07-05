@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,7 +47,11 @@ public class FileSourceCategoryService {
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("File Source Category UID can not be empty!");
 		
-		FileSourceCategory category = this.dao.findById(uid).get();
+		FileSourceCategory category = null;
+		try {
+			category = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(category == null)
 			throw new IllegalArgumentException("File Source Category UID does not exist!(" + uid + ")");
 
@@ -166,7 +171,11 @@ public class FileSourceCategoryService {
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("File Source Category Uid can not be empty!");
 
-		FileSourceCategory old_category = this.dao.findById(uid).get();
+		FileSourceCategory old_category = null;
+		try {
+			old_category = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_category)
 			throw new IllegalArgumentException("File Source Category Uid does not exist!(" + uid + ")");
 		

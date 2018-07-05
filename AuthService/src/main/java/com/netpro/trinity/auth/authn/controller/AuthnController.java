@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.auth.authn.dto.LoginInfo;
 import com.netpro.trinity.auth.authn.service.AuthnService;
-import com.netpro.trinity.auth.authz.feign.util.ExceptionMsgFormat;
+import com.netpro.trinity.auth.feign.util.ExceptionMsgFormat;
 import com.netpro.trinity.auth.util.NetworkUtil;
 
 @RestController  //宣告一個Restful Web Service的Resource

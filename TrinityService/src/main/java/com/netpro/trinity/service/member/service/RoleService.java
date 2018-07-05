@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,7 +47,11 @@ public class RoleService {
 		if(null == uid || uid.isEmpty())
 			throw new IllegalArgumentException("Role UID can not be empty!");
 		
-		Role role = this.dao.findById(uid).get();
+		Role role = null;
+		try {
+			role = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == role)
 			throw new IllegalArgumentException("Role UID does not exist!(" + uid + ")");
 		return role;
@@ -172,7 +177,11 @@ public class RoleService {
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Role Uid can not be empty!");
 		
-		Role old_role = this.dao.findById(uid).get();
+		Role old_role = null;
+		try {
+			old_role = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_role)
 			throw new IllegalArgumentException("Role Uid does not exist!(" + uid + ")");
 		

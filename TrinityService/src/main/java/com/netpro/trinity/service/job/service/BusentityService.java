@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 import java.lang.reflect.InvocationTargetException;
@@ -49,7 +50,11 @@ public class BusentityService {
 		if(uid == null || uid.isEmpty())
 			throw new IllegalArgumentException("Business Entity UID can not be empty!");
 		
-		Busentity entity = this.dao.findById(uid).get();
+		Busentity entity = null;
+		try {
+			entity = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(entity == null)
 			throw new IllegalArgumentException("Business Entity UID does not exist!(" + uid + ")");
 		
@@ -197,7 +202,11 @@ public class BusentityService {
 		if(null == entityuid || entityuid.trim().length() <= 0)
 			throw new IllegalArgumentException("Business Entity Uid can not be empty!");
 
-		Busentity old_entity = this.dao.findById(entityuid).get();
+		Busentity old_entity = null;
+		try {
+			old_entity = this.dao.findById(entityuid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_entity)
 			throw new IllegalArgumentException("Business Entity Uid does not exist!(" + entityuid + ")");
 		

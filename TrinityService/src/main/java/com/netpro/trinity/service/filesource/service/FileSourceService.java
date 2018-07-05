@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -73,7 +74,11 @@ public class FileSourceService {
 		if(uid == null || uid.trim().isEmpty())
 			throw new IllegalArgumentException("File Source UID can not be empty!");
 		
-		FileSource filesource = this.dao.findById(uid).get();
+		FileSource filesource = null;
+		try {
+			filesource = this.dao.findById(uid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(filesource == null)
 			throw new IllegalArgumentException("File Source UID does not exist!(" + uid + ")");
 		setExtraXmlProp(filesource);
@@ -600,7 +605,11 @@ public class FileSourceService {
 		if(null == filesourceuid || filesourceuid.trim().length() <= 0)
 			throw new IllegalArgumentException("File Source Uid can not be empty!");
 		
-		FileSource old_filesource = this.dao.findById(filesourceuid).get();
+		FileSource old_filesource = null;
+		try {
+			old_filesource = this.dao.findById(filesourceuid).get();
+		}catch(NoSuchElementException e) {}
+		 
 		if(null == old_filesource)
 			throw new IllegalArgumentException("File Source Uid does not exist!(" + filesourceuid + ")");
 		
