@@ -2,6 +2,8 @@ package com.netpro.trinity.service.agent.controller;
 
 import java.lang.reflect.InvocationTargetException;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,9 +89,9 @@ public class VRAgentController {
 	}
   
 	@PostMapping("/add")
-	public ResponseEntity<?> addVRAgent(@RequestBody VRAgent vragent) {
+	public ResponseEntity<?> addVRAgent(HttpServletRequest request, @RequestBody VRAgent vragent) {
 		try {
-			return ResponseEntity.ok(this.service.add(vragent));
+			return ResponseEntity.ok(this.service.add(request, vragent));
 		}catch(IllegalArgumentException e) {
 			VRAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
