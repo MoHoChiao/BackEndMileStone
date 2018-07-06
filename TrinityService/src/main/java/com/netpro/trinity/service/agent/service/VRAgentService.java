@@ -1,5 +1,6 @@
 package com.netpro.trinity.service.agent.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -8,9 +9,13 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,10 +32,18 @@ import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.dto.Ordering;
 import com.netpro.trinity.service.dto.Paging;
 import com.netpro.trinity.service.dto.Querying;
+import com.netpro.trinity.service.job.service.JobService;
+import com.netpro.trinity.service.member.service.TrinityuserService;
+import com.netpro.trinity.service.objectalias.service.ObjectAliasService;
+import com.netpro.trinity.service.permission.dto.AccessRight;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
+import com.netpro.trinity.service.util.ACUtil;
 import com.netpro.trinity.service.util.Constant;
 
 @Service
 public class VRAgentService {
+	private static final Logger LOGGER = LoggerFactory.getLogger(VRAgentService.class);
+	
 	public static final String[] VR_AGENT_FIELD_VALUES = new String[] { "virtualagentname", "activate", "description", "mode"};
 	public static final Set<String> VR_AGENT_FIELD_SET = new HashSet<>(Arrays.asList(VR_AGENT_FIELD_VALUES));
 	
@@ -39,7 +52,16 @@ public class VRAgentService {
 	
 	@Autowired
 	private VRAgentListService listService;
+	@Autowired
+	private TrinityuserService userService;
+	@Autowired
+	private JobService jobService;
+	@Autowired
+	private ObjectAliasService objectAliasService;
 	
+	@Autowired
+	private PermissionClient permissionClient;
+		
 	public List<VRAgent> getAll(Boolean withoutDetail) throws Exception{
 		List<VRAgent> vrAgents = this.dao.findAll();
 		if(null == withoutDetail || withoutDetail == false)
@@ -178,7 +200,7 @@ public class VRAgentService {
 		}
 	}
 	
-	public VRAgent add(VRAgent vragent) throws IllegalArgumentException, Exception{
+	public VRAgent add(HttpServletRequest request, VRAgent vragent) throws IllegalArgumentException, Exception{
 		vragent.setVirtualagentuid(UUID.randomUUID().toString());
 		
 		String vr_agentname = vragent.getVirtualagentname();
@@ -222,6 +244,9 @@ public class VRAgentService {
 			}
 			vragent.setAgentlist(vrlist);
 		}
+		
+		//default permission insert
+		this.modifyPermissionByObjectUid(vragent.getVirtualagentuid(), request);
 		
 		return vragent;
 	}
@@ -292,8 +317,17 @@ public class VRAgentService {
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Virtual Agent Uid can not be empty!");
 		
-		this.listService.deleteByVRAgentUid(uid);
-		this.dao.deleteById(uid);
+		if(jobService.existByFrequencyuid(uid)) {
+			throw new IllegalArgumentException("Referenceing by job");
+		}else if(objectAliasService.existByObjectuid(uid)) {
+			throw new IllegalArgumentException("Referenceing by Object Alias");
+		}else {
+			this.permissionClient.deleteByObjectUid(uid);	//刪掉該agent所有的permission
+			
+			this.listService.deleteByVRAgentUid(uid);
+			
+			this.dao.deleteById(uid);
+		}
 	}
 	
 	public boolean existByUid(String uid) throws Exception {
@@ -334,5 +368,32 @@ public class VRAgentService {
 	
 	private void getAgentList(VRAgent vrAgent) throws Exception {
 		vrAgent.setAgentlist(this.listService.getExByVRAgentUid(vrAgent.getVirtualagentuid()));
+	}
+	
+	private void modifyPermissionByObjectUid(String objectUid, HttpServletRequest request) {
+		try {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			String peopleUid = userService.getByID(peopleId).getUseruid();
+			if(null == peopleUid || peopleUid.trim().isEmpty() || "trinity".equals(peopleUid.trim()))
+				return;
+			
+			List<AccessRight> accessRights = new ArrayList<AccessRight>();
+			AccessRight accessRight = new AccessRight();
+			accessRight.setPeopleuid(peopleUid);
+			accessRight.setObjectuid(objectUid);
+			accessRight.setAdd("1");
+			accessRight.setDelete("0");
+			accessRight.setEdit("0");
+			accessRight.setGrant("0");
+			accessRight.setImport_export("0");
+			accessRight.setReRun("0");
+			accessRight.setRun("0");
+			accessRight.setView("0");
+			accessRights.add(accessRight);
+			
+			this.permissionClient.modifyByObjectUid(objectUid, accessRights);
+		} catch (Exception e) {
+			VRAgentService.LOGGER.error("Exception; reason was:", e);
+		}
 	}
 }

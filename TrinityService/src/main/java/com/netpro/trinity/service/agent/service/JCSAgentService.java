@@ -429,9 +429,9 @@ public class JCSAgentService {
 				this.monitorService.deleteByUid(uid);
 			}catch(EmptyResultDataAccessException e) {}	//可能不存在, 所以不影響刪除agent
 			
-			this.dao.deleteById(uid);
-			
 			this.permissionClient.deleteByObjectUid(uid);	//刪掉該agent所有的permission
+			
+			this.dao.deleteById(uid);
 		}
 	}
 	
