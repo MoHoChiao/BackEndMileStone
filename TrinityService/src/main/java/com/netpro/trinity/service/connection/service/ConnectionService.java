@@ -626,7 +626,7 @@ public class ConnectionService {
 		} catch (SQLException e) {
 			ConnectionService.LOGGER.error("SQLException; reason was:", e);
 			
-			String errmsg = e.getMessage();	
+			String errmsg = e.getMessage();
 			if (errmsg.indexOf("does not exist") > -1) {
 				throw new SQLException("Target Database Does Not Exist");
 			} else if (errmsg.indexOf("password authentication failed") > -1) {
