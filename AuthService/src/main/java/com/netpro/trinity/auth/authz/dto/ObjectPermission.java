@@ -2,13 +2,13 @@ package com.netpro.trinity.auth.authz.dto;
 
 public class ObjectPermission {
 	private String objuid;
-	private boolean view;
-	private boolean add;
-	private boolean modify;
-	private boolean delete;
-	private boolean run;
-	private boolean rerun;
-	private boolean grant;
+	private Boolean view;
+	private Boolean add;
+	private Boolean modify;
+	private Boolean delete;
+	private Boolean run;
+	private Boolean rerun;
+	private Boolean grant;
 	
 	public ObjectPermission() {
 		this.view = false;
@@ -28,59 +28,59 @@ public class ObjectPermission {
 		this.objuid = objuid;
 	}
 	
-	public boolean getView() {
+	public Boolean getView() {
 		return view;
 	}
 
-	public void setView(boolean view) {
+	public void setView(Boolean view) {
 		this.view = view;
 	}
 
-	public boolean getAdd() {
+	public Boolean getAdd() {
 		return add;
 	}
 
-	public void setAdd(boolean add) {
+	public void setAdd(Boolean add) {
 		this.add = add;
 	}
 
-	public boolean getModify() {
+	public Boolean getModify() {
 		return modify;
 	}
 
-	public void setModify(boolean modify) {
+	public void setModify(Boolean modify) {
 		this.modify = modify;
 	}
 
-	public boolean getDelete() {
+	public Boolean getDelete() {
 		return delete;
 	}
 
-	public void setDelete(boolean delete) {
+	public void setDelete(Boolean delete) {
 		this.delete = delete;
 	}
 	
-	public boolean isRun() {
+	public Boolean getRun() {
 		return run;
 	}
 
-	public void setRun(boolean run) {
+	public void setRun(Boolean run) {
 		this.run = run;
 	}
 
-	public boolean isRerun() {
+	public Boolean getRerun() {
 		return rerun;
 	}
 
-	public void setRerun(boolean rerun) {
+	public void setRerun(Boolean rerun) {
 		this.rerun = rerun;
 	}
 
-	public boolean isGrant() {
+	public Boolean getGrant() {
 		return grant;
 	}
 
-	public void setGrant(boolean grant) {
+	public void setGrant(Boolean grant) {
 		this.grant = grant;
 	}
 	

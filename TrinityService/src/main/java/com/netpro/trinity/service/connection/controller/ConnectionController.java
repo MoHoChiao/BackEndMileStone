@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,9 +127,9 @@ public class ConnectionController {
 	}
 	
 	@PostMapping("/add")
-	public ResponseEntity<?> addConnection(String categoryUid, @RequestBody Map<String, String> connMap) {
+	public ResponseEntity<?> addConnection(HttpServletRequest request, String categoryUid, @RequestBody Map<String, String> connMap) {
 		try {
-			return ResponseEntity.ok(this.service.add(categoryUid, connMap));
+			return ResponseEntity.ok(this.service.add(request, categoryUid, connMap));
 		}catch(IllegalArgumentException e) {
 			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

@@ -11,6 +11,9 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
@@ -47,8 +50,12 @@ import com.netpro.trinity.service.dto.Paging;
 import com.netpro.trinity.service.dto.Querying;
 import com.netpro.trinity.service.filesource.service.FileSourceService;
 import com.netpro.trinity.service.job.service.JobstepService;
+import com.netpro.trinity.service.member.service.TrinityuserService;
 import com.netpro.trinity.service.objectalias.service.ObjectAliasService;
+import com.netpro.trinity.service.permission.dto.AccessRight;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
 import com.netpro.trinity.service.prop.dto.TrinityDataJDBC;
+import com.netpro.trinity.service.util.ACUtil;
 import com.netpro.trinity.service.util.Constant;
 import com.netpro.trinity.service.util.Crypto;
 import com.netpro.trinity.service.util.XMLDataUtility;
@@ -77,6 +84,8 @@ public class ConnectionService {
 	private ConnectionJPADao dao;
 	
 	@Autowired
+	private TrinityuserService userService;
+	@Autowired
 	private ConnectionRelationService relService;
 	@Autowired
 	private FileSourceService filesourceService;
@@ -84,6 +93,9 @@ public class ConnectionService {
 	private JobstepService jobstepService;
 	@Autowired
 	private ObjectAliasService objectAliasService;
+	
+	@Autowired
+	private PermissionClient permissionClient;
 	
 	@Autowired
 	private TrinityDataJDBC jdbcInfo;
@@ -430,7 +442,7 @@ public class ConnectionService {
 		}
 	}
 	
-	public Connection add(String categoryUid, Map<String, String> connMap) throws IllegalArgumentException, Exception{
+	public Connection add(HttpServletRequest request, String categoryUid, Map<String, String> connMap) throws IllegalArgumentException, Exception{
 		if(null == connMap || connMap.size() <= 0)
 			throw new IllegalArgumentException("Connection Information can not be empty!");
 		
@@ -465,12 +477,15 @@ public class ConnectionService {
 		new_conn = getExtraXmlProp(new_conn);
 		
 		//如果所附帶的url參數中有categoryUid的話, 表示是要把Connection新增至某個category
-		if(categoryUid != null && !categoryUid.trim().equals("")) {
+		if(null != categoryUid && !categoryUid.trim().isEmpty()) {
 			ConnectionRelation rel = new ConnectionRelation();
 			rel.setConncategoryuid(categoryUid);
 			rel.setConnectionuid(new_conn.getConnectionuid());
 			this.relService.add(rel);
 		}
+		
+		//default permission insert
+		this.modifyPermissionByObjectUid(new_conn.getConnectionuid(), request);
 		
 		return new_conn;
 	}
@@ -543,8 +558,11 @@ public class ConnectionService {
 		if(objectAliasService.existByObjectuid(uid))
 			throw new IllegalArgumentException("Referenceing by Object Alias");
 		
-		this.dao.deleteById(uid);
 		this.relService.deleteByConnectionUid(uid);
+		
+		this.permissionClient.deleteByObjectUid(uid);	//刪掉該connection所有的permission
+		
+		this.dao.deleteById(uid);
 	}
 	
 	public String testJDBCConnection(String schema, JDBCConnection jdbcConn) throws SQLException, ClassNotFoundException, Exception {
@@ -1041,5 +1059,33 @@ public class ConnectionService {
 		}
 		
 		conn.setXmldata(xmlUtil.parseHashMapToXMLString(map, false));
+	}
+	
+	private void modifyPermissionByObjectUid(String objectUid, HttpServletRequest request) {
+		try {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			String peopleUid = userService.getByID(peopleId).getUseruid();
+			if(null == peopleUid || peopleUid.trim().isEmpty() || "trinity".equals(peopleUid.trim()))
+				return;
+			
+			List<AccessRight> accessRights = new ArrayList<AccessRight>();
+			AccessRight accessRight = new AccessRight();
+			accessRight.setPeopleuid(peopleUid);
+			accessRight.setObjectuid(objectUid);
+			accessRight.setView("1");
+			accessRight.setAdd("1");
+			accessRight.setEdit("1");
+			accessRight.setDelete("1");
+			accessRight.setGrant("1");
+			accessRight.setImport_export("0");
+			accessRight.setReRun("0");
+			accessRight.setRun("0");
+			
+			accessRights.add(accessRight);
+			
+			this.permissionClient.modifyByObjectUid(objectUid, accessRights);
+		} catch (Exception e) {
+			ConnectionService.LOGGER.error("Exception; reason was:", e);
+		}
 	}
 }

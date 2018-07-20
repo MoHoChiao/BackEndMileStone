@@ -19,6 +19,7 @@ import com.netpro.trinity.auth.authz.dto.DomainFuncPermission;
 import com.netpro.trinity.auth.authz.dto.ExternalRuleFuncPermission;
 import com.netpro.trinity.auth.authz.dto.FileSourceFuncPermission;
 import com.netpro.trinity.auth.authz.dto.FrequencyFuncPermission;
+import com.netpro.trinity.auth.authz.dto.IFuncPermission;
 import com.netpro.trinity.auth.authz.dto.ObjectPermission;
 import com.netpro.trinity.auth.authz.dto.PerformanceFuncPermission;
 import com.netpro.trinity.auth.authz.dto.PermissionTable;
@@ -527,79 +528,144 @@ public class AuthzService {
 			throw new IllegalArgumentException("Authorization fail! User ID can not be empty. Please check your authentication again.");
 		
 		PermissionTable permissionTable = AuthzService.PermissionGlobalMap.get(userid);
-		
 		if(null == permissionTable)
 			permissionTable = loadPermissionTable(userid);
 		
 		return permissionTable;
 	}
 	
-//	public Boolean checkPermission(String userid, String functionName, String permissionFlag) throws IllegalArgumentException, TrinityBadResponseWrapper, Exception {
-//		PermissionTable permissionTable = this.getPermissionTable(userid);
-//		
-//		if(permissionTable.isRoot())return true;
-//		else if(permissionTable.isAdmin())return true;
-//		else{
-//			Boolean flagValue = getFlagValue(permissionFlag);
-//				
-//			switch (functionName) {
-//            	case "connection":
-//            		if(null == permissionTable.getConnection_func())
-//                    if(XML(permissionTable.child("connection")[0]).attribute(flag).toString()=="0")return false;
-//                    else return true;
-//                    break;
-//                case "frequency":
-//                    if(XML(permissionTable.child("frequency")[0]).attribute(flag).toString()=="0")return false;
-//                    else return true;
-//                    break;
-//				case "domain":
-//                    if(XML(permissionTable.child("domain")[0]).attribute(flag).toString()=="0")return false;
-//                    else return true;
-//                    break;
-//                case "agent":
-//                    if(XML(permissionTable.child("agent")[0]).attribute(flag).toString()=="0")return false;
-//                    else return true;
-//                    break;
-//                case "filesrc":
-//                    if(XML(permissionTable.child("filesrc")[0]).attribute(flag).toString()=="0")return false;
-//                    else return true;
-//                    break;
-//                case "metadata":
-//                    if(XML(permissionTable.child("metadata")[0]).attribute(flag).toString()=="0")return false;
-//                    else return true;
-//                    break;
-//				case "entityvar":
-//					if(XML(permissionTable.child("entityvar")[0]).attribute(flag).toString()=="0")return false;
-//					else return true;
-//					break;
-//				case "profile":
-//					if(XML(permissionTable.child("profile")[0]).attribute(flag).toString()=="0")return false;
-//					else return true;
-//					break;
-//				case "aliasref":
-//					if(XML(permissionTable.child("aliasref")[0]).attribute(flag).toString()=="0")return false;
-//					else return true;
-//					break;
-//				case "extrule":
-//					if(XML(permissionTable.child("extrule")[0]).attribute(flag).toString()=="0")return false;
-//					else return true;
-//					break;
-//				case "performance":
-//					if(XML(permissionTable.child("performance")[0]).attribute(flag).toString()=="0")return false;
-//					else return true;
-//					break;
-//                default:
-//                	CustomAlert.error("func not found.");
-//        			break;
-//			}
-//		}
-//		return false;		
-//	}
-//	
-//	private Boolean getFlagValue(String permissionFlag) {
-//		if(	permissionFlag!="view" && permissionFlag!="add" && permissionFlag!="edit" && permissionFlag!="delete")
-//			throw new IllegalArgumentException("Authorization fail! Permission Flag does not exist.(" +  permissionFlag+ ")");
-//		
-//		
-//	}
+	public Boolean checkFuncPermission(String userid, String functionName, String permissionFlag) throws IllegalArgumentException, TrinityBadResponseWrapper, Exception {
+		if(null == userid || userid.trim().isEmpty())
+			throw new IllegalArgumentException("User Id can not be empty!");
+		
+		if(null == functionName || functionName.trim().isEmpty())
+			throw new IllegalArgumentException("Function Name can not be empty!");
+		
+		if(null == permissionFlag || permissionFlag.trim().isEmpty())
+			throw new IllegalArgumentException("Permission Flag can not be empty!");
+		
+		functionName = functionName.toLowerCase();
+		permissionFlag = permissionFlag.toLowerCase();
+		
+		PermissionTable permissionTable = this.getPermissionTable(userid);
+		
+		if(permissionTable.isRoot())
+			return true;
+		else if(permissionTable.isAdmin())
+			return true;
+		else{
+			switch (functionName) {
+            	case "connection":
+            		if(null == permissionTable.getConnection_func()) return false;
+            		else return getFlagValueByFunc(permissionTable.getConnection_func(), permissionFlag);
+                case "frequency":
+                	if(null == permissionTable.getFrequency_func()) return false;
+            		else return getFlagValueByFunc(permissionTable.getFrequency_func(), permissionFlag);
+				case "domain":
+					if(null == permissionTable.getDomain_func()) return false;
+            		else return getFlagValueByFunc(permissionTable.getDomain_func(), permissionFlag);
+                case "agent":
+                	if(null == permissionTable.getAgent_func()) return false;
+            		else return getFlagValueByFunc(permissionTable.getAgent_func(), permissionFlag);
+                case "filesource":
+                	if(null == permissionTable.getFilesource_func()) return false;
+            		else return getFlagValueByFunc(permissionTable.getFilesource_func(), permissionFlag);
+				case "alias":
+					if(null == permissionTable.getAlias_func()) return false;
+            		else return getFlagValueByFunc(permissionTable.getAlias_func(), permissionFlag);
+				case "extrule":
+					if(null == permissionTable.getExtrule_func()) return false;
+            		else return getFlagValueByFunc(permissionTable.getExtrule_func(), permissionFlag);
+				case "performance":
+					if(null == permissionTable.getPerformance_func()) return false;
+            		else return getFlagValueByFunc(permissionTable.getPerformance_func(), permissionFlag);
+                default:
+                	return false;
+			}
+		}
+	}
+	
+	public Boolean checkObjPermission(String userid, String objUid, String permissionFlag) throws IllegalArgumentException, TrinityBadResponseWrapper, Exception {
+		if(null == userid || userid.trim().isEmpty())
+			throw new IllegalArgumentException("User Id can not be empty!");
+		
+		if(null == objUid || objUid.trim().isEmpty())
+			throw new IllegalArgumentException("Object Uid can not be empty!");
+		
+		if(null == permissionFlag || permissionFlag.trim().isEmpty())
+			throw new IllegalArgumentException("Permission Flag can not be empty!");
+		
+		permissionFlag = permissionFlag.toLowerCase();
+		
+		PermissionTable permissionTable = this.getPermissionTable(userid);
+		
+		if(permissionTable.isRoot())
+			return true;
+		else if(permissionTable.isAdmin())
+			return true;
+		else{
+			Map<String, ObjectPermission> objMap = permissionTable.getObject_map();
+			if(null == objMap)
+				return false;
+			
+			ObjectPermission objPermission = objMap.get(objUid);
+			if(null == objPermission)
+				return false;
+						
+			return getFlagValueByObj(objPermission, permissionFlag);
+		}
+	}
+	
+	private Boolean getFlagValueByFunc(IFuncPermission func, String permissionFlag) {
+		if(!permissionFlag.equals("view") && !permissionFlag.equals("add") && !permissionFlag.equals("modify") && !permissionFlag.equals("delete"))
+			throw new IllegalArgumentException("Authorization fail! Permission Flag does not exist.(" +  permissionFlag+ ")");
+		
+		switch (permissionFlag) {
+	    	case "view":
+	    		if(null == func.getView()) return false;
+	            else return func.getAdd();
+	    	case "add":
+	        	if(null == func.getAdd()) return false;
+	            else return func.getAdd();
+			case "modify":
+				if(null == func.getModify()) return false;
+	            else return func.getModify();
+	        case "delete":
+	        	if(null == func.getDelete()) return false;
+	            else return func.getDelete();
+	        default:
+	        	return false;
+		}
+	}
+	
+	private Boolean getFlagValueByObj(ObjectPermission objPermission, String permissionFlag) {
+		if(!permissionFlag.equals("view") && !permissionFlag.equals("add") && !permissionFlag.equals("modify") && !permissionFlag.equals("delete"))
+			throw new IllegalArgumentException("Authorization fail! Permission Flag does not exist.(" +  permissionFlag+ ")");
+		
+		switch (permissionFlag) {
+	    	case "view":
+	    		if(null == objPermission.getView()) return false;
+	            else return objPermission.getView();
+	    	case "add":
+	        	if(null == objPermission.getAdd()) return false;
+	            else return objPermission.getAdd();
+			case "modify":
+				if(null == objPermission.getModify()) return false;
+	            else return objPermission.getModify();
+	        case "delete":
+	        	if(null == objPermission.getDelete()) return false;
+	            else return objPermission.getDelete();
+	        case "run":
+	        	if(null == objPermission.getRun()) return false;
+	            else return objPermission.getRun();
+	        case "rerun":
+	        	if(null == objPermission.getRerun()) return false;
+	            else return objPermission.getRerun();
+	        case "grant":
+	        	if(null == objPermission.getGrant()) return false;
+	            else return objPermission.getGrant();
+	        default:
+	        	return false;
+		}
+	}
 }

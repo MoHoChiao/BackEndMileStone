@@ -507,14 +507,14 @@ public class JCSAgentService {
 			AccessRight accessRight = new AccessRight();
 			accessRight.setPeopleuid(peopleUid);
 			accessRight.setObjectuid(objectUid);
+			accessRight.setView("1");
 			accessRight.setAdd("1");
-			accessRight.setDelete("0");
-			accessRight.setEdit("0");
-			accessRight.setGrant("0");
+			accessRight.setEdit("1");
+			accessRight.setDelete("1");
+			accessRight.setGrant("1");
 			accessRight.setImport_export("0");
 			accessRight.setReRun("0");
 			accessRight.setRun("0");
-			accessRight.setView("0");
 			accessRights.add(accessRight);
 			
 			this.permissionClient.modifyByObjectUid(objectUid, accessRights);

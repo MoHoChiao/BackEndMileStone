@@ -1,10 +1,10 @@
 package com.netpro.trinity.auth.authz.dto;
 
-public class FrequencyFuncPermission {
-	private boolean view;
-	private boolean add;
-	private boolean modify;
-	private boolean delete;
+public class FrequencyFuncPermission implements IFuncPermission{
+	private Boolean view;
+	private Boolean add;
+	private Boolean modify;
+	private Boolean delete;
 	
 	public FrequencyFuncPermission() {
 		this.view = false;
@@ -13,35 +13,43 @@ public class FrequencyFuncPermission {
 		this.delete = false;
 	}
 	
-	public boolean getView() {
+	@Override
+	public Boolean getView() {
 		return view;
 	}
 
-	public void setView(boolean view) {
+	@Override
+	public void setView(Boolean view) {
 		this.view = view;
 	}
 
-	public boolean getAdd() {
+	@Override
+	public Boolean getAdd() {
 		return add;
 	}
 
-	public void setAdd(boolean add) {
+	@Override
+	public void setAdd(Boolean add) {
 		this.add = add;
 	}
 
-	public boolean getModify() {
+	@Override
+	public Boolean getModify() {
 		return modify;
 	}
-
-	public void setModify(boolean modify) {
+	
+	@Override
+	public void setModify(Boolean modify) {
 		this.modify = modify;
 	}
 
-	public boolean getDelete() {
+	@Override
+	public Boolean getDelete() {
 		return delete;
 	}
 
-	public void setDelete(boolean delete) {
+	@Override
+	public void setDelete(Boolean delete) {
 		this.delete = delete;
 	}
 	

@@ -297,6 +297,32 @@ public class AuthzController {
 		}
 	}
 	
+	@GetMapping("/checkFuncPermission")
+	public ResponseEntity<?> findFuncPermissionTableByUserId(String userId, String functionName, String permissionFlag) {
+		try {
+			return ResponseEntity.ok(this.service.checkFuncPermission(userId, functionName, permissionFlag));
+		}catch(IllegalArgumentException e) {
+			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AuthzController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/checkObjPermission")
+	public ResponseEntity<?> findObjPermissionTableByUserId(String userId, String objUid, String permissionFlag) {
+		try {
+			return ResponseEntity.ok(this.service.checkObjPermission(userId, objUid, permissionFlag));
+		}catch(IllegalArgumentException e) {
+			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AuthzController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	private void reloadPermission(HttpServletRequest request) {
 		String userId = ACUtil.getUserIdFromAC(request);
 		if(null != userId && !userId.trim().isEmpty()) {
