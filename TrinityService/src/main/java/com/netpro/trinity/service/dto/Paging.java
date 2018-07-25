@@ -3,6 +3,14 @@ package com.netpro.trinity.service.dto;
 public class Paging {
 	private Integer number;
 	private Integer size;
+	
+	public Paging() {}
+	
+	public Paging(Integer number, Integer size) {
+		this.number = number;
+		this.size = size;
+	}
+	
 	public Integer getNumber() {
 		return number;
 	}

@@ -1,7 +1,5 @@
 package com.netpro.trinity.service.agent.controller;
 
-import java.lang.reflect.InvocationTargetException;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -59,19 +57,6 @@ public class JCSAgentController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
-  
-	@GetMapping("/findByName")
-	public ResponseEntity<?> findAgentsByName(String name) {
-		try {
-			return ResponseEntity.ok(this.service.getByName(name));
-		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			JCSAgentController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
 	
 	@GetMapping("/findAllAgentNames")
 	public ResponseEntity<?> findAllAgentNames() {
@@ -100,24 +85,9 @@ public class JCSAgentController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findAgentsByFilter(@RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findAgentByFilter(@RequestBody FilterInfo filter) {
 		try {
 			return this.service.getByFilter(filter);
-		}catch(SecurityException e) {
-			JCSAgentController.LOGGER.error("SecurityException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(NoSuchMethodException e) {
-			JCSAgentController.LOGGER.error("NoSuchMethodException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalAccessException e) {
-			JCSAgentController.LOGGER.error("IllegalAccessException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(InvocationTargetException e) {
-			JCSAgentController.LOGGER.error("InvocationTargetException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalArgumentException e) {
-			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
