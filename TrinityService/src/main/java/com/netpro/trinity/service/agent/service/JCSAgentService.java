@@ -82,7 +82,7 @@ public class JCSAgentService {
 			paging = new Paging(0, 20);
 		
 		if(null == ordering) 
-			ordering = new Ordering("desc", "lastupdatetime");
+			ordering = new Ordering("DESC", "lastupdatetime");
 		
 		if(null == param || param.trim().isEmpty())
 			param = "%%";
@@ -371,6 +371,7 @@ public class JCSAgentService {
 		agent.setXmldata(null);
 	}
 	
+	@SuppressWarnings("unused")
 	private void setExtraXmlProp(List<JCSAgent> agents) throws Exception{
 		for(JCSAgent agent : agents) {
 			setExtraXmlProp(agent);
