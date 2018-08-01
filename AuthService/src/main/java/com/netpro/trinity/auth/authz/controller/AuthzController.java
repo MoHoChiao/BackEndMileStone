@@ -1,7 +1,6 @@
 package com.netpro.trinity.auth.authz.controller;
 
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.netpro.trinity.auth.authz.dto.PermissionTable;
 import com.netpro.trinity.auth.authz.entity.AccessRight;
 import com.netpro.trinity.auth.authz.service.AuthzService;
 import com.netpro.trinity.auth.feign.util.TrinityBadResponseWrapper;
@@ -28,36 +28,15 @@ public class AuthzController {
 	@Autowired
 	private AuthzService service;
 	
-	@GetMapping("/findByPeopleUid")
-	public ResponseEntity<?> findByPeopleUid(String peopleUid) {
-		try {
-			return ResponseEntity.ok(this.service.getByPeopleUid(peopleUid));
-		}catch(IllegalArgumentException e) {
-			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			AuthzController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
-	@GetMapping("/findByObjectUid")
-	public ResponseEntity<?> findByObjectUid(String objectUid) {
-		try {
-			return ResponseEntity.ok(this.service.getByObjectUid(objectUid));
-		}catch(IllegalArgumentException e) {
-			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			AuthzController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
 	@GetMapping("/findUserExByObjectUid")
-	public ResponseEntity<?> findUserExByObjectUid(String objectUid) {
+	public ResponseEntity<?> findUserExByObjectUid(HttpServletRequest request, String objectUid) {
 		try {
-			return ResponseEntity.ok(this.service.getUserExByObjectUid(objectUid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.service.checkObjPermission(peopleId, objectUid, "view")) {
+				return ResponseEntity.ok(this.service.getUserExByObjectUid(objectUid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -68,22 +47,14 @@ public class AuthzController {
 	}
 	
 	@GetMapping("/findRoleExByObjectUid")
-	public ResponseEntity<?> findRoleExByObjectUid(String objectUid) {
+	public ResponseEntity<?> findRoleExByObjectUid(HttpServletRequest request, String objectUid) {
 		try {
-			return ResponseEntity.ok(this.service.getRoleExByObjectUid(objectUid));
-		}catch(IllegalArgumentException e) {
-			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			AuthzController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
-	@GetMapping("/findByAllPKs")
-	public ResponseEntity<?> findByAllPKs(String peopleUid, String objectUid) {
-		try {
-			return ResponseEntity.ok(this.service.getByAllPKs(peopleUid, objectUid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.service.checkObjPermission(peopleId, objectUid, "view")) {
+				return ResponseEntity.ok(this.service.getRoleExByObjectUid(objectUid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -94,9 +65,15 @@ public class AuthzController {
 	}
 	
 	@GetMapping("/findFunctionalPermissionByPeopleUid")
-	public ResponseEntity<?> findFunctionalPermissionByPeopleUid(String peopleUid) {
+	public ResponseEntity<?> findFunctionalPermissionByPeopleUid(HttpServletRequest request, String peopleUid) {
 		try {
-			return ResponseEntity.ok(this.service.getFunctionalPermissionByPeopleUid(peopleUid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			PermissionTable permissionTable = this.service.getPermissionTable(peopleId);
+			if(permissionTable.isRoot() || permissionTable.isAdmin()) {
+				return ResponseEntity.ok(this.service.getFunctionalPermissionByPeopleUid(peopleUid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Admin' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -106,132 +83,63 @@ public class AuthzController {
 		}
 	}
 	
-	@PostMapping("/addOne")
-	public ResponseEntity<?> addOneAccessRight(HttpServletRequest request, @RequestBody AccessRight list) {
-		try {
-			return ResponseEntity.ok(this.service.add(list));
-		}catch(IllegalArgumentException e) {
-			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			AuthzController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}finally {
-			reloadPermission(request);
-		}
-	}
-	
-	@PostMapping("/addMany")
-	public ResponseEntity<?> addManyAccessRight(HttpServletRequest request, @RequestBody List<AccessRight> lists) {
-		try {
-			return ResponseEntity.ok(this.service.add(lists));
-		}catch(IllegalArgumentException e) {
-			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			AuthzController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}finally {
-			reloadPermission(request);
-		}
-	}
-	
-	@PostMapping("/updateOne")
-	public ResponseEntity<?> updateOneAccessRight(HttpServletRequest request, @RequestBody AccessRight list) {
-		try {
-			return ResponseEntity.ok(this.service.update(list));
-		}catch(IllegalArgumentException e) {
-			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			AuthzController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}finally {
-			reloadPermission(request);
-		}
-	}
-	
-	@PostMapping("/updateMany")
-	public ResponseEntity<?> updateManyAccessRight(HttpServletRequest request, @RequestBody List<AccessRight> lists) {
-		try {
-			return ResponseEntity.ok(this.service.update(lists));
-		}catch(IllegalArgumentException e) {
-			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			AuthzController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}finally {
-			reloadPermission(request);
-		}
-	}
-	
-	@PostMapping("/addBatch")
-	public ResponseEntity<?> addBatchAccessRight(HttpServletRequest request, @RequestBody List<AccessRight> lists) {
-		try {
-			return ResponseEntity.ok(this.service.addBatch(lists));
-		}catch(Exception e) {
-			AuthzController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}finally {
-			reloadPermission(request);
-		}
-	}
-	
-	@PostMapping("/updateBatch")
-	public ResponseEntity<?> updateBatchAccessRight(HttpServletRequest request, @RequestBody List<AccessRight> lists) {
-		try {
-			return ResponseEntity.ok(this.service.updateBatch(lists));
-		}catch(Exception e) {
-			AuthzController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}finally {
-			reloadPermission(request);
-		}
-	}
-	
+	//this api may just for setting functional permission
 	@PostMapping("/modifyByPeopleUid")
 	public ResponseEntity<?> modifyAccessRightByPeopleUid(HttpServletRequest request, String peopleUid, @RequestBody List<AccessRight> lists) {
 		try {
-			return ResponseEntity.ok(this.service.modifyByPeopleUid(peopleUid, lists));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			PermissionTable permissionTable = this.service.getPermissionTable(peopleId);
+			if(permissionTable.isRoot() || permissionTable.isAdmin()) {
+				return ResponseEntity.ok(this.service.modifyByPeopleUid(peopleUid, lists));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Admin' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}finally {
-			reloadPermission(request);
 		}
 	}
 	
+	//	this api for jcsagent, connection, alias permission
 	@PostMapping("/modifyByObjectUid")
 	public ResponseEntity<?> modifyAccessRightByObjectUid(HttpServletRequest request, String objectUid, @RequestBody List<AccessRight> lists) {
 		try {
-			return ResponseEntity.ok(this.service.modifyByObjectUid(objectUid, lists));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(!this.service.existByObjectUid(objectUid) || 
+					(this.service.checkObjPermission(peopleId, objectUid, "modify") && 
+							this.service.checkObjPermission(peopleId, objectUid, "grant"))) {
+				return ResponseEntity.ok(this.service.modifyByObjectUid(objectUid, lists));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit or Grant' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}finally {
-			reloadPermission(request);
 		}
 	}
 	
 	@GetMapping("/deleteByPeopleUid")
 	public ResponseEntity<?> deleteAccessRightByPeopleUid(HttpServletRequest request, String peopleUid) {
 		try {
-			this.service.deleteByPeopleUid(peopleUid);
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			PermissionTable permissionTable = this.service.getPermissionTable(peopleId);
+			if(permissionTable.isRoot() || permissionTable.isAdmin()) {
+				this.service.deleteByPeopleUid(peopleUid);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Admin' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}finally {
-			reloadPermission(request);
 		}
 		return ResponseEntity.ok(peopleUid);
 	}
@@ -239,39 +147,27 @@ public class AuthzController {
 	@GetMapping("/deleteByObjectUid")
 	public ResponseEntity<?> deleteAccessRightByObjectUid(HttpServletRequest request, String objectUid) {
 		try {
-			this.service.deleteByObjectUid(objectUid);
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.service.checkObjPermission(peopleId, objectUid, "delete")) {
+				this.service.deleteByObjectUid(objectUid);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Delete' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}finally {
-			reloadPermission(request);
 		}
 		return ResponseEntity.ok(objectUid);
 	}
 	
-	@GetMapping("/deleteByPKs")
-	public ResponseEntity<?> deleteAccessRightByPKs(HttpServletRequest request, String peopleUid, String objectUid) {
+	@GetMapping("/loadPermissionTable")
+	public ResponseEntity<?> loadPermissionTableByUserId(HttpServletRequest request) {
 		try {
-			this.service.deleteByPKs(peopleUid, objectUid);
-		}catch(IllegalArgumentException e) {
-			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			AuthzController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}finally {
-			reloadPermission(request);
-		}
-		return ResponseEntity.ok(peopleUid);
-	}
-	
-	@GetMapping("/loadPermissionTableByUserId")
-	public ResponseEntity<?> loadPermissionTableByUserId(String userId) {
-		try {
-			return ResponseEntity.ok(this.service.loadPermissionTable(userId));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			return ResponseEntity.ok(this.service.loadPermissionTable(peopleId));
 		} catch (TrinityBadResponseWrapper e) {
 			AuthzController.LOGGER.error("TrinityBadResponseWrapper; reason was:\n"+e.getBody());
 			return ResponseEntity.status(e.getStatus()).body(e.getBody());
@@ -284,10 +180,11 @@ public class AuthzController {
 		}
 	}
 	
-	@GetMapping("/findPermissionTableByUserId")
-	public ResponseEntity<?> findPermissionTableByUserId(String userId) {
+	@GetMapping("/findPermissionTable")
+	public ResponseEntity<?> findPermissionTable(HttpServletRequest request) {
 		try {
-			return ResponseEntity.ok(this.service.getPermissionTable(userId));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			return ResponseEntity.ok(this.service.getPermissionTable(peopleId));
 		}catch(IllegalArgumentException e) {
 			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -298,9 +195,10 @@ public class AuthzController {
 	}
 	
 	@GetMapping("/checkFuncPermission")
-	public ResponseEntity<?> findFuncPermissionTableByUserId(String userId, String functionName, String permissionFlag) {
+	public ResponseEntity<?> cehckFuncPermission(HttpServletRequest request, String functionName, String permissionFlag) {
 		try {
-			return ResponseEntity.ok(this.service.checkFuncPermission(userId, functionName, permissionFlag));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			return ResponseEntity.ok(this.service.checkFuncPermission(peopleId, functionName, permissionFlag));
 		}catch(IllegalArgumentException e) {
 			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -311,9 +209,10 @@ public class AuthzController {
 	}
 	
 	@GetMapping("/checkObjPermission")
-	public ResponseEntity<?> findObjPermissionTableByUserId(String userId, String objUid, String permissionFlag) {
+	public ResponseEntity<?> checkObjPermission(HttpServletRequest request, String objUid, String permissionFlag) {
 		try {
-			return ResponseEntity.ok(this.service.checkObjPermission(userId, objUid, permissionFlag));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			return ResponseEntity.ok(this.service.checkObjPermission(peopleId, objUid, permissionFlag));
 		}catch(IllegalArgumentException e) {
 			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -323,16 +222,18 @@ public class AuthzController {
 		}
 	}
 	
-	private void reloadPermission(HttpServletRequest request) {
-		String userId = ACUtil.getUserIdFromAC(request);
-		if(null != userId && !userId.trim().isEmpty()) {
-			try {
-				this.service.loadPermissionTable(userId);
-			} catch (IllegalArgumentException e) {
-				AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			} catch (Exception e) {
-				AuthzController.LOGGER.error("Exception; reason was:", e);
-			}
+	@GetMapping("/checkPermission")
+	public ResponseEntity<?> checkPermissionTable(HttpServletRequest request, String functionName, String objUid, String permissionFlag) {
+		try {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			return ResponseEntity.ok(this.service.checkFuncPermission(peopleId, functionName, permissionFlag) && 
+					this.service.checkObjPermission(peopleId, objUid, permissionFlag));
+		}catch(IllegalArgumentException e) {
+			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AuthzController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 }

@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netpro.trinity.service.agent.entity.JCSAgent;
 import com.netpro.trinity.service.agent.service.JCSAgentService;
 import com.netpro.trinity.service.dto.FilterInfo;
+import com.netpro.trinity.service.feign.util.TrinityBadResponseWrapper;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
+import com.netpro.trinity.service.util.ACUtil;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/jcsagent")
@@ -25,10 +28,18 @@ public class JCSAgentController {
 	@Autowired
 	private JCSAgentService service;
 	
+	@Autowired
+	private PermissionClient permissionClient;
+	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllAgents() {
+	public ResponseEntity<?> findAllAgents(HttpServletRequest request) {
 		try {
-			return ResponseEntity.ok(this.service.getAll());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "view")) {
+				return ResponseEntity.ok(this.service.getAll(request));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -36,9 +47,14 @@ public class JCSAgentController {
 	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isAgentExistByUid(String uid) {
+	public ResponseEntity<?> isAgentExistByUid(HttpServletRequest request, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.existByUid(uid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "view")) {
+				return ResponseEntity.ok(this.service.existByUid(uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -46,9 +62,14 @@ public class JCSAgentController {
 	}
 	
 	@GetMapping("/findByUid")
-	public ResponseEntity<?> findAgentByUid(String uid) {
+	public ResponseEntity<?> findAgentByUid(HttpServletRequest request, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByUid(uid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkPermission(peopleId, "agent", uid, "view")) {
+				return ResponseEntity.ok(this.service.getByUid(uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -59,9 +80,14 @@ public class JCSAgentController {
 	}
 	
 	@GetMapping("/findAllAgentNames")
-	public ResponseEntity<?> findAllAgentNames() {
+	public ResponseEntity<?> findAllAgentNames(HttpServletRequest request) {
 		try {
-			return ResponseEntity.ok(this.service.getAllAgentNames());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "view")) {
+				return ResponseEntity.ok(this.service.getAllAgentNames());
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -72,9 +98,14 @@ public class JCSAgentController {
 	}
 	
 	@GetMapping("/findAllAgentUids")
-	public ResponseEntity<?> findAllAgentUids() {
+	public ResponseEntity<?> findAllAgentUids(HttpServletRequest request) {
 		try {
-			return ResponseEntity.ok(this.service.getAllAgentUids());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "view")) {
+				return ResponseEntity.ok(this.service.getAllAgentUids());
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -85,9 +116,14 @@ public class JCSAgentController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findAgentByFilter(@RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findAgentByFilter(HttpServletRequest request, @RequestBody FilterInfo filter) {
 		try {
-			return this.service.getByFilter(filter);
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "view")) {
+				return this.service.getByFilter(filter);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -97,9 +133,17 @@ public class JCSAgentController {
 	@PostMapping("/add")
 	public ResponseEntity<?> addAgent(HttpServletRequest request, @RequestBody JCSAgent agent) {
 		try {
-			return ResponseEntity.ok(this.service.add(request, agent));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "add")) {
+				return ResponseEntity.ok(this.service.add(request, agent));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Add' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(TrinityBadResponseWrapper e) {
+			JCSAgentController.LOGGER.error("TrinityBadResponseWrapper; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
@@ -108,9 +152,14 @@ public class JCSAgentController {
 	}
 	
 	@PostMapping("/edit")
-	public ResponseEntity<?> editAgent(@RequestBody JCSAgent agent) {
+	public ResponseEntity<?> editAgent(HttpServletRequest request, @RequestBody JCSAgent agent) {
 		try {
-			return ResponseEntity.ok(this.service.edit(agent));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkPermission(peopleId, "agent", agent.getAgentuid(),  "modify")) {
+				return ResponseEntity.ok(this.service.edit(agent));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -121,11 +170,19 @@ public class JCSAgentController {
 	}
   
 	@GetMapping("/delete")
-	public ResponseEntity<?> deleteAgentByUid(String uid) {
+	public ResponseEntity<?> deleteAgentByUid(HttpServletRequest request, String uid) {
 		try {
-			this.service.deleteByUid(uid);
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkPermission(peopleId, "agent", uid,  "delete")) {
+				this.service.deleteByUid(uid);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Delete' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(TrinityBadResponseWrapper e) {
+			JCSAgentController.LOGGER.error("TrinityBadResponseWrapper; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);

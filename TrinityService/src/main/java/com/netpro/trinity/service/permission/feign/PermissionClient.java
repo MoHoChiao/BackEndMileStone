@@ -34,6 +34,18 @@ public interface PermissionClient {
 	
 	@RequestMapping(value = "/authorization/deleteByObjectUid", method = RequestMethod.GET)
 	public void deleteByObjectUid(@RequestParam("objectUid") String objectUid) throws Exception;
+	
+	@RequestMapping(value = "/authorization/checkFuncPermission", method = RequestMethod.GET)
+	public Boolean checkFuncPermission(@RequestParam("userId") String userId, @RequestParam("functionName") String functionName, 
+			@RequestParam("permissionFlag") String permissionFlag) throws Exception;
+	
+	@RequestMapping(value = "/authorization/checkObjPermission", method = RequestMethod.GET)
+	public Boolean checkObjPermission(@RequestParam("userId") String userId, @RequestParam("objUid") String objUid, 
+			@RequestParam("permissionFlag") String permissionFlag) throws Exception;
+	
+	@RequestMapping(value = "/authorization/checkPermission", method = RequestMethod.GET)
+	public Boolean checkPermission(@RequestParam("userId") String userId, @RequestParam("functionName") String functionName, 
+			@RequestParam("objUid") String objUid, @RequestParam("permissionFlag") String permissionFlag) throws Exception;
 }
 
 @Component
@@ -66,6 +78,26 @@ class PermissionClientFallback implements FallbackFactory<PermissionClient> {
 			@Override
 			public void deleteByObjectUid(String objectUid) throws Exception {
 				PermissionClientFallback.LOGGER.error("PermissionClient#deleteByObjectUid fallback; reason was:", cause);
+				throw new Exception(cause.getMessage());
+			}
+
+			@Override
+			public Boolean checkFuncPermission(String userId, String functionName, String permissionFlag)
+					throws Exception {
+				PermissionClientFallback.LOGGER.error("PermissionClient#checkFuncPermission fallback; reason was:", cause);
+				throw new Exception(cause.getMessage());
+			}
+
+			@Override
+			public Boolean checkObjPermission(String userId, String objUid, String permissionFlag) throws Exception {
+				PermissionClientFallback.LOGGER.error("PermissionClient#checkObjPermission fallback; reason was:", cause);
+				throw new Exception(cause.getMessage());
+			}
+
+			@Override
+			public Boolean checkPermission(String userId, String functionName, String objUid, String permissionFlag)
+					throws Exception {
+				PermissionClientFallback.LOGGER.error("PermissionClient#checkPermission fallback; reason was:", cause);
 				throw new Exception(cause.getMessage());
 			}
 	    };

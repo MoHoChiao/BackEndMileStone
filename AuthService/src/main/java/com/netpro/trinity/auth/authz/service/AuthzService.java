@@ -43,20 +43,6 @@ public class AuthzService {
 	@Autowired
 	private RoleMemberClient roleMemberClient;
 	
-	public List<AccessRight> getByPeopleUid(String peopleUid) throws IllegalArgumentException, Exception{
-		if(peopleUid == null || peopleUid.isEmpty())
-			throw new IllegalArgumentException("People UID can not be empty!");
-				
-		return this.dao.findByPeopleUid(peopleUid);
-	}
-	
-	public List<AccessRight> getByObjectUid(String objectUid) throws IllegalArgumentException, Exception{
-		if(objectUid == null || objectUid.isEmpty())
-			throw new IllegalArgumentException("Object UID can not be empty!");
-				
-		return this.dao.findByObjectUid(objectUid);
-	}
-	
 	public List<AccessRight> getUserExByObjectUid(String objectUid) throws IllegalArgumentException, Exception{
 		if(objectUid == null || objectUid.isEmpty())
 			throw new IllegalArgumentException("Object UID can not be empty!");
@@ -71,16 +57,6 @@ public class AuthzService {
 		return this.dao.findRoleExByObjectUid(objectUid);
 	}
 	
-	public AccessRight getByAllPKs(String peopleUid, String objectUid) throws IllegalArgumentException, Exception{
-		if(peopleUid == null || peopleUid.isEmpty())
-			throw new IllegalArgumentException("People UID can not be empty!");
-		
-		if(objectUid == null || objectUid.isEmpty())
-			throw new IllegalArgumentException("Object UID can not be empty!");
-				
-		return this.dao.findByAllPKs(peopleUid, objectUid);
-	}
-	
 	public List<AccessRight> getFunctionalPermissionByPeopleUid(String peopleUid) throws IllegalArgumentException, Exception{
 		if(peopleUid == null || peopleUid.isEmpty())
 			throw new IllegalArgumentException("People UID can not be empty!");
@@ -88,126 +64,10 @@ public class AuthzService {
 		return this.dao.findFunctionalPermissionByPeopleUid(peopleUid);
 	}
 	
-	public AccessRight add(AccessRight list) throws IllegalArgumentException, Exception{
-		if(null == list.getPeopleuid())
-			throw new IllegalArgumentException("People UID can not be empty!");
-		
-		if(null == list.getObjectuid())
-			throw new IllegalArgumentException("Object UID can not be empty!");
-		
-		if(this.dao.existByAllPKs(list))
-			throw new IllegalArgumentException("Duplicate PKs (People UID & Object UID)");
-		
-		if(null == list.getView())
-			list.setView("0");
-		
-		if(null == list.getAdd())
-			list.setAdd("0");
-		
-		if(null == list.getDelete())
-			list.setDelete("0");
-		
-		if(null == list.getEdit())
-			list.setEdit("0");
-		
-		if(null == list.getRun())
-			list.setRun("0");
-		
-		if(null == list.getReRun())
-			list.setReRun("0");
-		
-		if(null == list.getGrant())
-			list.setGrant("0");
-		
-		if(null == list.getImport_export())
-			list.setImport_export("0");
-		
-		if(this.dao.add(list) > 0)
-			return list;
-		else
-			throw new IllegalArgumentException("Add Access Right Fail!");
-	}
-	
-	public List<AccessRight> add(List<AccessRight> lists) throws IllegalArgumentException, Exception{
-		List<AccessRight> new_lists = new ArrayList<AccessRight>();
-		
-		if(null == lists)
-			return new_lists;
-		
-		for(AccessRight list: lists) {
-			try {
-				this.add(list);
-				new_lists.add(list);
-			}catch(Exception e) {
-				AuthzService.LOGGER.warn("Warning; reason was:", e);
-			}
-		}
-		return new_lists;
-	}
-	
-	public AccessRight update(AccessRight list) throws IllegalArgumentException, Exception{
-		if(null == list.getPeopleuid())
-			throw new IllegalArgumentException("People UID can not be empty!");
-		
-		if(null == list.getObjectuid())
-			throw new IllegalArgumentException("Object UID can not be empty!");
-		
-		if(null == list.getView())
-			list.setView("0");
-		
-		if(null == list.getAdd())
-			list.setAdd("0");
-		
-		if(null == list.getDelete())
-			list.setDelete("0");
-		
-		if(null == list.getEdit())
-			list.setEdit("0");
-		
-		if(null == list.getRun())
-			list.setRun("0");
-		
-		if(null == list.getReRun())
-			list.setReRun("0");
-		
-		if(null == list.getGrant())
-			list.setGrant("0");
-		
-		if(null == list.getImport_export())
-			list.setImport_export("0");
-		
-		if(this.dao.update(list) > 0)
-			return list;
-		else
-			throw new IllegalArgumentException("Update Access Right Fail!");
-	}
-	
-	public List<AccessRight> update(List<AccessRight> lists) throws IllegalArgumentException, Exception{
-		List<AccessRight> new_lists = new ArrayList<AccessRight>();
-		
-		if(null == lists)
-			return new_lists;
-		
-		for(AccessRight list: lists) {
-			try {
-				this.update(list);
-				new_lists.add(list);
-			}catch(Exception e) {
-				AuthzService.LOGGER.warn("Warning; reason was:", e);
-			}
-		}
-		return new_lists;
-	}
-	
-	public int[] addBatch(List<AccessRight> lists) throws IllegalArgumentException, Exception{
-		return this.dao.addBatch(lists);
-	}
-	
-	public int[] updateBatch(List<AccessRight> lists) throws IllegalArgumentException, Exception{
-		return this.dao.updateBatch(lists);
-	}
-	
 	public List<AccessRight> modifyByPeopleUid(String peopleUid, List<AccessRight> lists) throws IllegalArgumentException, Exception{
+		if(null == peopleUid || peopleUid.trim().isEmpty())
+			throw new IllegalArgumentException("People Uid can not be empty!");
+		
 		List<AccessRight> new_lists = new ArrayList<AccessRight>();
 		if(null == lists)
 			return new_lists;
@@ -263,6 +123,12 @@ public class AuthzService {
 	}
 	
 	public List<AccessRight> modifyByObjectUid(String objectUid, List<AccessRight> lists) throws IllegalArgumentException, Exception{
+		if(null == objectUid || objectUid.trim().isEmpty())
+			throw new IllegalArgumentException("Object Uid can not be empty!");
+		
+		if(objectUid.startsWith("function-"))
+			throw new IllegalArgumentException("Method - modifyByObjectUid can not modify functional permission");
+		
 		List<AccessRight> new_lists = new ArrayList<AccessRight>();
 		if(null == lists)
 			return new_lists;
@@ -331,14 +197,11 @@ public class AuthzService {
 		this.dao.deleteByObjectUid(objectUid);
 	}
 	
-	public void deleteByPKs(String peopleUid, String objectUid) throws IllegalArgumentException, Exception{
-		if(null == peopleUid || peopleUid.trim().isEmpty())
-			throw new IllegalArgumentException("People Uid can not be empty!");
-		
+	public Boolean existByObjectUid(String objectUid) throws IllegalArgumentException, Exception{
 		if(null == objectUid || objectUid.trim().isEmpty())
 			throw new IllegalArgumentException("Object Uid can not be empty!");
 		
-		this.dao.deleteByPKs(peopleUid, objectUid);
+		return this.dao.existByObjectUid(objectUid);
 	}
 	
 	public PermissionTable loadPermissionTable(String userid) throws IllegalArgumentException, TrinityBadResponseWrapper, Exception {
@@ -623,7 +486,7 @@ public class AuthzService {
 		switch (permissionFlag) {
 	    	case "view":
 	    		if(null == func.getView()) return false;
-	            else return func.getAdd();
+	            else return func.getView();
 	    	case "add":
 	        	if(null == func.getAdd()) return false;
 	            else return func.getAdd();
@@ -639,7 +502,8 @@ public class AuthzService {
 	}
 	
 	private Boolean getFlagValueByObj(ObjectPermission objPermission, String permissionFlag) {
-		if(!permissionFlag.equals("view") && !permissionFlag.equals("add") && !permissionFlag.equals("modify") && !permissionFlag.equals("delete"))
+		if(!permissionFlag.equals("view") && !permissionFlag.equals("add") && !permissionFlag.equals("modify") && !permissionFlag.equals("delete") 
+				&& !permissionFlag.equals("run") && !permissionFlag.equals("rerun") && !permissionFlag.equals("grant"))
 			throw new IllegalArgumentException("Authorization fail! Permission Flag does not exist.(" +  permissionFlag+ ")");
 		
 		switch (permissionFlag) {
@@ -667,5 +531,92 @@ public class AuthzService {
 	        default:
 	        	return false;
 		}
+	}
+	
+	private AccessRight add(AccessRight list) throws IllegalArgumentException, Exception{
+		if(null == list.getPeopleuid())
+			throw new IllegalArgumentException("People UID can not be empty!");
+		
+		if(null == list.getObjectuid())
+			throw new IllegalArgumentException("Object UID can not be empty!");
+		
+		if(this.dao.existByAllPKs(list))
+			throw new IllegalArgumentException("Duplicate PKs (People UID & Object UID)");
+		
+		if(null == list.getView())
+			list.setView("0");
+		
+		if(null == list.getAdd())
+			list.setAdd("0");
+		
+		if(null == list.getDelete())
+			list.setDelete("0");
+		
+		if(null == list.getEdit())
+			list.setEdit("0");
+		
+		if(null == list.getRun())
+			list.setRun("0");
+		
+		if(null == list.getReRun())
+			list.setReRun("0");
+		
+		if(null == list.getGrant())
+			list.setGrant("0");
+		
+		if(null == list.getImport_export())
+			list.setImport_export("0");
+		
+		if(this.dao.add(list) > 0)
+			return list;
+		else
+			throw new IllegalArgumentException("Add Access Right Fail!");
+	}
+	
+	private AccessRight update(AccessRight list) throws IllegalArgumentException, Exception{
+		if(null == list.getPeopleuid())
+			throw new IllegalArgumentException("People UID can not be empty!");
+		
+		if(null == list.getObjectuid())
+			throw new IllegalArgumentException("Object UID can not be empty!");
+		
+		if(null == list.getView())
+			list.setView("0");
+		
+		if(null == list.getAdd())
+			list.setAdd("0");
+		
+		if(null == list.getDelete())
+			list.setDelete("0");
+		
+		if(null == list.getEdit())
+			list.setEdit("0");
+		
+		if(null == list.getRun())
+			list.setRun("0");
+		
+		if(null == list.getReRun())
+			list.setReRun("0");
+		
+		if(null == list.getGrant())
+			list.setGrant("0");
+		
+		if(null == list.getImport_export())
+			list.setImport_export("0");
+		
+		if(this.dao.update(list) > 0)
+			return list;
+		else
+			throw new IllegalArgumentException("Update Access Right Fail!");
+	}
+	
+	private void deleteByPKs(String peopleUid, String objectUid) throws IllegalArgumentException, Exception{
+		if(null == peopleUid || peopleUid.trim().isEmpty())
+			throw new IllegalArgumentException("People Uid can not be empty!");
+		
+		if(null == objectUid || objectUid.trim().isEmpty())
+			throw new IllegalArgumentException("Object Uid can not be empty!");
+		
+		this.dao.deleteByPKs(peopleUid, objectUid);
 	}
 }

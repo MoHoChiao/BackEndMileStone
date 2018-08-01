@@ -51,11 +51,6 @@ public class AuthnController {
 		}
 	}
 	
-	@GetMapping("/remove-authn")
-	public ResponseEntity<?> removeAuthn(HttpServletResponse response) {
-		return ResponseEntity.status(HttpStatus.OK).body(authnService.removeAuthn(response));
-	}
-	
 	@GetMapping("/find-authn")
 	public ResponseEntity<?> findAuthn(HttpServletRequest request) {
 		return ResponseEntity.ok(authnService.findAuthn(request));

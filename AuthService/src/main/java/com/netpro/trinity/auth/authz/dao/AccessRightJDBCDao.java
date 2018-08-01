@@ -1,13 +1,9 @@
 package com.netpro.trinity.auth.authz.dao;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -97,21 +93,6 @@ public class AccessRightJDBCDao {
         return lists;
     }
 	
-	public AccessRight findByAllPKs(String peopleUid, String objectUid) throws EmptyResultDataAccessException, DataAccessException{
-
-        String sql = "SELECT TRIM(a.peopleuid) as peopleuid, TRIM(a.objectuid) as objectuid, "
-        		+ "a.flag1 as view, a.flag2 as add, a.flag3 as edit, a.flag4 as delete, "
-        		+ "a.flag5 as run, a.flag6 as reRun, a.flag7 as grant, a.flag8 as import_export "
-        		+ "FROM accessright a "
-        		+ "WHERE a.peopleuid = ? AND a.objectuid = ?";
-        Object[] param = new Object[] {peopleUid, objectUid};
-        
-        AccessRight accessright = (AccessRight)jtm.queryForObject(
-    			sql, param, new BeanPropertyRowMapper<AccessRight>(AccessRight.class));
-        
-        return accessright;
-    }
-	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<AccessRight> findFunctionalPermissionByPeopleUid(String uid) throws DataAccessException{
 
@@ -140,6 +121,17 @@ public class AccessRightJDBCDao {
         return ret;
     }
 	
+	public Boolean existByObjectUid(String objectUid) throws DataAccessException{
+        String sql = "SELECT COUNT(list) > 0 "
+        		+ "FROM accessright list "
+        		+ "WHERE objectuid=? AND 1=1";
+        Object[] param = new Object[] {objectUid};
+        
+        Boolean ret = (Boolean) jtm.queryForObject(sql, Boolean.class, param);
+
+        return ret;
+    }
+	
 	public int add(AccessRight list) throws DataAccessException{
 		Object[] params = new Object[] {list.getPeopleuid(), list.getObjectuid(), 
 				list.getView(), list.getAdd(), list.getEdit(), list.getDelete(), list.getRun(), list.getReRun(), list.getGrant(), list.getImport_export()};
@@ -152,56 +144,6 @@ public class AccessRightJDBCDao {
 				list.getRun(), list.getReRun(), list.getGrant(), list.getImport_export(), list.getPeopleuid(), list.getObjectuid(),};
 		
 		return jtm.update(update_sql, params);
-	}
-	
-	public int[] addBatch(List<AccessRight> lists) throws DataAccessException{
-		int[] insertCounts = jtm.batchUpdate(insert_sql, new BatchPreparedStatementSetter() {
-			@Override
-			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				ps.setString(1, lists.get(i).getPeopleuid());
-				ps.setString(2, lists.get(i).getObjectuid());
-				ps.setString(3, lists.get(i).getView());
-				ps.setString(4, lists.get(i).getAdd());
-				ps.setString(5, lists.get(i).getEdit());
-				ps.setString(6, lists.get(i).getDelete());
-				ps.setString(7, lists.get(i).getRun());
-				ps.setString(8, lists.get(i).getReRun());
-				ps.setString(9, lists.get(i).getGrant());
-				ps.setString(10, lists.get(i).getImport_export());
-			}
-			
-			@Override
-			public int getBatchSize() {
-				return lists.size();
-			}
-		});
-		
-        return insertCounts;
-	}
-	
-	public int[] updateBatch(List<AccessRight> lists) throws DataAccessException{
-		int[] insertCounts = jtm.batchUpdate(update_sql, new BatchPreparedStatementSetter() {
-			@Override
-			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				ps.setString(1, lists.get(i).getView());
-				ps.setString(2, lists.get(i).getAdd());
-				ps.setString(3, lists.get(i).getEdit());
-				ps.setString(4, lists.get(i).getDelete());
-				ps.setString(5, lists.get(i).getRun());
-				ps.setString(6, lists.get(i).getReRun());
-				ps.setString(7, lists.get(i).getGrant());
-				ps.setString(8, lists.get(i).getImport_export());
-				ps.setString(9, lists.get(i).getPeopleuid());
-				ps.setString(10, lists.get(i).getObjectuid());
-			}
-			
-			@Override
-			public int getBatchSize() {
-				return lists.size();
-			}
-		});
-		
-        return insertCounts;
 	}
 	
 	public int deleteByPeopleUid(String uid) throws DataAccessException{

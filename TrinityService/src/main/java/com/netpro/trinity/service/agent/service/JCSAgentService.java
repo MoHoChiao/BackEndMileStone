@@ -31,6 +31,7 @@ import com.netpro.trinity.service.configuration.service.MonitorconfigService;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.dto.Ordering;
 import com.netpro.trinity.service.dto.Paging;
+import com.netpro.trinity.service.feign.util.TrinityBadResponseWrapper;
 import com.netpro.trinity.service.job.service.JobService;
 import com.netpro.trinity.service.member.service.TrinityuserService;
 import com.netpro.trinity.service.objectalias.service.ObjectAliasService;
@@ -67,7 +68,7 @@ public class JCSAgentService {
 	@Autowired
 	private PermissionClient permissionClient;
 	
-	public List<JCSAgent> getAll() throws Exception{
+	public List<JCSAgent> getAll(HttpServletRequest request) throws Exception{
 		List<JCSAgent> agents = this.dao.findAll();
 		setProfileDataOnly(agents);
 		return agents;
@@ -118,7 +119,7 @@ public class JCSAgentService {
 		return uids;
 	}
 	
-	public JCSAgent add(HttpServletRequest request, JCSAgent agent) throws IllegalArgumentException, Exception{
+	public JCSAgent add(HttpServletRequest request, JCSAgent agent) throws IllegalArgumentException, TrinityBadResponseWrapper, Exception{
 		agent.setAgentuid(UUID.randomUUID().toString());
 		
 		String agentname = agent.getAgentname();
@@ -305,7 +306,7 @@ public class JCSAgentService {
 		return new_agent;
 	}
 	
-	public void deleteByUid(String uid) throws IllegalArgumentException, Exception{
+	public void deleteByUid(String uid) throws IllegalArgumentException, TrinityBadResponseWrapper, Exception{
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("JCSAgent Uid can not be empty!");
 		
@@ -404,7 +405,7 @@ public class JCSAgentService {
 		agent.setXmldata(xmldata);
 	}
 	
-	private void modifyPermissionByObjectUid(String objectUid, HttpServletRequest request) {
+	private void modifyPermissionByObjectUid(String objectUid, HttpServletRequest request) throws TrinityBadResponseWrapper, Exception {
 		try {
 			String peopleId = ACUtil.getUserIdFromAC(request);
 			String peopleUid = userService.getByID(peopleId).getUseruid();
