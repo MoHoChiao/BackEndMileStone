@@ -7,7 +7,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-		classpath files('lib/postgresql-9.2-1003-jdbc4.jar','lib/authc-all.jar','lib/jose4j-0.5.5.jar','lib/dm.jar')
+		classpath files('lib/postgresql-9.2-1003-jdbc4.jar','lib/authc-all.jar','lib/jose4j-0.5.5.jar','lib/dm.jar','lib/license.jar')
 	}
 }
 
@@ -40,7 +40,7 @@ dependencies {
 	compile('org.springframework.cloud:spring-cloud-starter-openfeign')
 	compileOnly('org.springframework.boot:spring-boot-configuration-processor')
 	compile group: 'org.apache.tomcat', name: 'tomcat-jdbc', version: '9.0.8'
-	compile files('lib/postgresql-9.2-1003-jdbc4.jar','lib/authc-all.jar','lib/jose4j-0.5.5.jar','lib/dm.jar')
+	compile files('lib/postgresql-9.2-1003-jdbc4.jar','lib/authc-all.jar','lib/jose4j-0.5.5.jar','lib/dm.jar','lib/license.jar')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 

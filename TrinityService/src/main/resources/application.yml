@@ -19,6 +19,8 @@ spring:
       file-size-threshold: 30MB  # 設置最大的請求文件之大小
   jackson: 
     default-property-inclusion: NON_NULL
+    serialization:
+      fail-on-empty-beans: false
   cloud:
     config:
       name: trinity-repo-setting,trinity-prop-setting,trinity-data-jdbc,trinity-sys-setting
