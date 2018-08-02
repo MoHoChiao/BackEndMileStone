@@ -83,7 +83,7 @@ public class JCSAgentService {
 			paging = new Paging(0, 20);
 		
 		if(null == ordering) 
-			ordering = new Ordering("DESC", "lastupdatetime");
+			ordering = new Ordering("ASC", "agentname");
 		
 		if(null == param || param.trim().isEmpty())
 			param = "%%";
@@ -346,14 +346,14 @@ public class JCSAgentService {
 	}
 	
 	private Sort getOrdering(Ordering ordering) throws Exception{
-		Direction direct = Direction.fromString("DESC");
+		Direction direct = Direction.fromString("ASC");
 		if(ordering.getOrderType() != null && Constant.ORDER_TYPE_SET.contains(ordering.getOrderType().toUpperCase()))
 			direct = Direction.fromString(ordering.getOrderType());
 		
 		if(ordering.getOrderField() != null && !ordering.getOrderField().isEmpty())
 			return Sort.by(direct, ordering.getOrderField());
 		else
-			return Sort.by(direct, "lastupdatetime");
+			return Sort.by(direct, "agentname");
 	}
 	
 	private void setProfileDataOnly(List<JCSAgent> agents) {

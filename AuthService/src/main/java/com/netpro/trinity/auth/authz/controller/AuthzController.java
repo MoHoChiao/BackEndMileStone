@@ -121,6 +121,12 @@ public class AuthzController {
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}finally {
+			/*
+			 * modifyAccessRightByObjectUid, 此方法需要即時的更新記億體中的permission資料, 以供前端使用
+			 * 因為使用者是有可能可以自己改變自己對object的permisson, 例如jcsagent, connection, frequency...等等Object
+			 */
+			reloadPermission(request);
 		}
 	}
 	
@@ -234,6 +240,19 @@ public class AuthzController {
 		}catch(Exception e) {
 			AuthzController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	private void reloadPermission(HttpServletRequest request) {
+		String userId = ACUtil.getUserIdFromAC(request);
+		if(null != userId && !userId.trim().isEmpty()) {
+			try {
+				this.service.loadPermissionTable(userId);
+			} catch (IllegalArgumentException e) {
+				AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			} catch (Exception e) {
+				AuthzController.LOGGER.error("Exception; reason was:", e);
+			}
 		}
 	}
 }

@@ -11,15 +11,11 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +27,6 @@ import com.netpro.trinity.service.agent.entity.VRAgentList;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.dto.Ordering;
 import com.netpro.trinity.service.dto.Paging;
-import com.netpro.trinity.service.dto.Querying;
 import com.netpro.trinity.service.job.service.JobService;
 import com.netpro.trinity.service.member.service.TrinityuserService;
 import com.netpro.trinity.service.objectalias.service.ObjectAliasService;
@@ -64,9 +59,36 @@ public class VRAgentService {
 		
 	public List<VRAgent> getAll(Boolean withoutDetail) throws Exception{
 		List<VRAgent> vrAgents = this.dao.findAll();
+		setProfileDataOnly(vrAgents);
+		
 		if(null == withoutDetail || withoutDetail == false)
 			getAgentList(vrAgents);
+		
 		return vrAgents;
+	}
+	
+	public ResponseEntity<?> getByFilter(Boolean withoutDetail, FilterInfo filter) throws Exception{
+		Paging paging = filter.getPaging();
+		Ordering ordering = filter.getOrdering();
+		String param = filter.getParam();
+		
+		if(null == paging) 
+			paging = new Paging(0, 20);
+		
+		if(null == ordering) 
+			ordering = new Ordering("ASC", "virtualagentname");
+		
+		if(null == param || param.trim().isEmpty())
+			param = "%%";
+		param = param.trim();
+		
+		Page<VRAgent> page_agents = this.dao.findByVirtualagentnameLikeIgnoreCase(param, getPagingAndOrdering(paging, ordering));
+		setProfileDataOnly(page_agents.getContent());
+		
+		if(null == withoutDetail || withoutDetail == false)
+			getAgentList(page_agents.getContent());
+		
+		return ResponseEntity.ok(page_agents);
 	}
 	
 	public VRAgent getByUid(Boolean withoutDetail, String uid) throws IllegalArgumentException, Exception{
@@ -85,119 +107,6 @@ public class VRAgentService {
 			getAgentList(vrAgent);
 		
 		return vrAgent;
-	}
-	
-	public List<VRAgent> getByName(Boolean withoutDetail, String name) throws IllegalArgumentException, Exception{
-		if(name == null || name.isEmpty())
-			throw new IllegalArgumentException("Virtual Agent Name can not be empty!");
-		
-		List<VRAgent> vrAgents = this.dao.findByvirtualagentname(name.toUpperCase());
-		
-		if(null == withoutDetail || withoutDetail == false)
-			getAgentList(vrAgents);
-		
-		return vrAgents;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFilter(Boolean withoutDetail, FilterInfo filter) throws SecurityException, NoSuchMethodException, 
-								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
-		if(filter == null) {
-			List<VRAgent> vrAgents = this.dao.findAll();
-			if(null == withoutDetail || withoutDetail == false)
-				getAgentList(vrAgents);
-			return ResponseEntity.ok(vrAgents);
-		}
-			
-		
-		Paging paging = filter.getPaging();
-		Ordering ordering = filter.getOrdering();
-		Querying querying = filter.getQuerying();
-		
-		if(paging == null && ordering == null && querying == null) {
-			List<VRAgent> vrAgents = this.dao.findAll();
-			if(null == withoutDetail || withoutDetail == false)
-				getAgentList(vrAgents);
-			return ResponseEntity.ok(vrAgents);
-		}
-			
-		
-		PageRequest pageRequest = null;
-		Sort sort = null;
-		
-		if(paging != null) {
-			pageRequest = getPagingAndOrdering(paging, ordering);
-		}else {
-			if(ordering != null) {
-				sort = getOrdering(ordering);
-			}
-		}
-		
-		if(querying == null) {
-			if(pageRequest != null) {
-				Page<VRAgent> page_vragent = this.dao.findAll(pageRequest);
-				if(null == withoutDetail || withoutDetail == false)
-					getAgentList(page_vragent.getContent());
-				return ResponseEntity.ok(page_vragent);
-			}else if(sort != null) {
-				List<VRAgent> vrAgents = this.dao.findAll(sort);
-				if(null == withoutDetail || withoutDetail == false)
-					getAgentList(vrAgents);
-				return ResponseEntity.ok(vrAgents);
-			}else {
-				/*
-				 * The paging and ordering both objects are null.
-				 * it means pageRequest and sort must be null too.
-				 * then return default
-				 */
-				List<VRAgent> vrAgents = this.dao.findAll(sort);
-				if(null == withoutDetail || withoutDetail == false)
-					getAgentList(vrAgents);
-				return ResponseEntity.ok(vrAgents);
-			}
-		}else {
-			if(querying.getQueryType() == null || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
-			if(querying.getQueryField() == null || !VR_AGENT_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query field! "+ VR_AGENT_FIELD_SET.toString());
-			if(querying.getIgnoreCase() == null)
-				querying.setIgnoreCase(false);
-			
-			String queryType = querying.getQueryType().toLowerCase();
-			String queryField = querying.getQueryField().toLowerCase(); //Must be lower case for jpa method
-			String queryString = querying.getQueryString();
-			
-			StringBuffer methodName = new StringBuffer("findBy");
-			methodName.append(queryField);
-			if(queryType.equals("like")) {
-				methodName.append("Like");
-				queryString = "%" + queryString + "%";
-			}
-			if(querying.getIgnoreCase()) {
-				methodName.append("IgnoreCase");
-			}	
-
-			Method method = null;
-			if(pageRequest != null){
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
-				Page<VRAgent> page_vragent = (Page<VRAgent>) method.invoke(this.dao, queryString, pageRequest);
-				if(null == withoutDetail || withoutDetail == false)
-					getAgentList(page_vragent.getContent());
-				return ResponseEntity.ok(page_vragent);
-			}else if(sort != null) {
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
-				List<VRAgent> vragents = (List<VRAgent>) method.invoke(this.dao, queryString, sort);
-				if(null == withoutDetail || withoutDetail == false)
-					getAgentList(vragents);
-				return ResponseEntity.ok(vragents);
-			}else {
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class);
-				List<VRAgent> vragents = (List<VRAgent>) method.invoke(this.dao, queryString);
-				if(null == withoutDetail || withoutDetail == false)
-					getAgentList(vragents);
-				return ResponseEntity.ok(vragents);
-			}
-		}
 	}
 	
 	public VRAgent add(HttpServletRequest request, VRAgent vragent) throws IllegalArgumentException, Exception{
@@ -341,7 +250,7 @@ public class VRAgentService {
 		if(paging.getSize() == null)
 			paging.setSize(10);
 		
-		if(ordering != null) {
+		if(null != ordering) {
 			return PageRequest.of(paging.getNumber(), paging.getSize(), getOrdering(ordering));
 		}else {
 			return PageRequest.of(paging.getNumber(), paging.getSize());
@@ -349,17 +258,29 @@ public class VRAgentService {
 	}
 	
 	private Sort getOrdering(Ordering ordering) throws Exception{
-		Direction direct = Direction.fromString("DESC");
+		Direction direct = Direction.fromString("ASC");
 		if(ordering.getOrderType() != null && Constant.ORDER_TYPE_SET.contains(ordering.getOrderType().toUpperCase()))
 			direct = Direction.fromString(ordering.getOrderType());
 		
-		if(ordering.getOrderField() != null && VR_AGENT_FIELD_SET.contains(ordering.getOrderField().toLowerCase()))
+		if(ordering.getOrderField() != null && !ordering.getOrderField().isEmpty())
 			return Sort.by(direct, ordering.getOrderField());
 		else
-			return Sort.by(direct, "lastupdatetime");
-		
+			return Sort.by(direct, "virtualagentname");
 	}
 	
+	private void setProfileDataOnly(List<VRAgent> agents) {
+		for(VRAgent agent : agents) {
+			setProfileDataOnly(agent);
+		}
+	}
+	
+	private void setProfileDataOnly(VRAgent agent) {
+		agent.setMaximumjob(null);
+		agent.setActivate(null);
+		agent.setXmldata(null);
+	}
+	
+	@SuppressWarnings("unused")
 	private void getAgentList(List<VRAgent> vrAgents) throws Exception {
 		for(VRAgent vrAgent : vrAgents) {
 			getAgentList(vrAgent);
