@@ -39,6 +39,11 @@ public class Connection {
   	@Transient
   	private String withpim;
   	
+  	@Transient
+  	private String categoryname;
+  	@Transient
+  	private String categoryuid;
+  	
   	public String getConnectionuid() {
 		return connectionuid;
 	}
@@ -107,5 +112,17 @@ public class Connection {
 	}
 	public void setWithpim(String withpim) {
 		this.withpim = withpim;
+	}
+	public String getCategoryname() {
+		return categoryname;
+	}
+	public void setCategoryname(String categoryname) {
+		this.categoryname = categoryname;
+	}
+	public String getCategoryuid() {
+		return categoryuid;
+	}
+	public void setCategoryuid(String categoryuid) {
+		this.categoryuid = categoryuid;
 	}
 }

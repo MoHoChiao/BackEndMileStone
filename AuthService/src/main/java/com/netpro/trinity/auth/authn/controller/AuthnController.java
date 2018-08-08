@@ -56,6 +56,11 @@ public class AuthnController {
 		return ResponseEntity.ok(authnService.findAuthn(request));
 	}
 	
+	@GetMapping("/remove-authn")
+	public ResponseEntity<?> removeAuthn(HttpServletResponse response) {
+		return ResponseEntity.status(HttpStatus.OK).body(authnService.removeAuthn(response));
+	}
+	
 	@PostMapping("/reset-authn")
 	public ResponseEntity<?> resetAuthn(HttpServletRequest request, HttpServletResponse response, @RequestBody String psw) {
 		String methodKey = "AuthnController#resetAuthn(...)";

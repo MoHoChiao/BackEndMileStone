@@ -1,6 +1,5 @@
 package com.netpro.trinity.service.connection.controller;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -20,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netpro.trinity.service.connection.entity.JDBCConnection;
 import com.netpro.trinity.service.connection.service.ConnectionService;
 import com.netpro.trinity.service.dto.FilterInfo;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
+import com.netpro.trinity.service.util.ACUtil;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/connection")
@@ -29,10 +30,18 @@ public class ConnectionController {
 	@Autowired
 	private ConnectionService service;
 	
+	@Autowired
+	private PermissionClient permissionClient;
+	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllConnections() {
+	public ResponseEntity<?> findAllConnections(HttpServletRequest request) {
 		try {
-			return ResponseEntity.ok(this.service.getAll());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "connection", "view")) {
+				return ResponseEntity.ok(this.service.getAll());
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			ConnectionController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -40,48 +49,14 @@ public class ConnectionController {
 	}
 	
 	@GetMapping("/findAll-without-in-category")
-	public ResponseEntity<?> findAllConnectionsWithoutInCategory() {
+	public ResponseEntity<?> findAllConnectionsWithoutInCategory(HttpServletRequest request) {
 		try {
-			return ResponseEntity.ok(this.service.getAllWithoutInCategory());
-		}catch(Exception e) {
-			ConnectionController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
-	@GetMapping("/findByUid")
-	public ResponseEntity<?> findConnectionByUid(String uid) {
-		try {
-			return ResponseEntity.ok(this.service.getByUid(uid));
-		}catch(IllegalArgumentException e) {
-			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			ConnectionController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-  
-	@GetMapping("/findByName")
-	public ResponseEntity<?> findConnectionsByName(String name) {
-		try {
-			return ResponseEntity.ok(this.service.getByName(name));
-		}catch(IllegalArgumentException e) {
-			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			ConnectionController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
-	@GetMapping("/findByType")
-	public ResponseEntity<?> findConnectionsByType(String type) {
-		try {
-			return ResponseEntity.ok(this.service.getByType(type));
-		}catch(IllegalArgumentException e) {
-			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "connection", "view")) {
+				return ResponseEntity.ok(this.service.getAllWithoutInCategory());
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			ConnectionController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -89,9 +64,32 @@ public class ConnectionController {
 	}
 	
 	@GetMapping("/findByCategoryUid")
-	public ResponseEntity<?> findConnectionsByCategoryUid(String uid) {
+	public ResponseEntity<?> findConnectionsByCategoryUid(HttpServletRequest request, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByCategoryUid(uid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "connection", "view")) {
+				return ResponseEntity.ok(this.service.getByCategoryUid(uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
+		}catch(IllegalArgumentException e) {
+			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			ConnectionController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/findByUid")
+	public ResponseEntity<?> findConnectionByUid(HttpServletRequest request, String uid) {
+		try {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkPermission(peopleId, "connection", uid, "view")) {
+				return ResponseEntity.ok(this.service.getByUid(uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -102,24 +100,14 @@ public class ConnectionController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findConnectionsByFilter(String categoryUid, @RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findConnectionsByFilter(HttpServletRequest request, String categoryUid, @RequestBody FilterInfo filter) {
 		try {
-			return this.service.getByFilter(categoryUid, filter);
-		}catch(SecurityException e) {
-			ConnectionController.LOGGER.error("SecurityException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(NoSuchMethodException e) {
-			ConnectionController.LOGGER.error("NoSuchMethodException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalAccessException e) {
-			ConnectionController.LOGGER.error("IllegalAccessException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(InvocationTargetException e) {
-			ConnectionController.LOGGER.error("InvocationTargetException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalArgumentException e) {
-			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "connection", "view")) {
+				return this.service.getByFilter(categoryUid, filter);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			ConnectionController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -129,7 +117,12 @@ public class ConnectionController {
 	@PostMapping("/add")
 	public ResponseEntity<?> addConnection(HttpServletRequest request, String categoryUid, @RequestBody Map<String, String> connMap) {
 		try {
-			return ResponseEntity.ok(this.service.add(request, categoryUid, connMap));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "connection", "add")) {
+				return ResponseEntity.ok(this.service.add(request, categoryUid, connMap));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Add' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -140,9 +133,14 @@ public class ConnectionController {
 	}
 	
 	@PostMapping("/edit")
-	public ResponseEntity<?> editConnection(String categoryUid, @RequestBody Map<String, String> connMap) {
+	public ResponseEntity<?> editConnection(HttpServletRequest request, String categoryUid, @RequestBody Map<String, String> connMap) {
 		try {
-			return ResponseEntity.ok(this.service.edit(categoryUid, connMap));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkPermission(peopleId, "connection", connMap.get("connectionuid"),  "modify")) {
+				return ResponseEntity.ok(this.service.edit(categoryUid, connMap));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -153,9 +151,14 @@ public class ConnectionController {
 	}
   
 	@GetMapping("/delete")
-	public ResponseEntity<?> deleteConnectionByUid(String uid) {
+	public ResponseEntity<?> deleteConnectionByUid(HttpServletRequest request, String uid) {
 		try {
-			this.service.deleteByUid(uid);
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkPermission(peopleId, "connection", uid,  "delete")) {
+				this.service.deleteByUid(uid);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Delete' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -167,9 +170,14 @@ public class ConnectionController {
 	}
 	
 	@PostMapping("/test-jdbc-conn")
-	public ResponseEntity<?> testJDBCConnection(String schema, @RequestBody JDBCConnection jdbcConn) {
+	public ResponseEntity<?> testJDBCConnection(HttpServletRequest request, String schema, @RequestBody JDBCConnection jdbcConn) {
 		try {
-			return ResponseEntity.ok(this.service.testJDBCConnection(schema, jdbcConn));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkPermission(peopleId, "connection", jdbcConn.getConnectionuid(),  "modify")) {
+				return ResponseEntity.ok(this.service.testJDBCConnection(schema, jdbcConn));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -186,9 +194,14 @@ public class ConnectionController {
 	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isConnectionExistByUid(String uid) {
+	public ResponseEntity<?> isConnectionExistByUid(HttpServletRequest request, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.existByUid(uid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "connection", "view")) {
+				return ResponseEntity.ok(this.service.existByUid(uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			ConnectionController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -196,9 +209,14 @@ public class ConnectionController {
 	}
 	
 	@GetMapping("/findJDBCDriverInfo")
-	public ResponseEntity<?> findJDBCDriverInfo() {
+	public ResponseEntity<?> findJDBCDriverInfo(HttpServletRequest request) {
 		try {
-			return ResponseEntity.ok(this.service.getJDBCDriverInfo());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "connection", "view")) {
+				return ResponseEntity.ok(this.service.getJDBCDriverInfo());
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

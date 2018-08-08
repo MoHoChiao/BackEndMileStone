@@ -14,8 +14,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -25,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.service.connection.dao.ConnectionJPADao;
 import com.netpro.trinity.service.connection.entity.Connection;
+import com.netpro.trinity.service.connection.entity.ConnectionCategory;
 import com.netpro.trinity.service.connection.entity.ConnectionRelation;
 import com.netpro.trinity.service.connection.entity.DatabaseConnection;
 import com.netpro.trinity.service.connection.entity.FTPConnection;
@@ -47,7 +45,6 @@ import com.netpro.trinity.service.drivermanager.util.MetadataDriverManager;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.dto.Ordering;
 import com.netpro.trinity.service.dto.Paging;
-import com.netpro.trinity.service.dto.Querying;
 import com.netpro.trinity.service.filesource.service.FileSourceService;
 import com.netpro.trinity.service.job.service.JobstepService;
 import com.netpro.trinity.service.member.service.TrinityuserService;
@@ -63,9 +60,6 @@ import com.netpro.trinity.service.util.XMLDataUtility;
 @Service
 public class ConnectionService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionService.class);
-	
-	public static final String[] CONNECTION_FIELD_VALUES = new String[] { "connectionname", "connectiontype", "description" };
-	public static final Set<String> CONNECTION_FIELD_SET = new HashSet<>(Arrays.asList(CONNECTION_FIELD_VALUES));
 	
 	/*
 	 * connectiontype的值,對應如下
@@ -113,7 +107,8 @@ public class ConnectionService {
 	
 	public List<Connection> getAll() throws Exception{
 		List<Connection> conns = this.dao.findAll();
-		return getExtraXmlProp(conns);
+		setProfileDataOnly(conns);
+		return conns;
 	}
 	
 	public List<Connection> getAllWithoutInCategory() throws Exception{
@@ -126,7 +121,17 @@ public class ConnectionService {
 			conn_uids.add("");
 		}
 		List<Connection> conns = this.dao.findByConnectionuidNotIn(conn_uids, Sort.by("connectionname"));
-		return getExtraXmlProp(conns);
+		setProfileDataOnly(conns);
+		return conns;
+	}
+	
+	public List<Connection> getByCategoryUid(String uid) throws IllegalArgumentException, Exception{
+		if(uid == null || uid.trim().isEmpty())
+			throw new IllegalArgumentException("Connection Category UID can not be empty!");
+		
+		List<Connection> conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(uid), Sort.by("connectionname"));
+		setProfileDataOnly(conns);
+		return conns;
 	}
 	
 	public Connection getByUid(String uid) throws IllegalArgumentException, Exception{
@@ -141,305 +146,57 @@ public class ConnectionService {
 		if(conn == null)
 			throw new IllegalArgumentException("Connection UID does not exist!(" + uid + ")");
 		
-		return getExtraXmlProp(conn);
+		ConnectionCategory category = this.relService.getCategoryByConnectionUid(uid);
+		
+		return getExtraXmlPropAndCategoryInfo(conn, category);
 	}
 	
-	public List<Connection> getByName(String name) throws IllegalArgumentException, Exception{
-		if(name == null || name.trim().isEmpty())
-			throw new IllegalArgumentException("Connection Name can not be empty!");
-		
-		List<Connection> conns = this.dao.findByconnectionname(name.toUpperCase());
-		return getExtraXmlProp(conns);
-	}
-	
-	public List<Connection> getByType(String type) throws IllegalArgumentException, Exception{
-		if(type == null || type.isEmpty())
-			throw new IllegalArgumentException("Connection Type can not be empty!");
-		
-		type = type.toUpperCase();
-		
-		/*
-		 * connectiontype的值,對應如下
-		 * J : JDBC Connection
-		 * D : Database Connection
-		 * S : Sap
-		 * N : notes
-		 * F : FTP
-		 * O : OS
-		 * M : Mail
-		 */
-		if(!CONNECTION_TYPE_SET.contains(type))
-				throw new IllegalArgumentException("Illegal connection type! "+ CONNECTION_TYPE_SET.toString());
-		
-		List<Connection> conns = this.dao.findByconnectiontype(type);
-		
-		return getExtraXmlProp(conns);
-	}
-	
-	public List<Connection> getByCategoryUid(String uid) throws IllegalArgumentException, Exception{
-		if(uid == null || uid.trim().isEmpty())
-			throw new IllegalArgumentException("Connection Category UID can not be empty!");
-		
-		List<Connection> conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(uid), Sort.by("connectionname"));
-		return getExtraXmlProp(conns);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFilter(String categoryUid, FilterInfo filter) throws SecurityException, NoSuchMethodException, 
-								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
-		if(filter == null) {
-			List<Connection> conns;
-			if(categoryUid == null) {
-				conns = this.dao.findAll();
-			}else {
-				if(categoryUid.trim().isEmpty()) {
-					List<String> conn_uids = relService.getAllConnectionUids();
-					if(conn_uids.isEmpty()) {
-						/*
-						 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
-						 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
-						 */
-						conn_uids.add("");
-					}
-					conns = this.dao.findByConnectionuidNotIn(conn_uids);
-				}else {
-					conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid));
-				}
-			}
-			return ResponseEntity.ok(getExtraXmlProp(conns));
-		}
-		
+	public ResponseEntity<?> getByFilter(String categoryUid, FilterInfo filter) throws Exception{
 		Paging paging = filter.getPaging();
 		Ordering ordering = filter.getOrdering();
-		Querying querying = filter.getQuerying();
+		String param = filter.getParam();
 		
-		if(paging == null && ordering == null && querying == null) {
-			List<Connection> conns;
-			if(categoryUid == null) {
-				conns = this.dao.findAll();
-			}else {
-				if(categoryUid.trim().isEmpty()) {
-					List<String> conn_uids = relService.getAllConnectionUids();
-					if(conn_uids.isEmpty()) {
-						/*
-						 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
-						 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
-						 */
-						conn_uids.add("");
-					}
-					conns = this.dao.findByConnectionuidNotIn(conn_uids);
-				}else {
-					conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid));
-				}
-			}
-			return ResponseEntity.ok(getExtraXmlProp(conns));
-		}
+		if(null == paging) 
+			paging = new Paging(0, 20);
 		
-		PageRequest pageRequest = null;
-		Sort sort = null;
+		if(null == ordering) 
+			ordering = new Ordering("ASC", "connectionname");
 		
-		if(paging != null) {
-			pageRequest = getPagingAndOrdering(paging, ordering);
+		if(null == param || param.trim().isEmpty())
+			param = "%%";
+		param = param.trim();
+		
+		Page<Connection> page_conns = null;
+		if(null == categoryUid) {
+			page_conns = this.dao.findByConnectionnameLikeIgnoreCase(param, getPagingAndOrdering(paging, ordering));
+			
+			/*
+			 * 當category uid為null時, 表示沒有指定任何的category, 包括連root也沒指定
+			 * 此時需要取得connection uid及category name的對映表, 用來多回傳一個category name, 照作,沒什麼意義的需求
+			 */
+			Map<String, String> mapping = this.relService.getConnectionUidAndCategoryNameMap();
+			setProfileDataAndSetCategoryName(page_conns.getContent(), mapping);
 		}else {
-			if(ordering != null) {
-				sort = getOrdering(ordering);
+			List<String> conn_uids = null;
+			if(categoryUid.trim().isEmpty() || "root".equals(categoryUid.trim())) {
+				conn_uids = this.relService.getAllConnectionUids();
+				if(conn_uids.isEmpty()) {
+					/*
+					 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+					 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+					 */
+					conn_uids.add("");
+				}
+				page_conns = this.dao.findByConnectionnameLikeIgnoreCaseAndConnectionuidNotIn(param, getPagingAndOrdering(paging, ordering), conn_uids);
+				setProfileDataOnly(page_conns.getContent());
+			}else {
+				conn_uids = this.relService.getConnectionUidsByCategoryUid(categoryUid);
+				page_conns = this.dao.findByConnectionnameLikeIgnoreCaseAndConnectionuidIn(param, getPagingAndOrdering(paging, ordering), conn_uids);
+				setProfileDataOnly(page_conns.getContent());
 			}
 		}
 		
-		if(querying == null) {
-			if(pageRequest != null) {
-				Page<Connection> page_conn;
-				if(categoryUid == null) {
-					page_conn = this.dao.findAll(pageRequest);
-				}else {
-					if(categoryUid.trim().isEmpty()) {
-						List<String> conn_uids = relService.getAllConnectionUids();
-						if(conn_uids.isEmpty()) {
-							/*
-							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
-							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
-							 */
-							conn_uids.add("");
-						}
-						page_conn = this.dao.findByConnectionuidNotIn(conn_uids, pageRequest);
-					}else {
-						page_conn = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid), pageRequest);
-					}
-				}
-				
-				/*
-				 * 因為page_conn取出來的內容全是Connection物件, 需要視connection type來轉換為不同的connection物件
-				 * connection物件如JDBCConnection,DatabaseConnection...等等
-				 * 而page_conn的內容是不可更動的(沒有所謂setContent方法),因此只能使用下面方法來替換其內容
-				 */
-				final Page<Connection> new_page_conn = page_conn.map(source -> {
-					try {
-						return getExtraXmlProp(source);
-					} catch (Exception e) {
-						ConnectionService.LOGGER.error("Exception; reason was:", e);
-						return source;
-					}
-				});
-				
-				return ResponseEntity.ok(new_page_conn);
-			}else if(sort != null) {
-				List<Connection> conns;
-				if(categoryUid == null) {
-					conns = this.dao.findAll(sort);
-				}else {
-					if(categoryUid.trim().isEmpty()) {
-						List<String> conn_uids = relService.getAllConnectionUids();
-						if(conn_uids.isEmpty()) {
-							/*
-							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
-							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
-							 */
-							conn_uids.add("");
-						}
-						conns = this.dao.findByConnectionuidNotIn(conn_uids, sort);
-					}else {
-						conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid), sort);
-					}
-				}
-				return ResponseEntity.ok(getExtraXmlProp(conns));
-			}else {
-				/*
-				 * The paging and ordering both objects are null.
-				 * it means pageRequest and sort must be null too.
-				 * then return default
-				 */
-				List<Connection> conns;
-				if(categoryUid == null) {
-					conns = this.dao.findAll();
-				}else {
-					if(categoryUid.trim().isEmpty()) {
-						List<String> conn_uids = relService.getAllConnectionUids();
-						if(conn_uids.isEmpty()) {
-							/*
-							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
-							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
-							 */
-							conn_uids.add("");
-						}
-						conns = this.dao.findByConnectionuidNotIn(conn_uids);
-					}else {
-						conns = this.dao.findByConnectionuidIn(relService.getConnectionUidsByCategoryUid(categoryUid));
-					}
-				}
-				return ResponseEntity.ok(getExtraXmlProp(conns));
-			}
-		}else {
-			if(querying.getQueryType() == null || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
-			if(querying.getQueryField() == null || !CONNECTION_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query field! "+ CONNECTION_FIELD_SET.toString());
-			if(querying.getIgnoreCase() == null)
-				querying.setIgnoreCase(false);
-			
-			String queryType = querying.getQueryType().toLowerCase();
-			String queryField = querying.getQueryField().toLowerCase(); //Must be lower case for jpa method
-			String queryString = querying.getQueryString();
-			
-			StringBuffer methodName = new StringBuffer("findBy");
-			methodName.append(queryField);
-			if(queryType.equals("like")) {
-				methodName.append("Like");
-				queryString = "%" + queryString + "%";
-			}
-			if(querying.getIgnoreCase()) {
-				methodName.append("IgnoreCase");
-			}	
-			if(categoryUid != null) {
-				if(categoryUid.trim().isEmpty()) {
-					methodName.append("AndConnectionuidNotIn");
-				}else {
-					methodName.append("AndConnectionuidIn");
-				}
-			}
-			
-			Method method = null;
-			if(pageRequest != null){
-				Page<Connection> page_conn;
-				if(categoryUid == null) {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
-					page_conn = (Page<Connection>) method.invoke(this.dao, queryString, pageRequest);
-				}else {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class, List.class);
-					if(categoryUid.trim().isEmpty()) {
-						List<String> conn_uids = relService.getAllConnectionUids();
-						if(conn_uids.isEmpty()) {
-							/*
-							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
-							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
-							 */
-							conn_uids.add("");
-						}
-						page_conn = (Page<Connection>) method.invoke(this.dao, queryString, pageRequest, conn_uids);
-					}else {
-						page_conn = (Page<Connection>) method.invoke(this.dao, queryString, pageRequest, relService.getConnectionUidsByCategoryUid(categoryUid));
-					}
-				}
-				
-				/*
-				 * 因為page_conn取出來的內容全是Connection物件, 需要視connection type來轉換為不同的connection物件
-				 * connection物件如JDBCConnection,DatabaseConnection...等等
-				 * 而page_conn的內容是不可更動的(沒有所謂setContent方法),因此只能使用下面方法來替換其內容
-				 */
-				final Page<Connection> new_page_conn = page_conn.map(source -> {
-					try {
-						return getExtraXmlProp(source);
-					} catch (Exception e) {
-						ConnectionService.LOGGER.error("Exception; reason was:", e);
-						return source;
-					}
-				});
-				return ResponseEntity.ok(new_page_conn);
-			}else if(sort != null) {
-				List<Connection> conns;
-				if(categoryUid == null) {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
-					conns = (List<Connection>) method.invoke(this.dao, queryString, sort);
-				}else {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class, List.class);
-					if(categoryUid.trim().isEmpty()) {
-						List<String> conn_uids = relService.getAllConnectionUids();
-						if(conn_uids.isEmpty()) {
-							/*
-							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
-							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
-							 */
-							conn_uids.add("");
-						}
-						conns = (List<Connection>) method.invoke(this.dao, queryString, sort, conn_uids);
-					}else {
-						conns = (List<Connection>) method.invoke(this.dao, queryString, sort, relService.getConnectionUidsByCategoryUid(categoryUid));
-					}
-				}
-				return ResponseEntity.ok(getExtraXmlProp(conns));
-			}else {
-				List<Connection> conns;
-				if(categoryUid == null) {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class);
-					conns = (List<Connection>) method.invoke(this.dao, queryString);
-				}else {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, List.class);
-					if(categoryUid.trim().isEmpty()) {
-						List<String> conn_uids = relService.getAllConnectionUids();
-						if(conn_uids.isEmpty()) {
-							/*
-							 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
-							 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
-							 */
-							conn_uids.add("");
-						}
-						conns = (List<Connection>) method.invoke(this.dao, queryString, conn_uids);
-					}else {
-						conns = (List<Connection>) method.invoke(this.dao, queryString, relService.getConnectionUidsByCategoryUid(categoryUid));
-					}
-				}
-				return ResponseEntity.ok(getExtraXmlProp(conns));
-			}
-		}
+		return ResponseEntity.ok(page_conns);
 	}
 	
 	public Connection add(HttpServletRequest request, String categoryUid, Map<String, String> connMap) throws IllegalArgumentException, Exception{
@@ -474,10 +231,10 @@ public class ConnectionService {
 		
 		Connection new_conn = this.dao.save(conn);
 		
-		new_conn = getExtraXmlProp(new_conn);
+		new_conn = getExtraXmlPropAndCategoryInfo(new_conn, null);
 		
 		//如果所附帶的url參數中有categoryUid的話, 表示是要把Connection新增至某個category
-		if(null != categoryUid && !categoryUid.trim().isEmpty()) {
+		if(null != categoryUid && !categoryUid.trim().isEmpty() && !categoryUid.trim().equals("root")) {
 			ConnectionRelation rel = new ConnectionRelation();
 			rel.setConncategoryuid(categoryUid);
 			rel.setConnectionuid(new_conn.getConnectionuid());
@@ -529,12 +286,12 @@ public class ConnectionService {
 		
 		Connection new_conn = this.dao.save(conn);
 		
-		new_conn = getExtraXmlProp(new_conn);
+		new_conn = getExtraXmlPropAndCategoryInfo(new_conn, null);
 		
 		//如果所附帶的url參數中有categoryUid的話, 表示是要把Connection編輯至某個category或root
 		if(categoryUid != null) {
 			this.relService.deleteByConnectionUid(new_conn.getConnectionuid());
-			if(!categoryUid.trim().equals("")) {	//如果categoryUid不是空值, 表示是要把Connection編輯到某一個category底下
+			if(!categoryUid.trim().equals("") && !categoryUid.trim().equals("root")) {	//如果categoryUid不是空值或root, 表示是要把Connection編輯到某一個category底下
 				ConnectionRelation rel = new ConnectionRelation();
 				rel.setConncategoryuid(categoryUid);
 				rel.setConnectionuid(new_conn.getConnectionuid());
@@ -686,22 +443,44 @@ public class ConnectionService {
 			return Sort.by(direct, "lastupdatetime");
 	}
 	
+	@SuppressWarnings("unused")
 	private List<Connection> getExtraXmlProp(List<Connection> conns) throws Exception{
 		List<Connection> new_conns = new ArrayList<Connection>();
 		for(Connection conn : conns) {
-			new_conns.add(getExtraXmlProp(conn));
+			new_conns.add(getExtraXmlPropAndCategoryInfo(conn, null));
 		}
 		return new_conns;
 	}
 	
-//	private ContactDto convertToContactDto(final Connection conn) {
-//		JDBCConnection jdbc = new JDBCConnection();
-//	    //get values from contact entity and set them in contactDto
-//	    //e.g. contactDto.setContactId(contact.getContactId());
-//	    return contactDto;
-//	}
+	private void setProfileDataOnly(List<Connection> conns) {
+		for(Connection conn : conns) {
+			setProfileDataOnly(conn);
+		}
+	}
 	
-	private Connection getExtraXmlProp(Connection conn) throws Exception{
+	private void setProfileDataOnly(Connection conn) {
+		conn.setXmldata(null);
+	}
+	
+	private void setProfileDataAndSetCategoryName(List<Connection> conns, Map<String, String> mapping) {
+		for(Connection conn : conns) {
+			setProfileDataAndSetCategoryName(conn, mapping);
+		}
+	}
+	
+	private void setProfileDataAndSetCategoryName(Connection conn, Map<String, String> mapping) {
+		conn.setXmldata(null);
+		
+		String categoryName = mapping.get(conn.getConnectionuid());
+		if(null != categoryName)
+			conn.setCategoryname(categoryName);
+		else {
+			conn.setCategoryname("/");
+		}
+	}
+	
+	//category only for method-getByUid
+	private Connection getExtraXmlPropAndCategoryInfo(Connection conn, ConnectionCategory category) throws Exception{
 		String connectionuid = conn.getConnectionuid();
 		String connectionname = conn.getConnectionname();
 		String type = conn.getConnectiontype();
@@ -727,6 +506,12 @@ public class ConnectionService {
 			jdbc.setJdbc_url(map.get("jdbc_url"));
 			jdbc.setJdbc_userid(map.get("jdbc_userid"));
 			jdbc.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
+			
+			if(null != category) {
+				jdbc.setCategoryname(category.getConncategoryname());
+				jdbc.setCategoryuid(category.getConncategoryuid());
+			}
+			
 			return jdbc;
 		}else if("D".equalsIgnoreCase(type)){
 			DatabaseConnection database = new DatabaseConnection();
@@ -744,6 +529,12 @@ public class ConnectionService {
 			database.setServer(map.get("server"));
 			database.setPassword(Crypto.getDecryptString(map.get("password"), encryptKey));
 			database.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
+			
+			if(null != category) {
+				database.setCategoryname(category.getConncategoryname());
+				database.setCategoryuid(category.getConncategoryuid());
+			}
+			
 			return database;
 		}else if("F".equalsIgnoreCase(type)){
 			FTPConnection ftp = new FTPConnection();
@@ -762,6 +553,12 @@ public class ConnectionService {
 			ftp.setServer(map.get("server"));
 			ftp.setPassword(Crypto.getDecryptString(map.get("password"), encryptKey));
 			ftp.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
+			
+			if(null != category) {
+				ftp.setCategoryname(category.getConncategoryname());
+				ftp.setCategoryuid(category.getConncategoryuid());
+			}
+			
 			return ftp;
 		}else if("M".equalsIgnoreCase(type)){
 			MailConnection mail = new MailConnection();
@@ -784,6 +581,12 @@ public class ConnectionService {
 			mail.setMailssl(map.get("mailssl"));
 			mail.setMailtls(map.get("mailtls"));
 			mail.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
+			
+			if(null != category) {
+				mail.setCategoryname(category.getConncategoryname());
+				mail.setCategoryuid(category.getConncategoryuid());
+			}
+			
 			return mail;
 		}else if("N".equalsIgnoreCase(type)){
 			NotesConnection notes = new NotesConnection();
@@ -804,6 +607,12 @@ public class ConnectionService {
 			notes.setNotesDBName(map.get("notesDBName"));
 			notes.setNotesServerName(map.get("notesServerName"));
 			notes.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
+			
+			if(null != category) {
+				notes.setCategoryname(category.getConncategoryname());
+				notes.setCategoryuid(category.getConncategoryuid());
+			}
+			
 			return notes;
 		}else if("O".equalsIgnoreCase(type)){
 			OSConnection os = new OSConnection();
@@ -821,6 +630,12 @@ public class ConnectionService {
 			os.setUserid(map.get("userid"));
 			os.setPassword(Crypto.getDecryptString(map.get("password"), encryptKey));
 			os.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
+			
+			if(null != category) {
+				os.setCategoryname(category.getConncategoryname());
+				os.setCategoryuid(category.getConncategoryuid());
+			}
+			
 			return os;
 		}else if("S".equalsIgnoreCase(type)){
 			SapConnection sap = new SapConnection();
@@ -843,6 +658,12 @@ public class ConnectionService {
 			sap.setSapCodePage(map.get("sapCodePage"));
 			sap.setSapClient(map.get("sapClient"));
 			sap.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
+			
+			if(null != category) {
+				sap.setCategoryname(category.getConncategoryname());
+				sap.setCategoryuid(category.getConncategoryuid());
+			}
+			
 			return sap;
 		}else{
 			throw new Exception("No Such Connection Type = " + type);

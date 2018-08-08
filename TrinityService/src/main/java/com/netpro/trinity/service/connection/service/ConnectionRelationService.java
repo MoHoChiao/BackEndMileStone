@@ -1,11 +1,13 @@
 package com.netpro.trinity.service.connection.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.service.connection.dao.ConnectionRelationJDBCDao;
+import com.netpro.trinity.service.connection.entity.ConnectionCategory;
 import com.netpro.trinity.service.connection.entity.ConnectionRelation;
 
 @Service
@@ -28,6 +30,14 @@ public class ConnectionRelationService {
 			throw new IllegalArgumentException("Connection Category UID can not be empty!");
 				
 		return this.dao.findConnectionUidsByCategoryUid(uid);
+	}
+	
+	public ConnectionCategory getCategoryByConnectionUid(String uid) throws IllegalArgumentException, Exception{
+		return this.dao.findCategoryByConnectionUid(uid);
+	}
+	
+	public Map<String, String> getConnectionUidAndCategoryNameMap() throws IllegalArgumentException, Exception{
+		return this.dao.findConnectionUidAndCategoryNameMap();
 	}
 	
 	public ConnectionRelation add(ConnectionRelation rel) throws IllegalArgumentException, Exception{

@@ -45,6 +45,29 @@ public class ConnectionRelationController {
 		}
 	}
 	
+	@GetMapping("/findCategoryByConnectionUid")
+	public ResponseEntity<?> findCategoryByConnectionUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.getCategoryByConnectionUid(uid));
+		}catch(IllegalArgumentException e) {
+			ConnectionRelationController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			ConnectionRelationController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/findConnectionUidAndCategoryNameMap")
+	public ResponseEntity<?> findConnectionUidAndCategoryNameMap() {
+		try {
+			return ResponseEntity.ok(this.service.getConnectionUidAndCategoryNameMap());
+		}catch(Exception e) {
+			ConnectionRelationController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@PostMapping("/addOne")
 	public ResponseEntity<?> addOneRelation(@RequestBody ConnectionRelation rel) {
 		try {

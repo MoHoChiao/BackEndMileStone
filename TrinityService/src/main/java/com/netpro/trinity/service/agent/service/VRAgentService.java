@@ -1,12 +1,9 @@
 package com.netpro.trinity.service.agent.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,9 +35,6 @@ import com.netpro.trinity.service.util.Constant;
 @Service
 public class VRAgentService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(VRAgentService.class);
-	
-	public static final String[] VR_AGENT_FIELD_VALUES = new String[] { "virtualagentname", "activate", "description", "mode"};
-	public static final Set<String> VR_AGENT_FIELD_SET = new HashSet<>(Arrays.asList(VR_AGENT_FIELD_VALUES));
 	
 	@Autowired
 	private VRAgentJPADao dao;

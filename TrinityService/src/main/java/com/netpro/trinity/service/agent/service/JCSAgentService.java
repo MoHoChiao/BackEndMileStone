@@ -1,14 +1,11 @@
 package com.netpro.trinity.service.agent.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,9 +41,6 @@ import com.netpro.trinity.service.util.XMLDataUtility;
 @Service
 public class JCSAgentService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JCSAgentService.class);
-	
-	public static final String[] AGENT_FIELD_VALUES = new String[] { "agentname", "activate", "host", "port", "description" };
-	public static final Set<String> AGENT_FIELD_SET = new HashSet<>(Arrays.asList(AGENT_FIELD_VALUES));
 	
 	@Autowired
 	private XMLDataUtility xmlUtil;
