@@ -1,6 +1,6 @@
 package com.netpro.trinity.service.domain.controller;
 
-import java.lang.reflect.InvocationTargetException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netpro.trinity.service.domain.entity.Domain;
 import com.netpro.trinity.service.domain.service.DomainService;
 import com.netpro.trinity.service.dto.FilterInfo;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
+import com.netpro.trinity.service.util.ACUtil;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/domain")
@@ -25,10 +27,18 @@ public class DomainController {
 	@Autowired
 	private DomainService service;
 	
+	@Autowired
+	private PermissionClient permissionClient;
+	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllDomains(Boolean withoutDetail) {
+	public ResponseEntity<?> findAllDomains(HttpServletRequest request, Boolean withoutDetail) {
 		try {
-			return ResponseEntity.ok(this.service.getAll(withoutDetail));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "domain", "view")) {
+				return ResponseEntity.ok(this.service.getAll(withoutDetail));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			DomainController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -36,22 +46,14 @@ public class DomainController {
 	}
 	
 	@GetMapping("/findByUid")
-	public ResponseEntity<?> findDomainByUid(Boolean withoutDetail, String uid) {
+	public ResponseEntity<?> findDomainByUid(HttpServletRequest request, Boolean withoutDetail, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByUid(withoutDetail, uid));
-		}catch(IllegalArgumentException e) {
-			DomainController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			DomainController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-  
-	@GetMapping("/findByName")
-	public ResponseEntity<?> findDomainsByName(Boolean withoutDetail, String name) {
-		try {
-			return ResponseEntity.ok(this.service.getByName(withoutDetail, name));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "domain", "view")) {
+				return ResponseEntity.ok(this.service.getByUid(withoutDetail, uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			DomainController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -62,24 +64,14 @@ public class DomainController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findDomainsByFilter(Boolean withoutDetail, @RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findDomainsByFilter(HttpServletRequest request, Boolean withoutDetail, @RequestBody FilterInfo filter) {
 		try {
-			return this.service.getByFilter(withoutDetail, filter);
-		}catch(SecurityException e) {
-			DomainController.LOGGER.error("SecurityException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(NoSuchMethodException e) {
-			DomainController.LOGGER.error("NoSuchMethodException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalAccessException e) {
-			DomainController.LOGGER.error("IllegalAccessException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(InvocationTargetException e) {
-			DomainController.LOGGER.error("InvocationTargetException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalArgumentException e) {
-			DomainController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "domain", "view")) {
+				return this.service.getByFilter(withoutDetail, filter);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			DomainController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -87,9 +79,14 @@ public class DomainController {
 	}
   
 	@PostMapping("/add")
-	public ResponseEntity<?> addDomain(@RequestBody Domain domain) {
+	public ResponseEntity<?> addDomain(HttpServletRequest request, @RequestBody Domain domain) {
 		try {
-			return ResponseEntity.ok(this.service.add(domain));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "domain", "add")) {
+				return ResponseEntity.ok(this.service.add(domain));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Add' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			DomainController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -100,9 +97,14 @@ public class DomainController {
 	}
 	
 	@PostMapping("/edit")
-	public ResponseEntity<?> editDomain(@RequestBody Domain domain) {
+	public ResponseEntity<?> editDomain(HttpServletRequest request, @RequestBody Domain domain) {
 		try {
-			return ResponseEntity.ok(this.service.edit(domain));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "domain", "modify")) {
+				return ResponseEntity.ok(this.service.edit(domain));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			DomainController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -113,9 +115,14 @@ public class DomainController {
 	}
   
 	@GetMapping("/delete")
-	public ResponseEntity<?> deleteDomainByUid(String uid) {
+	public ResponseEntity<?> deleteDomainByUid(HttpServletRequest request, String uid) {
 		try {
-			this.service.deleteByUid(uid);
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "domain", "delete")) {
+				this.service.deleteByUid(uid);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Delete' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			DomainController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -127,9 +134,14 @@ public class DomainController {
 	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isDomainExistByUid(String uid) {
+	public ResponseEntity<?> isDomainExistByUid(HttpServletRequest request, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.existByUid(uid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "domain", "view")) {
+				return ResponseEntity.ok(this.service.existByUid(uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			DomainController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

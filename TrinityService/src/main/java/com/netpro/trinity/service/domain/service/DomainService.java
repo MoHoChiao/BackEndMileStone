@@ -8,13 +8,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +23,6 @@ import com.netpro.trinity.service.domain.entity.DomainVariable;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.dto.Ordering;
 import com.netpro.trinity.service.dto.Paging;
-import com.netpro.trinity.service.dto.Querying;
 import com.netpro.trinity.service.job.service.JobService;
 import com.netpro.trinity.service.objectalias.service.ObjectAliasService;
 import com.netpro.trinity.service.util.Constant;
@@ -56,6 +51,29 @@ public class DomainService {
 		return domains;
 	}
 	
+	public ResponseEntity<?> getByFilter(Boolean withoutDetail, FilterInfo filter) throws Exception{
+		Paging paging = filter.getPaging();
+		Ordering ordering = filter.getOrdering();
+		String param = filter.getParam();
+		
+		if(null == paging) 
+			paging = new Paging(0, 20);
+		
+		if(null == ordering) 
+			ordering = new Ordering("ASC", "name");
+		
+		if(null == param || param.trim().isEmpty())
+			param = "%%";
+		param = param.trim();
+		
+		Page<Domain> page_domains = this.dao.findByNameLikeIgnoreCase(param, getPagingAndOrdering(paging, ordering));
+		
+		if(null == withoutDetail || withoutDetail == false)
+			getDomainVariableAndResource(page_domains.getContent());
+		
+		return ResponseEntity.ok(page_domains);
+	}
+	
 	public Domain getByUid(Boolean withoutDetail, String uid) throws IllegalArgumentException, Exception{
 		if(null == uid || uid.isEmpty())
 			throw new IllegalArgumentException("Domain UID can not be empty!");
@@ -72,121 +90,6 @@ public class DomainService {
 			getDomainVariableAndResource(domain);
 		
 		return domain;
-	}
-	
-	public List<Domain> getByName(Boolean withoutDetail, String name) throws IllegalArgumentException, Exception{
-		if(null == name || name.isEmpty())
-			throw new IllegalArgumentException("Domain Name can not be empty!");
-		
-		List<Domain> domains = this.dao.findByname(name.toUpperCase());
-		
-		if(null == withoutDetail || withoutDetail == false)
-			getDomainVariableAndResource(domains);
-		
-		return domains;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFilter(Boolean withoutDetail, FilterInfo filter) throws SecurityException, NoSuchMethodException, 
-								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
-		if(null == filter) {
-			List<Domain> domains = this.dao.findAll();
-			if(null == withoutDetail || withoutDetail == false)
-				getDomainVariableAndResource(domains);
-			return ResponseEntity.ok(domains);
-		}
-		
-		Paging paging = filter.getPaging();
-		Ordering ordering = filter.getOrdering();
-		Querying querying = filter.getQuerying();
-		
-		if(null == paging && null == ordering && null == querying) {
-			List<Domain> domains = this.dao.findAll();
-			if(null == withoutDetail || withoutDetail == false)
-				getDomainVariableAndResource(domains);
-			return ResponseEntity.ok(domains);
-		}
-		
-		PageRequest pageRequest = null;
-		Sort sort = null;
-		
-		if(paging != null) {
-			pageRequest = getPagingAndOrdering(paging, ordering);
-		}else {
-			if(ordering != null) {
-				sort = getOrdering(ordering);
-			}
-		}
-		
-		if(null == querying) {
-			if(pageRequest != null) {
-				Page<Domain> page_domain = this.dao.findAll(pageRequest);
-				if(null == withoutDetail || withoutDetail == false)
-					getDomainVariableAndResource(page_domain.getContent());
-				return ResponseEntity.ok(page_domain);
-			}else if(sort != null) {
-				List<Domain> domains = this.dao.findAll(sort);
-				if(null == withoutDetail || withoutDetail == false)
-					getDomainVariableAndResource(domains);
-				return ResponseEntity.ok(domains);
-			}else {
-				/*
-				 * The paging and ordering both objects are null.
-				 * it means pageRequest and sort must be null too.
-				 * then return default
-				 */
-				List<Domain> domains = this.dao.findAll();
-				if(null == withoutDetail || withoutDetail == false)
-					getDomainVariableAndResource(domains);
-				return ResponseEntity.ok(domains);
-			}
-		}else {
-			if(null == querying.getQueryType() || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
-			if(null == querying.getQueryField() || !DOMAIN_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query field! "+ DOMAIN_FIELD_SET.toString());
-			if(null == querying.getIgnoreCase())
-				querying.setIgnoreCase(false);
-			
-			String queryType = querying.getQueryType().toLowerCase();
-			String queryField = querying.getQueryField().toLowerCase(); //Must be lower case for jpa method
-			String queryString = querying.getQueryString();
-			
-			StringBuffer methodName = new StringBuffer("findBy");
-			methodName.append(queryField);
-			if(queryType.equals("like")) {
-				if(!queryField.equals("port")) { //Integer Field can not be Like query
-					methodName.append("Like");
-					queryString = "%" + queryString + "%";
-				}
-			}
-			if(querying.getIgnoreCase()) {
-				if(!queryField.equals("port")) { //Integer Field can not be IgnoreCase query
-					methodName.append("IgnoreCase");
-				}
-			}	
-
-			Method method = null;
-			if(pageRequest != null){
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
-				Page<Domain> page_domain = (Page<Domain>) method.invoke(this.dao, queryString, pageRequest);
-				if(null == withoutDetail || withoutDetail == false)
-					getDomainVariableAndResource(page_domain.getContent());
-				return ResponseEntity.ok(page_domain);
-			}else if(sort != null) {
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
-				List<Domain> domains = (List<Domain>) method.invoke(this.dao, queryString, sort);
-				if(null == withoutDetail || withoutDetail == false)
-					getDomainVariableAndResource(domains);
-				return ResponseEntity.ok(domains);
-			}else {
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class);
-				List<Domain> domains = (List<Domain>) method.invoke(this.dao, queryString);
-				if(null == withoutDetail || withoutDetail == false)
-					getDomainVariableAndResource(domains);
-				return ResponseEntity.ok(domains);
-			}
-		}
 	}
 	
 	public Domain add(Domain domain) throws IllegalArgumentException, Exception{
