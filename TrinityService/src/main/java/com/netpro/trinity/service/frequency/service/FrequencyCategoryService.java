@@ -24,8 +24,8 @@ import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.dto.Ordering;
 import com.netpro.trinity.service.dto.Paging;
 import com.netpro.trinity.service.dto.Querying;
-import com.netpro.trinity.service.filesource.entity.FrequencyCategory;
 import com.netpro.trinity.service.frequency.dao.FrequencyCategoryJPADao;
+import com.netpro.trinity.service.frequency.entity.FrequencyCategory;
 import com.netpro.trinity.service.util.Constant;
 
 @Service

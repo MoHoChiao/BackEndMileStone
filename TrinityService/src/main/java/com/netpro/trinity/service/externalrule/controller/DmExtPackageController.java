@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.externalrule.dto.Publication;
 import com.netpro.trinity.service.externalrule.entity.Dmextpackage;
 import com.netpro.trinity.service.externalrule.service.DmExtPackageService;
@@ -33,6 +36,16 @@ public class DmExtPackageController {
 	public ResponseEntity<?> findAllPackages(Boolean withoutDetail) {
 		try {
 			return ResponseEntity.ok(this.service.getAll(withoutDetail));
+		}catch(Exception e) {
+			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/findByFilter")
+	public ResponseEntity<?> findByFilter(HttpServletRequest request, @RequestBody FilterInfo filter) {
+		try {
+			return this.service.getByFilter(filter);
 		}catch(Exception e) {
 			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

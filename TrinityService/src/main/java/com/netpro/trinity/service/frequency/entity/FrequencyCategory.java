@@ -1,4 +1,4 @@
-package com.netpro.trinity.service.filesource.entity;
+package com.netpro.trinity.service.frequency.entity;
 
 import java.util.Date;
 

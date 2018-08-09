@@ -1,4 +1,4 @@
-package com.netpro.trinity.service.filesource.entity;
+package com.netpro.trinity.service.frequency.entity;
 
 import java.util.Date;
 import java.util.List;
@@ -11,7 +11,6 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.netpro.trinity.service.frequency.entity.ExclFrequencyList;
 
 @Entity(name="excludefrequency")  //宣告這是一個實體excludefrequency的類別
 public class ExclFrequency {	

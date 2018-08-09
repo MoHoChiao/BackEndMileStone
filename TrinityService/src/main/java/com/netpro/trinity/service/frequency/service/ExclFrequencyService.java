@@ -1,5 +1,6 @@
 package com.netpro.trinity.service.frequency.service;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -7,9 +8,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,8 +22,8 @@ import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.dto.Ordering;
 import com.netpro.trinity.service.dto.Paging;
 import com.netpro.trinity.service.dto.Querying;
-import com.netpro.trinity.service.filesource.entity.ExclFrequency;
 import com.netpro.trinity.service.frequency.dao.ExclFrequencyJPADao;
+import com.netpro.trinity.service.frequency.entity.ExclFrequency;
 import com.netpro.trinity.service.frequency.entity.ExclFrequencyList;
 import com.netpro.trinity.service.job.service.JobExcludeService;
 import com.netpro.trinity.service.job.service.JobFlowExcludeService;
@@ -107,9 +105,7 @@ public class ExclFrequencyService {
 		return excls;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFilter(Boolean withoutDetail, FilterInfo filter) throws SecurityException, NoSuchMethodException, 
-								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
+	public ResponseEntity<?> getByFilter(Boolean withoutDetail, FilterInfo filter) throws Exception{
 		if(filter == null) {
 			List<ExclFrequency> excls = this.dao.findAll();
 			if(null == withoutDetail || withoutDetail == false)

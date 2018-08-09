@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.service.dto.FilterInfo;
-import com.netpro.trinity.service.filesource.entity.FrequencyCategory;
+import com.netpro.trinity.service.frequency.entity.FrequencyCategory;
 import com.netpro.trinity.service.frequency.service.FrequencyCategoryService;
 
 @RestController  //宣告一個Restful Web Service的Resource
