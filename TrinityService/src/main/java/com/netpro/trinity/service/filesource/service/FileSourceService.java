@@ -10,13 +10,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
@@ -25,11 +21,12 @@ import org.springframework.stereotype.Service;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.dto.Ordering;
 import com.netpro.trinity.service.dto.Paging;
-import com.netpro.trinity.service.dto.Querying;
 import com.netpro.trinity.service.filesource.dao.FileSourceJPADao;
 import com.netpro.trinity.service.filesource.entity.FileSource;
+import com.netpro.trinity.service.filesource.entity.FileSourceCategory;
 import com.netpro.trinity.service.filesource.entity.FilesourceRelation;
 import com.netpro.trinity.service.job.service.JobService;
+import com.netpro.trinity.service.objectalias.service.ObjectAliasService;
 import com.netpro.trinity.service.util.Constant;
 import com.netpro.trinity.service.util.XMLDataUtility;
 
@@ -49,10 +46,12 @@ public class FileSourceService {
 	
 	@Autowired
 	private JobService jobService;
+	@Autowired
+	private ObjectAliasService objectAliasService;
 	
 	public List<FileSource> getAll() throws Exception{
 		List<FileSource> filesources = this.dao.findAll();
-		setExtraXmlProp(filesources);
+		setProfileDataOnly(filesources);
 		return filesources;
 	}
 	
@@ -66,7 +65,16 @@ public class FileSourceService {
 			fs_uids.add("");
 		}
 		List<FileSource> filesources = this.dao.findByFilesourceuidNotIn(fs_uids, Sort.by("filesourcename"));
-		setExtraXmlProp(filesources);
+		setProfileDataOnly(filesources);
+		return filesources;
+	}
+	
+	public List<FileSource> getByCategoryUid(String uid) throws IllegalArgumentException, Exception{
+		if(uid == null || uid.trim().isEmpty())
+			throw new IllegalArgumentException("File Source Category UID can not be empty!");
+		
+		List<FileSource> filesources = this.dao.findByFilesourceuidIn(relService.getFileSourceUidsByCategoryUid(uid), Sort.by("filesourcename"));
+		setProfileDataOnly(filesources);
 		return filesources;
 	}
 	
@@ -81,264 +89,58 @@ public class FileSourceService {
 		 
 		if(filesource == null)
 			throw new IllegalArgumentException("File Source UID does not exist!(" + uid + ")");
-		setExtraXmlProp(filesource);
+		
+		FileSourceCategory category = this.relService.getCategoryByFilesourceUid(uid);
+		setExtraXmlPropAndCategoryInfo(filesource, category);
 		return filesource;
 	}
 	
-	public List<FileSource> getByName(String name) throws IllegalArgumentException, Exception{
-		if(name == null || name.trim().isEmpty())
-			throw new IllegalArgumentException("File Source Name can not be empty!");
-		
-		List<FileSource> filesources = this.dao.findByfilesourcename(name.toUpperCase());
-		setExtraXmlProp(filesources);
-		return filesources;
-	}
-	
-	public List<FileSource> getByCategoryUid(String uid) throws IllegalArgumentException, Exception{
-		if(uid == null || uid.trim().isEmpty())
-			throw new IllegalArgumentException("File Source Category UID can not be empty!");
-		
-		List<FileSource> filesources = this.dao.findByFilesourceuidIn(relService.getFileSourceUidsByCategoryUid(uid), Sort.by("filesourcename"));
-		setExtraXmlProp(filesources);
-		return filesources;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFilter(String categoryUid, FilterInfo filter) throws SecurityException, NoSuchMethodException, 
-								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
-		
-		if(filter == null) {
-			List<FileSource> filesources;
-			if(categoryUid == null) {
-				filesources = this.dao.findAll();
-			}else {
-				if(categoryUid.trim().isEmpty()) {
-					List<String> fs_uids = relService.getAllFileSourceUids();
-					if(fs_uids.isEmpty()) {
-						/*
-						 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
-						 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
-						 */
-						fs_uids.add("");
-					}
-					filesources = this.dao.findByFilesourceuidNotIn(fs_uids);
-				}else {
-					filesources = this.dao.findByFilesourceuidIn(relService.getFileSourceUidsByCategoryUid(categoryUid));
-				}
-			}
-			setExtraXmlProp(filesources);
-			return ResponseEntity.ok(filesources);
-		}
-		
+	public ResponseEntity<?> getByFilter(String categoryUid, FilterInfo filter) throws Exception{
 		Paging paging = filter.getPaging();
 		Ordering ordering = filter.getOrdering();
-		Querying querying = filter.getQuerying();
+		String param = filter.getParam();
 		
-		if(paging == null && ordering == null && querying == null) {
-			List<FileSource> filesources;
-			if(categoryUid == null) {
-				filesources = this.dao.findAll();
-			}else {
-				if(categoryUid.trim().isEmpty()) {
-					List<String> fs_uids = relService.getAllFileSourceUids();
-					if(fs_uids.isEmpty()) {
-						/*
-						 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
-						 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
-						 */
-						fs_uids.add("");
-					}
-					filesources = this.dao.findByFilesourceuidNotIn(fs_uids);
-				}else {
-					filesources = this.dao.findByFilesourceuidIn(relService.getFileSourceUidsByCategoryUid(categoryUid));
-				}
-			}
-			setExtraXmlProp(filesources);
-			return ResponseEntity.ok(filesources);
-		}
+		if(null == paging) 
+			paging = new Paging(0, 20);
 		
-		PageRequest pageRequest = null;
-		Sort sort = null;
+		if(null == ordering) 
+			ordering = new Ordering("ASC", "filesourcename");
 		
-		if(paging != null) {
-			pageRequest = getPagingAndOrdering(paging, ordering);
+		if(null == param || param.trim().isEmpty())
+			param = "%%";
+		param = param.trim();
+		
+		Page<FileSource> page_files = null;
+		if(null == categoryUid) {
+			page_files = this.dao.findByFilesourcenameLikeIgnoreCase(param, getPagingAndOrdering(paging, ordering));
+			
+			/*
+			 * 當category uid為null時, 表示沒有指定任何的category, 包括連root也沒指定
+			 * 此時需要取得connection uid及category name的對映表, 用來多回傳一個category name, 照作,沒什麼意義的需求
+			 */
+			Map<String, String> mapping = this.relService.getFilesourceUidAndCategoryNameMap();
+			setProfileDataAndSetCategoryName(page_files.getContent(), mapping);
 		}else {
-			if(ordering != null) {
-				sort = getOrdering(ordering);
+			List<String> filesource_uids = null;
+			if(categoryUid.trim().isEmpty() || "root".equals(categoryUid.trim())) {
+				filesource_uids = this.relService.getAllFileSourceUids();
+				if(filesource_uids.isEmpty()) {
+					/*
+					 * 當系統沒有建立任何conn和conn category之間的relation時, 則任意給一個空字串值
+					 * 以免not in當中的值為empty, 導致搜尋不到任何不在conn category中的conn
+					 */
+					filesource_uids.add("");
+				}
+				page_files = this.dao.findByFilesourcenameLikeIgnoreCaseAndFilesourceuidNotIn(param, getPagingAndOrdering(paging, ordering), filesource_uids);
+				setProfileDataOnly(page_files.getContent());
+			}else {
+				filesource_uids = this.relService.getFileSourceUidsByCategoryUid(categoryUid);
+				page_files = this.dao.findByFilesourcenameLikeIgnoreCaseAndFilesourceuidIn(param, getPagingAndOrdering(paging, ordering), filesource_uids);
+				setProfileDataOnly(page_files.getContent());
 			}
 		}
 		
-		if(querying == null) {
-			if(pageRequest != null) {
-				Page<FileSource> page_filesource;
-				if(categoryUid == null) {
-					page_filesource = this.dao.findAll(pageRequest);
-				}else {
-					if(categoryUid.trim().isEmpty()) {
-						List<String> fs_uids = relService.getAllFileSourceUids();
-						if(fs_uids.isEmpty()) {
-							/*
-							 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
-							 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
-							 */
-							fs_uids.add("");
-						}
-						page_filesource = this.dao.findByFilesourceuidNotIn(fs_uids, pageRequest);
-					}else {
-						page_filesource = this.dao.findByFilesourceuidIn(relService.getFileSourceUidsByCategoryUid(categoryUid), pageRequest);
-					}
-				}
-				setExtraXmlProp(page_filesource.getContent());
-				return ResponseEntity.ok(page_filesource);
-			}else if(sort != null) {
-				List<FileSource> filesources;
-				if(categoryUid == null) {
-					filesources = this.dao.findAll(sort);
-				}else {
-					if(categoryUid.trim().isEmpty()) {
-						List<String> fs_uids = relService.getAllFileSourceUids();
-						if(fs_uids.isEmpty()) {
-							/*
-							 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
-							 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
-							 */
-							fs_uids.add("");
-						}
-						filesources = this.dao.findByFilesourceuidNotIn(fs_uids, sort);
-					}else {
-						filesources = this.dao.findByFilesourceuidIn(relService.getFileSourceUidsByCategoryUid(categoryUid), sort);
-					}
-				}
-				setExtraXmlProp(filesources);
-				return ResponseEntity.ok(filesources);
-			}else {
-				/*
-				 * The paging and ordering both objects are null.
-				 * it means pageRequest and sort must be null too.
-				 * then return default
-				 */
-				List<FileSource> filesources;
-				if(categoryUid == null) {
-					filesources = this.dao.findAll();
-				}else {
-					if(categoryUid.trim().isEmpty()) {
-						List<String> fs_uids = relService.getAllFileSourceUids();
-						if(fs_uids.isEmpty()) {
-							/*
-							 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
-							 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
-							 */
-							fs_uids.add("");
-						}
-						filesources = this.dao.findByFilesourceuidNotIn(fs_uids);
-					}else {
-						filesources = this.dao.findByFilesourceuidIn(relService.getFileSourceUidsByCategoryUid(categoryUid));
-					}
-				}
-				setExtraXmlProp(filesources);
-				return ResponseEntity.ok(filesources);
-			}
-		}else {
-			if(querying.getQueryType() == null || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
-			if(querying.getQueryField() == null || !FS_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query field! "+ FS_FIELD_SET.toString());
-			if(querying.getIgnoreCase() == null)
-				querying.setIgnoreCase(false);
-			
-			String queryType = querying.getQueryType().toLowerCase();
-			String queryField = querying.getQueryField().toLowerCase(); //Must be lower case for jpa method
-			String queryString = querying.getQueryString();
-			
-			StringBuffer methodName = new StringBuffer("findBy");
-			methodName.append(queryField);
-			if(queryType.equals("like")) {
-				methodName.append("Like");
-				queryString = "%" + queryString + "%";
-			}
-			if(querying.getIgnoreCase()) {
-				methodName.append("IgnoreCase");
-			}	
-			if(categoryUid != null) {
-				if(categoryUid.trim().isEmpty()) {
-					methodName.append("AndFilesourceuidNotIn");
-				}else {
-					methodName.append("AndFilesourceuidIn");
-				}
-			}
-			
-			Method method = null;
-			if(pageRequest != null){
-				Page<FileSource> page_filesource;
-				if(categoryUid == null) {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
-					page_filesource = (Page<FileSource>) method.invoke(this.dao, queryString, pageRequest);
-				}else {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class, List.class);
-					if(categoryUid.trim().isEmpty()) {
-						List<String> fs_uids = relService.getAllFileSourceUids();
-						if(fs_uids.isEmpty()) {
-							/*
-							 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
-							 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
-							 */
-							fs_uids.add("");
-						}
-						page_filesource = (Page<FileSource>) method.invoke(this.dao, queryString, pageRequest, fs_uids);
-					}else {
-						page_filesource = (Page<FileSource>) method.invoke(this.dao, queryString, pageRequest, relService.getFileSourceUidsByCategoryUid(categoryUid));
-					}
-				}
-				setExtraXmlProp(page_filesource.getContent());
-				return ResponseEntity.ok(page_filesource);
-			}else if(sort != null) {
-				List<FileSource> filesources;
-				if(categoryUid == null) {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
-					filesources = (List<FileSource>) method.invoke(this.dao, queryString, sort);
-				}else {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class, List.class);
-					if(categoryUid.trim().isEmpty()) {
-						List<String> fs_uids = relService.getAllFileSourceUids();
-						if(fs_uids.isEmpty()) {
-							/*
-							 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
-							 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
-							 */
-							fs_uids.add("");
-						}
-						filesources = (List<FileSource>) method.invoke(this.dao, queryString, sort, fs_uids);
-					}else {
-						filesources = (List<FileSource>) method.invoke(this.dao, queryString, sort, relService.getFileSourceUidsByCategoryUid(categoryUid));
-					}
-				}
-				setExtraXmlProp(filesources);
-				return ResponseEntity.ok(filesources);
-			}else {
-				List<FileSource> filesources;
-				if(categoryUid == null) {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class);
-					filesources = (List<FileSource>) method.invoke(this.dao, queryString);
-				}else {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, List.class);
-					if(categoryUid.trim().isEmpty()) {
-						List<String> fs_uids = relService.getAllFileSourceUids();
-						if(fs_uids.isEmpty()) {
-							/*
-							 * 當系統沒有建立任何fs和fs category之間的relation時, 則任意給一個空字串值
-							 * 以免not in當中的值為empty, 導致搜尋不到任何不在fs category中的fs
-							 */
-							fs_uids.add("");
-						}
-						filesources = (List<FileSource>) method.invoke(this.dao, queryString, fs_uids);
-					}else {
-						filesources = (List<FileSource>) method.invoke(this.dao, queryString, relService.getFileSourceUidsByCategoryUid(categoryUid));
-					}
-				}
-				setExtraXmlProp(filesources);
-				return ResponseEntity.ok(filesources);
-			}
-		}
+		return ResponseEntity.ok(page_files);
 	}
 	
 	public FileSource add(String categoryUid, FileSource filesource) throws IllegalArgumentException, Exception{
@@ -587,10 +389,10 @@ public class FileSourceService {
 		 * Because All fields associated with xml are defined by @Transient, it can not be reload new value.
 		 * The fields associated with xml is very suck design!
 		 */
-		setExtraXmlProp(new_filesource);
+		setExtraXmlPropAndCategoryInfo(new_filesource, null);
 		
 		//如果所附帶的url參數中有categoryUid的話, 表示是要把file source新增至某個category
-		if(categoryUid != null && !categoryUid.trim().equals("")) {
+		if(categoryUid != null && !categoryUid.trim().equals("") && !categoryUid.trim().equals("root")) {
 			FilesourceRelation rel = new FilesourceRelation();
 			rel.setFscategoryuid(categoryUid);
 			rel.setFilesourceuid(new_filesource.getFilesourceuid());
@@ -855,12 +657,12 @@ public class FileSourceService {
 		 * Because All fields associated with xml are defined by @Transient, it can not be reload new value.
 		 * The fields associated with xml is very suck design!
 		 */
-		setExtraXmlProp(new_filesource);
+		setExtraXmlPropAndCategoryInfo(new_filesource, null);
 		
 		//如果所附帶的url參數中有categoryUid的話, 表示是要把file source編輯至某個category或root
 		if(categoryUid != null) {
 			this.relService.deleteByFileSourceUid(new_filesource.getFilesourceuid());
-			if(!categoryUid.trim().equals("")) {	//如果categoryUid不是空值, 表示是要把filesource編輯到某一個category底下
+			if(!categoryUid.trim().equals("") && !categoryUid.trim().equals("root")) {	//如果categoryUid不是空值, 表示是要把filesource編輯到某一個category底下
 				FilesourceRelation rel = new FilesourceRelation();
 				rel.setFscategoryuid(categoryUid);
 				rel.setFilesourceuid(new_filesource.getFilesourceuid());
@@ -875,11 +677,13 @@ public class FileSourceService {
 		if(null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("File Source Uid can not be empty!");
 		
-		if(!jobService.existByFilesourceuid(uid)) {
+		if(jobService.existByFilesourceuid(uid)) {
+			throw new IllegalArgumentException("Referenceing by job");
+		}else if(objectAliasService.existByObjectuid(uid)) {
+			throw new IllegalArgumentException("Referenceing by Object Alias");
+		}else {
 			this.relService.deleteByFileSourceUid(uid);
 			this.dao.deleteById(uid);
-		}else {
-			throw new IllegalArgumentException("Referenceing by job");
 		}
 	}
 	
@@ -928,13 +732,14 @@ public class FileSourceService {
 			return Sort.by(direct, "lastupdatetime");
 	}
 	
-	private void setExtraXmlProp(List<FileSource> filesources) throws Exception{
+	@SuppressWarnings("unused")
+	private void setExtraXmlPropAndCategoryInfo(List<FileSource> filesources, FileSourceCategory category) throws Exception{
 		for(FileSource filesource : filesources) {
-			setExtraXmlProp(filesource);
+			setExtraXmlPropAndCategoryInfo(filesource, category);
 		}
 	}
 	
-	private void setExtraXmlProp(FileSource filesource) throws Exception{
+	private void setExtraXmlPropAndCategoryInfo(FileSource filesource, FileSourceCategory category) throws Exception{
 		HashMap<String, String> map = xmlUtil.parseXMLDataToHashMap(filesource.getXmldata());
 		if(map != null) {
 			filesource.setFtppostaction(map.get("ftppostaction"));
@@ -968,6 +773,11 @@ public class FileSourceService {
 			filesource.setTxdateendpos(txdateendpos_int);
 			filesource.setFtpbinary(map.get("ftpbinary"));
 			
+			if(null != category) {
+				filesource.setCategoryuid(category.getFscategoryuid());
+				filesource.setCategoryname(category.getFscategoryname());
+			}
+			
 			filesource.setXmldata("");	//不再需要xml欄位的資料, 已經parsing
 		}
 	}
@@ -994,5 +804,52 @@ public class FileSourceService {
 		map.put("datafilecountmode", filesource.getDatafilecountmode());
 		String xmldata = xmlUtil.parseHashMapToXMLString(map, false);
 		filesource.setXmldata(xmldata);
+	}
+	
+	private void setProfileDataOnly(List<FileSource> files) {
+		for(FileSource file : files) {
+			setProfileDataOnly(file);
+		}
+	}
+	
+	private void setProfileDataOnly(FileSource file) {
+		file.setBypasszero(null);
+		file.setCheckduplicate(null);
+		file.setCheckrow(null);
+		file.setCompletedir(null);
+		file.setCorruptdir(null);
+		file.setDuplicatedir(null);
+		file.setEndposition(null);
+		file.setErrordir(null);
+		file.setFilename(null);
+		file.setFiletrigger(null);
+		file.setFiletype(null);
+		file.setFilterduplicate(null);
+		file.setFtpget(null);
+		file.setMaxfile(null);
+		file.setMinfile(null);
+		file.setPattern(null);
+		file.setReceivedir(null);
+		file.setStartposition(null);
+		file.setTargetdir(null);
+		file.setTimeout(null);
+		file.setXmldata(null);
+	}
+	
+	private void setProfileDataAndSetCategoryName(List<FileSource> files, Map<String, String> mapping) {
+		for(FileSource file : files) {
+			setProfileDataAndSetCategoryName(file, mapping);
+		}
+	}
+	
+	private void setProfileDataAndSetCategoryName(FileSource file, Map<String, String> mapping) {
+		setProfileDataOnly(file);
+		
+		String categoryName = mapping.get(file.getFilesourceuid());
+		if(null != categoryName)
+			file.setCategoryname(categoryName);
+		else {
+			file.setCategoryname("/");
+		}
 	}
 }

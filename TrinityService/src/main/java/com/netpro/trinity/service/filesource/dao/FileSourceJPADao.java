@@ -27,85 +27,19 @@ public interface FileSourceJPADao extends JpaRepository<FileSource, String> {
 	Page<FileSource> findByFilesourceuidNotIn(List<String> uids, Pageable pageable);
 	
 	
-	//file source name field
-	List<FileSource> findByfilesourcename(String name);
-	List<FileSource> findByfilesourcename(String name, Sort sort);
-	Page<FileSource> findByfilesourcename(String name, Pageable pageable);
-	List<FileSource> findByfilesourcenameIgnoreCase(String name);
-	List<FileSource> findByfilesourcenameIgnoreCase(String name, Sort sort);
-	Page<FileSource> findByfilesourcenameIgnoreCase(String name, Pageable pageable);
-	List<FileSource> findByfilesourcenameLike(String name);
-	List<FileSource> findByfilesourcenameLike(String name, Sort sort);
-	Page<FileSource> findByfilesourcenameLike(String name, Pageable pageable);
-	List<FileSource> findByfilesourcenameLikeIgnoreCase(String name);
-	List<FileSource> findByfilesourcenameLikeIgnoreCase(String name, Sort sort);
-	Page<FileSource> findByfilesourcenameLikeIgnoreCase(String name, Pageable pageable);
-	//file source name field with In Filesourceuid constraints
-	List<FileSource> findByfilesourcenameAndFilesourceuidIn(String name, List<String> uids);
-	List<FileSource> findByfilesourcenameAndFilesourceuidIn(String name, Sort sort, List<String> uids);
-	Page<FileSource> findByfilesourcenameAndFilesourceuidIn(String name, Pageable pageable, List<String> uids);
-	List<FileSource> findByfilesourcenameIgnoreCaseAndFilesourceuidIn(String name, List<String> uids);
-	List<FileSource> findByfilesourcenameIgnoreCaseAndFilesourceuidIn(String name, Sort sort, List<String> uids);
-	Page<FileSource> findByfilesourcenameIgnoreCaseAndFilesourceuidIn(String name, Pageable pageable, List<String> uids);
-	List<FileSource> findByfilesourcenameLikeAndFilesourceuidIn(String name, List<String> uids);
-	List<FileSource> findByfilesourcenameLikeAndFilesourceuidIn(String name, Sort sort, List<String> uids);
-	Page<FileSource> findByfilesourcenameLikeAndFilesourceuidIn(String name, Pageable pageable, List<String> uids);
-	List<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidIn(String name, List<String> uids);
-	List<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidIn(String name, Sort sort, List<String> uids);
-	Page<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidIn(String name, Pageable pageable, List<String> uids);
-	//file source name field with Not In Filesourceuid constraints
-	List<FileSource> findByfilesourcenameAndFilesourceuidNotIn(String name, List<String> uids);
-	List<FileSource> findByfilesourcenameAndFilesourceuidNotIn(String name, Sort sort, List<String> uids);
-	Page<FileSource> findByfilesourcenameAndFilesourceuidNotIn(String name, Pageable pageable, List<String> uids);
-	List<FileSource> findByfilesourcenameIgnoreCaseAndFilesourceuidNotIn(String name, List<String> uids);
-	List<FileSource> findByfilesourcenameIgnoreCaseAndFilesourceuidNotIn(String name, Sort sort, List<String> uids);
-	Page<FileSource> findByfilesourcenameIgnoreCaseAndFilesourceuidNotIn(String name, Pageable pageable, List<String> uids);
-	List<FileSource> findByfilesourcenameLikeAndFilesourceuidNotIn(String name, List<String> uids);
-	List<FileSource> findByfilesourcenameLikeAndFilesourceuidNotIn(String name, Sort sort, List<String> uids);
-	Page<FileSource> findByfilesourcenameLikeAndFilesourceuidNotIn(String name, Pageable pageable, List<String> uids);
-	List<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidNotIn(String name, List<String> uids);
-	List<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidNotIn(String name, Sort sort, List<String> uids);
-	Page<FileSource> findByfilesourcenameLikeIgnoreCaseAndFilesourceuidNotIn(String name, Pageable pageable, List<String> uids);
-	
-	
-	//description field
-	List<FileSource> findBydescription(String description);
-	List<FileSource> findBydescription(String description, Sort sort);
-	Page<FileSource> findBydescription(String description, Pageable pageable);
-	List<FileSource> findBydescriptionIgnoreCase(String description);
-	List<FileSource> findBydescriptionIgnoreCase(String description, Sort sort);
-	Page<FileSource> findBydescriptionIgnoreCase(String description, Pageable pageable);
-	List<FileSource> findBydescriptionLike(String description);
-	List<FileSource> findBydescriptionLike(String description, Sort sort);
-	Page<FileSource> findBydescriptionLike(String description, Pageable pageable);
-	List<FileSource> findBydescriptionLikeIgnoreCase(String description);
-	List<FileSource> findBydescriptionLikeIgnoreCase(String description, Sort sort);
-	Page<FileSource> findBydescriptionLikeIgnoreCase(String description, Pageable pageable);
-	//description field with In Filesourceuid constraints
-	List<FileSource> findBydescriptionAndFilesourceuidIn(String description, List<String> uids);
-	List<FileSource> findBydescriptionAndFilesourceuidIn(String description, Sort sort, List<String> uids);
-	Page<FileSource> findBydescriptionAndFilesourceuidIn(String description, Pageable pageable, List<String> uids);
-	List<FileSource> findBydescriptionIgnoreCaseAndFilesourceuidIn(String description, List<String> uids);
-	List<FileSource> findBydescriptionIgnoreCaseAndFilesourceuidIn(String description, Sort sort, List<String> uids);
-	Page<FileSource> findBydescriptionIgnoreCaseAndFilesourceuidIn(String description, Pageable pageable, List<String> uids);
-	List<FileSource> findBydescriptionLikeAndFilesourceuidIn(String description, List<String> uids);
-	List<FileSource> findBydescriptionLikeAndFilesourceuidIn(String description, Sort sort, List<String> uids);
-	Page<FileSource> findBydescriptionLikeAndFilesourceuidIn(String description, Pageable pageable, List<String> uids);
-	List<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidIn(String description, List<String> uids);
-	List<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidIn(String description, Sort sort, List<String> uids);
-	Page<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidIn(String description, Pageable pageable, List<String> uids);
-	//description field with Not In Filesourceuid constraints
-	List<FileSource> findBydescriptionAndFilesourceuidNotIn(String description, List<String> uids);
-	List<FileSource> findBydescriptionAndFilesourceuidNotIn(String description, Sort sort, List<String> uids);
-	Page<FileSource> findBydescriptionAndFilesourceuidNotIn(String description, Pageable pageable, List<String> uids);
-	List<FileSource> findBydescriptionIgnoreCaseAndFilesourceuidNotIn(String description, List<String> uids);
-	List<FileSource> findBydescriptionIgnoreCaseAndFilesourceuidNotIn(String description, Sort sort, List<String> uids);
-	Page<FileSource> findBydescriptionIgnoreCaseAndFilesourceuidNotIn(String description, Pageable pageable, List<String> uids);
-	List<FileSource> findBydescriptionLikeAndFilesourceuidNotIn(String description, List<String> uids);
-	List<FileSource> findBydescriptionLikeAndFilesourceuidNotIn(String description, Sort sort, List<String> uids);
-	Page<FileSource> findBydescriptionLikeAndFilesourceuidNotIn(String description, Pageable pageable, List<String> uids);
-	List<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidNotIn(String description, List<String> uids);
-	List<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidNotIn(String description, Sort sort, List<String> uids);
-	Page<FileSource> findBydescriptionLikeIgnoreCaseAndFilesourceuidNotIn(String description, Pageable pageable, List<String> uids);
+	//find by name
+	List<FileSource> findByFilesourcenameLikeIgnoreCase(String name);
+	List<FileSource> findByFilesourcenameLikeIgnoreCase(String name, Sort sort);
+	Page<FileSource> findByFilesourcenameLikeIgnoreCase(String name, Pageable pageable);
+
+	//find by name and in category
+	List<FileSource> findByFilesourcenameLikeIgnoreCaseAndFilesourceuidIn(String name, List<String> uids);
+	List<FileSource> findByFilesourcenameLikeIgnoreCaseAndFilesourceuidIn(String name, Sort sort, List<String> uids);
+	Page<FileSource> findByFilesourcenameLikeIgnoreCaseAndFilesourceuidIn(String name, Pageable pageable, List<String> uids);
+			
+	//find by name and not in category
+	List<FileSource> findByFilesourcenameLikeIgnoreCaseAndFilesourceuidNotIn(String name, List<String> uids);
+	List<FileSource> findByFilesourcenameLikeIgnoreCaseAndFilesourceuidNotIn(String name, Sort sort, List<String> uids);
+	Page<FileSource> findByFilesourcenameLikeIgnoreCaseAndFilesourceuidNotIn(String name, Pageable pageable, List<String> uids);
 }
 

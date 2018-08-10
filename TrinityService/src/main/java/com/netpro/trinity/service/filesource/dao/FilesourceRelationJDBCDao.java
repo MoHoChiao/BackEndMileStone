@@ -1,12 +1,17 @@
 package com.netpro.trinity.service.filesource.dao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.netpro.trinity.service.filesource.entity.FileSourceCategory;
 import com.netpro.trinity.service.filesource.entity.FilesourceRelation;
 
 @Repository  //宣告這是一個DAO類別
@@ -37,6 +42,39 @@ public class FilesourceRelationJDBCDao {
 
         List<String> lists = (List<String>) jtm.queryForList(sql, param, String.class);
         return lists;
+    }
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public FileSourceCategory findCategoryByFilesourceUid(String uid) throws DataAccessException{
+
+		String sql = "SELECT fc.fscategoryname, fc.fscategoryuid "
+        		+ "FROM filesourcerelation fr left join filesourcecategory fc "
+				+ "on fr.fscategoryuid = fc.fscategoryuid "
+				+ "WHERE fr.filesourceuid = ? ";
+        Object[] param = new Object[] {uid};
+        
+        FileSourceCategory category = null;
+        try {
+        	category = (FileSourceCategory) jtm.queryForObject(sql, param, new BeanPropertyRowMapper(FileSourceCategory.class));
+        } catch (EmptyResultDataAccessException e) {}
+        
+        return category;
+    }
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Map<String, String> findFilesourceUidAndCategoryNameMap() throws DataAccessException{
+        String sql = "SELECT fr.filesourceuid, fc.fscategoryname "
+        		+ "FROM filesourcerelation fr left join filesourcecategory fc "
+				+ "on fr.fscategoryuid = fc.fscategoryuid";
+        
+        List<FilesourceRelation> lists = (List<FilesourceRelation>) jtm.query(sql, new BeanPropertyRowMapper(FilesourceRelation.class));
+        
+        Map<String, String> map = new HashMap<String, String>();
+        for(FilesourceRelation list : lists) {
+        	map.put(list.getFilesourceuid(), list.getFscategoryname());
+        }
+        
+        return map;
     }
 	
 	public int save(FilesourceRelation rel) throws DataAccessException{

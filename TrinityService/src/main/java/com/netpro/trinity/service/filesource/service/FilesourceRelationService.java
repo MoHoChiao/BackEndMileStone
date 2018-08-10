@@ -1,11 +1,13 @@
 package com.netpro.trinity.service.filesource.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.service.filesource.dao.FilesourceRelationJDBCDao;
+import com.netpro.trinity.service.filesource.entity.FileSourceCategory;
 import com.netpro.trinity.service.filesource.entity.FilesourceRelation;
 
 @Service
@@ -28,6 +30,14 @@ public class FilesourceRelationService {
 			throw new IllegalArgumentException("File Source Category UID can not be empty!");
 				
 		return this.dao.findFileSourceUidsByCategoryUid(uid);
+	}
+	
+	public FileSourceCategory getCategoryByFilesourceUid(String uid) throws IllegalArgumentException, Exception{
+		return this.dao.findCategoryByFilesourceUid(uid);
+	}
+	
+	public Map<String, String> getFilesourceUidAndCategoryNameMap() throws IllegalArgumentException, Exception{
+		return this.dao.findFilesourceUidAndCategoryNameMap();
 	}
 	
 	public FilesourceRelation add(FilesourceRelation rel) throws IllegalArgumentException, Exception{

@@ -45,6 +45,29 @@ public class FilesourceRelationController {
 		}
 	}
 	
+	@GetMapping("/findCategoryByFilesourceUid")
+	public ResponseEntity<?> findCategoryByFilesourceUid(String uid) {
+		try {
+			return ResponseEntity.ok(this.service.getCategoryByFilesourceUid(uid));
+		}catch(IllegalArgumentException e) {
+			FilesourceRelationController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			FilesourceRelationController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/findFilesourceUidAndCategoryNameMap")
+	public ResponseEntity<?> findFilesourceUidAndCategoryNameMap() {
+		try {
+			return ResponseEntity.ok(this.service.getFilesourceUidAndCategoryNameMap());
+		}catch(Exception e) {
+			FilesourceRelationController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@PostMapping("/addOne")
 	public ResponseEntity<?> addOneRelation(@RequestBody FilesourceRelation rel) {
 		try {

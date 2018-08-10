@@ -4,6 +4,8 @@ public class FilesourceRelation {
 	private String fscategoryuid;
 	private String filesourceuid;
 
+	private String fscategoryname;
+	
 	public String getFscategoryuid() {
 		return fscategoryuid;
 	}
@@ -15,6 +17,12 @@ public class FilesourceRelation {
 	}
 	public void setFilesourceuid(String filesourceuid) {
 		this.filesourceuid = filesourceuid;
+	}
+	public String getFscategoryname() {
+		return fscategoryname;
+	}
+	public void setFscategoryname(String fscategoryname) {
+		this.fscategoryname = fscategoryname;
 	}
 	
 	@Override

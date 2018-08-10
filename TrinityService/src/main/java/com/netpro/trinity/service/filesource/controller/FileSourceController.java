@@ -1,6 +1,6 @@
 package com.netpro.trinity.service.filesource.controller;
 
-import java.lang.reflect.InvocationTargetException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.filesource.entity.FileSource;
 import com.netpro.trinity.service.filesource.service.FileSourceService;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
+import com.netpro.trinity.service.util.ACUtil;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/file-source")
@@ -25,10 +27,18 @@ public class FileSourceController {
 	@Autowired
 	private FileSourceService service;
 	
+	@Autowired
+	private PermissionClient permissionClient;
+	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllFileSources() {
+	public ResponseEntity<?> findAllFileSources(HttpServletRequest request) {
 		try {
-			return ResponseEntity.ok(this.service.getAll());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "filesource", "view")) {
+				return ResponseEntity.ok(this.service.getAll());
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			FileSourceController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -36,9 +46,14 @@ public class FileSourceController {
 	}
 	
 	@GetMapping("/findAll-without-in-category")
-	public ResponseEntity<?> findAllFileSourcesWithoutInCategory() {
+	public ResponseEntity<?> findAllFileSourcesWithoutInCategory(HttpServletRequest request) {
 		try {
-			return ResponseEntity.ok(this.service.getAllWithoutInCategory());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "filesource", "view")) {
+				return ResponseEntity.ok(this.service.getAllWithoutInCategory());
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			FileSourceController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -46,22 +61,14 @@ public class FileSourceController {
 	}
 	
 	@GetMapping("/findByUid")
-	public ResponseEntity<?> findFileSourceByUid(String uid) {
+	public ResponseEntity<?> findFileSourceByUid(HttpServletRequest request, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByUid(uid));
-		}catch(IllegalArgumentException e) {
-			FileSourceController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			FileSourceController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-  
-	@GetMapping("/findByName")
-	public ResponseEntity<?> findFileSourcesByName(String name) {
-		try {
-			return ResponseEntity.ok(this.service.getByName(name));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "filesource", "view")) {
+				return ResponseEntity.ok(this.service.getByUid(uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			FileSourceController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -72,9 +79,14 @@ public class FileSourceController {
 	}
 	
 	@GetMapping("/findByCategoryUid")
-	public ResponseEntity<?> findFileSourcesByCategoryUid(String uid) {
+	public ResponseEntity<?> findFileSourcesByCategoryUid(HttpServletRequest request, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByCategoryUid(uid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "filesource", "view")) {
+				return ResponseEntity.ok(this.service.getByCategoryUid(uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			FileSourceController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -85,24 +97,14 @@ public class FileSourceController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findFileSourcesByFilter(String categoryUid, @RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findFileSourcesByFilter(HttpServletRequest request, String categoryUid, @RequestBody FilterInfo filter) {
 		try {
-			return this.service.getByFilter(categoryUid, filter);
-		}catch(SecurityException e) {
-			FileSourceController.LOGGER.error("SecurityException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(NoSuchMethodException e) {
-			FileSourceController.LOGGER.error("NoSuchMethodException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalAccessException e) {
-			FileSourceController.LOGGER.error("IllegalAccessException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(InvocationTargetException e) {
-			FileSourceController.LOGGER.error("InvocationTargetException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalArgumentException e) {
-			FileSourceController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "filesource", "view")) {
+				return this.service.getByFilter(categoryUid, filter);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			FileSourceController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -110,9 +112,14 @@ public class FileSourceController {
 	}
   
 	@PostMapping("/add")
-	public ResponseEntity<?> addFileSource(String categoryUid, @RequestBody FileSource filesource) {
+	public ResponseEntity<?> addFileSource(HttpServletRequest request, String categoryUid, @RequestBody FileSource filesource) {
 		try {
-			return ResponseEntity.ok(this.service.add(categoryUid, filesource));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "filesource", "add")) {
+				return ResponseEntity.ok(this.service.add(categoryUid, filesource));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Add' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			FileSourceController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -123,9 +130,14 @@ public class FileSourceController {
 	}
 	
 	@PostMapping("/edit")
-	public ResponseEntity<?> editFileSource(String categoryUid, @RequestBody FileSource filesource) {
+	public ResponseEntity<?> editFileSource(HttpServletRequest request, String categoryUid, @RequestBody FileSource filesource) {
 		try {
-			return ResponseEntity.ok(this.service.edit(categoryUid, filesource));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "filesource", "modify")) {
+				return ResponseEntity.ok(this.service.edit(categoryUid, filesource));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			FileSourceController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -136,9 +148,14 @@ public class FileSourceController {
 	}
   
 	@GetMapping("/delete")
-	public ResponseEntity<?> deleteFileSourceByUid(String uid) {
+	public ResponseEntity<?> deleteFileSourceByUid(HttpServletRequest request, String uid) {
 		try {
-			this.service.deleteByUid(uid);
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "filesource", "delete")) {
+				this.service.deleteByUid(uid);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Delete' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			FileSourceController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -150,9 +167,14 @@ public class FileSourceController {
 	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isFileSourceExistByUid(String uid) {
+	public ResponseEntity<?> isFileSourceExistByUid(HttpServletRequest request, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.existByUid(uid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "filesource", "view")) {
+				return ResponseEntity.ok(this.service.existByUid(uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			FileSourceController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -160,9 +182,14 @@ public class FileSourceController {
 	}
 	
 	@GetMapping("/isExistByConnectionuid")
-	public ResponseEntity<?> isFileSourceExistByConnectionuid(String connectionuid) {
+	public ResponseEntity<?> isFileSourceExistByConnectionuid(HttpServletRequest request, String connectionuid) {
 		try {
-			return ResponseEntity.ok(this.service.existByConnectionuid(connectionuid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "filesource", "view")) {
+				return ResponseEntity.ok(this.service.existByConnectionuid(connectionuid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			FileSourceController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

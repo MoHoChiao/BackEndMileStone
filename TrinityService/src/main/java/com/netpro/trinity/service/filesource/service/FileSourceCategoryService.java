@@ -1,20 +1,12 @@
 package com.netpro.trinity.service.filesource.service;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.UUID;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
@@ -23,16 +15,12 @@ import org.springframework.stereotype.Service;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.dto.Ordering;
 import com.netpro.trinity.service.dto.Paging;
-import com.netpro.trinity.service.dto.Querying;
 import com.netpro.trinity.service.filesource.dao.FileSourceCategoryJPADao;
 import com.netpro.trinity.service.filesource.entity.FileSourceCategory;
 import com.netpro.trinity.service.util.Constant;
 
 @Service
 public class FileSourceCategoryService {
-	public static final String[] FS_CATEGORY_FIELD_VALUES = new String[] {"fscategoryname", "description"};
-	public static final Set<String> FS_CATEGORY_FIELD_SET = new HashSet<>(Arrays.asList(FS_CATEGORY_FIELD_VALUES));
-	
 	@Autowired
 	private FileSourceCategoryJPADao dao;
 	
@@ -58,89 +46,19 @@ public class FileSourceCategoryService {
 		return category;
 	}
 	
-	public List<FileSourceCategory> getByName(String name) throws IllegalArgumentException, Exception{
-		if(name == null || name.isEmpty())
-			throw new IllegalArgumentException("File Source Category Name can not be empty!");
-		
-		return this.dao.findByfscategoryname(name.toUpperCase());
-	}
-	
-	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFilter(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
-								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
-		if(filter == null) {
-			return ResponseEntity.ok(this.dao.findAll());
-		}
-		
-		Paging paging = filter.getPaging();
+	public ResponseEntity<?> getByFilter(FilterInfo filter) throws Exception{
 		Ordering ordering = filter.getOrdering();
-		Querying querying = filter.getQuerying();
+		String param = filter.getParam();
 		
-		if(paging == null && ordering == null && querying == null) {
-			return ResponseEntity.ok(this.dao.findAll());
-		}
+		if(null == ordering) 
+			ordering = new Ordering("ASC", "fscategoryname");
 		
-		PageRequest pageRequest = null;
-		Sort sort = null;
+		if(null == param || param.trim().isEmpty())
+			param = "%%";
+		param = param.trim();
 		
-		if(paging != null) {
-			pageRequest = getPagingAndOrdering(paging, ordering);
-		}else {
-			if(ordering != null) {
-				sort = getOrdering(ordering);
-			}
-		}
-		
-		if(querying == null) {
-			if(pageRequest != null) {
-				return ResponseEntity.ok(this.dao.findAll(pageRequest));
-			}else if(sort != null) {
-				return ResponseEntity.ok(this.dao.findAll(sort));
-			}else {
-				/*
-				 * The paging and ordering both objects are null.
-				 * it means pageRequest and sort must be null too.
-				 * then return default
-				 */
-				return ResponseEntity.ok(this.dao.findAll());
-			}
-		}else {
-			if(querying.getQueryType() == null || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
-			if(querying.getQueryField() == null || !FS_CATEGORY_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query field! "+ FS_CATEGORY_FIELD_SET.toString());
-			if(querying.getIgnoreCase() == null)
-				querying.setIgnoreCase(false);
-			
-			String queryType = querying.getQueryType().toLowerCase();
-			String queryField = querying.getQueryField().toLowerCase(); //Must be lower case for jpa method
-			String queryString = querying.getQueryString();
-			
-			StringBuffer methodName = new StringBuffer("findBy");
-			methodName.append(queryField);
-			if(queryType.equals("like")) {
-				methodName.append("Like");
-				queryString = "%" + queryString + "%";
-			}
-			if(querying.getIgnoreCase()) {
-				methodName.append("IgnoreCase");
-			}	
-
-			Method method = null;
-			if(pageRequest != null){
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
-				Page<FileSourceCategory> page_category = (Page<FileSourceCategory>) method.invoke(this.dao, queryString, pageRequest);
-				return ResponseEntity.ok(page_category);
-			}else if(sort != null) {
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
-				List<FileSourceCategory> categories = (List<FileSourceCategory>) method.invoke(this.dao, queryString, sort);
-				return ResponseEntity.ok(categories);
-			}else {
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class);
-				List<FileSourceCategory> categories = (List<FileSourceCategory>) method.invoke(this.dao, queryString);
-				return ResponseEntity.ok(categories);
-			}
-		}
+		List<FileSourceCategory> fsCategories = this.dao.findByFscategorynameLikeIgnoreCase(param, getOrdering(ordering));
+		return ResponseEntity.ok(fsCategories);
 	}
 	
 	public FileSourceCategory add(FileSourceCategory category) throws IllegalArgumentException, Exception{
@@ -212,6 +130,7 @@ public class FileSourceCategoryService {
 		return this.dao.existsById(uid);
 	}
 	
+	@SuppressWarnings("unused")
 	private PageRequest getPagingAndOrdering(Paging paging, Ordering ordering) throws Exception{	
 		if(paging.getNumber() == null)
 			paging.setNumber(0);

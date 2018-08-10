@@ -46,6 +46,12 @@ public interface PermissionClient {
 	@RequestMapping(value = "/authorization/checkPermission", method = RequestMethod.GET)
 	public Boolean checkPermission(@RequestParam("userId") String userId, @RequestParam("functionName") String functionName, 
 			@RequestParam("objUid") String objUid, @RequestParam("permissionFlag") String permissionFlag) throws Exception;
+	
+	@RequestMapping(value = "/authorization/isRoot", method = RequestMethod.GET)
+	public Boolean isRoot() throws Exception;
+	
+	@RequestMapping(value = "/authorization/isAdmin", method = RequestMethod.GET)
+	public Boolean isAdmin() throws Exception;
 }
 
 @Component
@@ -98,6 +104,18 @@ class PermissionClientFallback implements FallbackFactory<PermissionClient> {
 			public Boolean checkPermission(String userId, String functionName, String objUid, String permissionFlag)
 					throws Exception {
 				PermissionClientFallback.LOGGER.error("PermissionClient#checkPermission fallback; reason was:", cause);
+				throw new Exception(cause.getMessage());
+			}
+
+			@Override
+			public Boolean isRoot() throws Exception {
+				PermissionClientFallback.LOGGER.error("PermissionClient#isRoot fallback; reason was:", cause);
+				throw new Exception(cause.getMessage());
+			}
+
+			@Override
+			public Boolean isAdmin() throws Exception {
+				PermissionClientFallback.LOGGER.error("PermissionClient#isAdmin fallback; reason was:", cause);
 				throw new Exception(cause.getMessage());
 			}
 	    };

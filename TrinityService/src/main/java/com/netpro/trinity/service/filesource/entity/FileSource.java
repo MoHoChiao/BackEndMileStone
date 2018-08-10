@@ -105,6 +105,11 @@ public class FileSource {
   	private String ftpbinary;
   	
   	
+  	@Transient
+  	private String categoryname;
+  	@Transient
+  	private String categoryuid;
+  	
   	
   	public String getFilesourceuid() {
 		return filesourceuid;
@@ -367,5 +372,17 @@ public class FileSource {
 	}
 	public void setDatafilecountmode(String datafilecountmode) {
 		this.datafilecountmode = datafilecountmode;
+	}
+	public String getCategoryname() {
+		return categoryname;
+	}
+	public void setCategoryname(String categoryname) {
+		this.categoryname = categoryname;
+	}
+	public String getCategoryuid() {
+		return categoryuid;
+	}
+	public void setCategoryuid(String categoryuid) {
+		this.categoryuid = categoryuid;
 	}
 }
