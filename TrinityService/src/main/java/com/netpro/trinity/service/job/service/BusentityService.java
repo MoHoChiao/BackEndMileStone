@@ -1,19 +1,13 @@
 package com.netpro.trinity.service.job.service;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.UUID;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +16,6 @@ import org.springframework.stereotype.Service;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.dto.Ordering;
 import com.netpro.trinity.service.dto.Paging;
-import com.netpro.trinity.service.dto.Querying;
 import com.netpro.trinity.service.job.dao.BusentityJPADao;
 import com.netpro.trinity.service.job.entity.Busentity;
 import com.netpro.trinity.service.objectalias.service.ObjectAliasService;
@@ -30,9 +23,6 @@ import com.netpro.trinity.service.util.Constant;
 
 @Service
 public class BusentityService {
-	public static final String[] BUSENTITY_FIELD_VALUES = new String[] { "busentityname", "description" };
-	public static final Set<String> BUSENTITY_FIELD_SET = new HashSet<>(Arrays.asList(BUSENTITY_FIELD_VALUES));
-	
 	@Autowired
 	private BusentityJPADao dao;
 	
@@ -64,112 +54,27 @@ public class BusentityService {
 		return entity;
 	}
 	
-	public List<Busentity> getByName(Boolean withAlias, String name) throws IllegalArgumentException, Exception{
-		if(name == null || name.isEmpty())
-			throw new IllegalArgumentException("Business Entity Name can not be empty!");
-		
-		List<Busentity> entities = this.dao.findBybusentityname(name.toUpperCase());
-		
-		if(null != withAlias && withAlias == true)
-			getAlias(entities);
-		
-		return entities;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFilter(Boolean withAlias, FilterInfo filter) throws SecurityException, NoSuchMethodException, 
-								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
-		if(filter == null) {
-			List<Busentity> entities = this.dao.findAll();
-			if(null != withAlias && withAlias == true)
-				getAlias(entities);
-			return ResponseEntity.ok(entities);
-		}
-		
+	public ResponseEntity<?> getByFilter(Boolean withAlias, FilterInfo filter) throws Exception{
 		Paging paging = filter.getPaging();
 		Ordering ordering = filter.getOrdering();
-		Querying querying = filter.getQuerying();
+		String param = filter.getParam();
 		
-		if(paging == null && ordering == null && querying == null) {
-			List<Busentity> entities = this.dao.findAll();
-			if(null != withAlias && withAlias == true)
-				getAlias(entities);
-			return ResponseEntity.ok(entities);
-		}
+		if(null == paging) 
+			paging = new Paging(0, 20);
 		
-		PageRequest pageRequest = null;
-		Sort sort = null;
+		if(null == ordering) 
+			ordering = new Ordering("ASC", "busentityname");
 		
-		if(paging != null) {
-			pageRequest = getPagingAndOrdering(paging, ordering);
-		}else {
-			if(ordering != null) {
-				sort = getOrdering(ordering);
-			}
-		}
+		if(null == param || param.trim().isEmpty())
+			param = "%%";
+		param = param.trim();
 		
-		if(querying == null) {
-			if(pageRequest != null) {
-				Page<Busentity> page_entity = this.dao.findAll(pageRequest);
-				if(null != withAlias && withAlias == true)
-					getAlias(page_entity.getContent());
-				return ResponseEntity.ok(page_entity);
-			}else if(sort != null) {
-				List<Busentity> entities = this.dao.findAll(sort);
-				if(null != withAlias && withAlias == true)
-					getAlias(entities);
-				return ResponseEntity.ok(entities);
-			}else {
-				/*
-				 * The paging and ordering both objects are null.
-				 * it means pageRequest and sort must be null too.
-				 * then return default
-				 */
-				return ResponseEntity.ok(this.dao.findAll());
-			}
-		}else {
-			if(querying.getQueryType() == null || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
-			if(querying.getQueryField() == null || !BUSENTITY_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query field! "+ BUSENTITY_FIELD_SET.toString());
-			if(querying.getIgnoreCase() == null)
-				querying.setIgnoreCase(false);
-			
-			String queryType = querying.getQueryType().toLowerCase();
-			String queryField = querying.getQueryField().toLowerCase(); //Must be lower case for jpa method
-			String queryString = querying.getQueryString();
-			
-			StringBuffer methodName = new StringBuffer("findBy");
-			methodName.append(queryField);
-			if(queryType.equals("like")) {
-				methodName.append("Like");
-				queryString = "%" + queryString + "%";
-			}
-			if(querying.getIgnoreCase()) {
-				methodName.append("IgnoreCase");
-			}	
-
-			Method method = null;
-			if(pageRequest != null){
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
-				Page<Busentity> page_entity = (Page<Busentity>) method.invoke(this.dao, queryString, pageRequest);
-				if(null != withAlias && withAlias == true)
-					getAlias(page_entity.getContent());
-				return ResponseEntity.ok(page_entity);
-			}else if(sort != null) {
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
-				List<Busentity> entities = (List<Busentity>) method.invoke(this.dao, queryString, sort);
-				if(null != withAlias && withAlias == true)
-					getAlias(entities);
-				return ResponseEntity.ok(entities);
-			}else {
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class);
-				List<Busentity> entities = (List<Busentity>) method.invoke(this.dao, queryString);
-				if(null != withAlias && withAlias == true)
-					getAlias(entities);
-				return ResponseEntity.ok(entities);
-			}
-		}
+		Page<Busentity> page_entity = this.dao.findByBusentitynameLikeIgnoreCase(param, getPagingAndOrdering(paging, ordering));
+		
+		if(null != withAlias && withAlias == true)
+			getAlias(page_entity.getContent());
+		
+		return ResponseEntity.ok(page_entity);
 	}
 	
 	public Busentity add(Busentity entity) throws IllegalArgumentException, Exception{

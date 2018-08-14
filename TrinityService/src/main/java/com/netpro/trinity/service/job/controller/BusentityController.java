@@ -1,6 +1,6 @@
 package com.netpro.trinity.service.job.controller;
 
-import java.lang.reflect.InvocationTargetException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.job.entity.Busentity;
 import com.netpro.trinity.service.job.service.BusentityService;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
+import com.netpro.trinity.service.util.ACUtil;
+
+/*
+ * 此處各位方法的permission部份, 不完整, 目前只填入Resource Admin會用到的權限而已
+ * 以後若是加入JFDesigner部份, 則需要再作出相對的修改 (但是就開發的力度而言, 或許...永遠也不會有這一天^^")
+ */
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/busentity")
@@ -25,10 +32,18 @@ public class BusentityController {
 	@Autowired
 	private BusentityService service;
 	
+	@Autowired
+	private PermissionClient permissionClient;
+	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllEntities(Boolean withAlias) {
+	public ResponseEntity<?> findAllEntities(HttpServletRequest request, Boolean withAlias) {
 		try {
-			return ResponseEntity.ok(this.service.getAll(withAlias));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "view")) {
+				return ResponseEntity.ok(this.service.getAll(withAlias));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			BusentityController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -36,9 +51,14 @@ public class BusentityController {
 	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isEntityExistByUid(String uid) {
+	public ResponseEntity<?> isEntityExistByUid(HttpServletRequest request, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.existByUid(uid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "view")) {
+				return ResponseEntity.ok(this.service.existByUid(uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			BusentityController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -46,22 +66,14 @@ public class BusentityController {
 	}
 	
 	@GetMapping("/findByUid")
-	public ResponseEntity<?> findEntityByUid(Boolean withAlias, String uid) {
+	public ResponseEntity<?> findEntityByUid(HttpServletRequest request, Boolean withAlias, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByUid(withAlias, uid));
-		}catch(IllegalArgumentException e) {
-			BusentityController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			BusentityController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-  
-	@GetMapping("/findByName")
-	public ResponseEntity<?> findEntitiesByName(Boolean withAlias, String name) {
-		try {
-			return ResponseEntity.ok(this.service.getByName(withAlias, name));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "view")) {
+				return ResponseEntity.ok(this.service.getByUid(withAlias, uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			BusentityController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -72,24 +84,14 @@ public class BusentityController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findEntitiesByFilter(Boolean withAlias, @RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findEntitiesByFilter(HttpServletRequest request, Boolean withAlias, @RequestBody FilterInfo filter) {
 		try {
-			return this.service.getByFilter(withAlias, filter);
-		}catch(SecurityException e) {
-			BusentityController.LOGGER.error("SecurityException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(NoSuchMethodException e) {
-			BusentityController.LOGGER.error("NoSuchMethodException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalAccessException e) {
-			BusentityController.LOGGER.error("IllegalAccessException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(InvocationTargetException e) {
-			BusentityController.LOGGER.error("InvocationTargetException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalArgumentException e) {
-			BusentityController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "view")) {
+				return this.service.getByFilter(withAlias, filter);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			BusentityController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
