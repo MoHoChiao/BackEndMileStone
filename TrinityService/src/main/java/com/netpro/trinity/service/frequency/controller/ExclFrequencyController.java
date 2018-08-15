@@ -1,6 +1,6 @@
 package com.netpro.trinity.service.frequency.controller;
 
-import java.lang.reflect.InvocationTargetException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.frequency.entity.ExclFrequency;
 import com.netpro.trinity.service.frequency.service.ExclFrequencyService;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
+import com.netpro.trinity.service.util.ACUtil;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/excl-frequency")
@@ -25,11 +27,19 @@ public class ExclFrequencyController {
 	@Autowired
 	private ExclFrequencyService service;
 	
+	@Autowired
+	private PermissionClient permissionClient;
+	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllExcludeFrequency(Boolean withoutDetail) {
+	public ResponseEntity<?> findAllExcludeFrequency(HttpServletRequest request, Boolean withoutDetail) {
 		try {
-			return ResponseEntity.ok(this.service.getAll(withoutDetail));
-		}catch(Exception e) {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "frequency", "view")) {
+				return ResponseEntity.ok(this.service.getAll(withoutDetail));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
+		} catch (Exception e) {
 			ExclFrequencyController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
@@ -75,24 +85,14 @@ public class ExclFrequencyController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findExcludeFrequencyByFilter(Boolean withoutDetail, @RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findExcludeFrequencyByFilter(HttpServletRequest request, Boolean withoutDetail, @RequestBody FilterInfo filter) {
 		try {
-			return this.service.getByFilter(withoutDetail, filter);
-		}catch(SecurityException e) {
-			ExclFrequencyController.LOGGER.error("SecurityException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(NoSuchMethodException e) {
-			ExclFrequencyController.LOGGER.error("NoSuchMethodException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalAccessException e) {
-			ExclFrequencyController.LOGGER.error("IllegalAccessException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(InvocationTargetException e) {
-			ExclFrequencyController.LOGGER.error("InvocationTargetException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalArgumentException e) {
-			ExclFrequencyController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "frequency", "view")) {
+				return this.service.getByFilter(withoutDetail, filter);
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			ExclFrequencyController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -100,22 +100,31 @@ public class ExclFrequencyController {
 	}
   
 	@PostMapping("/add")
-	public ResponseEntity<?> addExcludeFrequency(@RequestBody ExclFrequency excl) {
+	public ResponseEntity<?> addExcludeFrequency(HttpServletRequest request, @RequestBody ExclFrequency excl) {
 		try {
-			return ResponseEntity.ok(this.service.add(excl));
-		}catch(IllegalArgumentException e) {
-			ExclFrequencyController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
+
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "frequency", "add")) {
+				return ResponseEntity.ok(this.service.add(excl));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Add' Permission!");
+			}
+		} catch (Exception e) {
 			ExclFrequencyController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/edit")
-	public ResponseEntity<?> editExcludeFrequency(@RequestBody ExclFrequency excl) {
+	public ResponseEntity<?> editExcludeFrequency(HttpServletRequest request, @RequestBody ExclFrequency excl) {
 		try {
-			return ResponseEntity.ok(this.service.edit(excl));
+			
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkPermission(peopleId, "frequency", excl.getExcludefrequencyuid(), "modify")) {
+				return ResponseEntity.ok(this.service.edit(excl));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ExclFrequencyController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -129,9 +138,6 @@ public class ExclFrequencyController {
 	public ResponseEntity<?> modifyGlobalExcludeFrequency(@RequestBody ExclFrequency excl) {
 		try {
 			return ResponseEntity.ok(this.service.modifyGlobal(excl));
-		}catch(IllegalArgumentException e) {
-			ExclFrequencyController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			ExclFrequencyController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -139,13 +145,15 @@ public class ExclFrequencyController {
 	}
 	
 	@GetMapping("/delete")
-	public ResponseEntity<?> deleteExcludeFrequencyByUid(String uid) {
+	public ResponseEntity<?> deleteExcludeFrequencyByUid(HttpServletRequest request, String uid) {
 		try {
-			this.service.deleteByUid(uid);
-		}catch(IllegalArgumentException e) {
-			ExclFrequencyController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkPermission(peopleId, "frequency", uid, "delete")) {
+				this.service.deleteByUid(uid);
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Delete' Permission!");
+			}
+		} catch (Exception e) {
 			ExclFrequencyController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
@@ -153,10 +161,16 @@ public class ExclFrequencyController {
 	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isExcludeFrequencyExistByUid(String uid) {
+	public ResponseEntity<?> isExcludeFrequencyExistByUid(HttpServletRequest request, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.existByUid(uid));
-		}catch(Exception e) {
+
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "frequency", "view")) {
+				return ResponseEntity.ok(this.service.existByUid(uid));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
+		} catch (Exception e) {
 			ExclFrequencyController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}

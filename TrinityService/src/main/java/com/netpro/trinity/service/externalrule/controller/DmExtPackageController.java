@@ -1,8 +1,5 @@
 package com.netpro.trinity.service.externalrule.controller;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +20,8 @@ import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.externalrule.dto.Publication;
 import com.netpro.trinity.service.externalrule.entity.Dmextpackage;
 import com.netpro.trinity.service.externalrule.service.DmExtPackageService;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
+import com.netpro.trinity.service.util.ACUtil;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/dm-ext-package")
@@ -32,11 +31,19 @@ public class DmExtPackageController {
 	@Autowired
 	private DmExtPackageService service;
 	
+	@Autowired
+	private PermissionClient permissionClient;
+	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllPackages(Boolean withoutDetail) {
+	public ResponseEntity<?> findAllPackages(HttpServletRequest request, Boolean withoutDetail) {
 		try {
-			return ResponseEntity.ok(this.service.getAll(withoutDetail));
-		}catch(Exception e) {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "extrule", "view")) {
+				return ResponseEntity.ok(this.service.getAll(withoutDetail));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
+		} catch (Exception e) {
 			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
@@ -45,136 +52,129 @@ public class DmExtPackageController {
 	@PostMapping("/findByFilter")
 	public ResponseEntity<?> findByFilter(HttpServletRequest request, @RequestBody FilterInfo filter) {
 		try {
-			return this.service.getByFilter(filter);
-		}catch(Exception e) {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "extrule", "view")) {
+				return this.service.getByFilter(filter);
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
+		} catch (Exception e) {
 			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@GetMapping("/findByUid")
-	public ResponseEntity<?> findPackageByUid(Boolean withoutDetail, String uid) {
+	public ResponseEntity<?> findPackageByUid(HttpServletRequest request, Boolean withoutDetail, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByUid(withoutDetail, uid));
-		}catch(IllegalArgumentException e) {
-			DmExtPackageController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "extrule", "view")) {
+				return ResponseEntity.ok(this.service.getByUid(withoutDetail, uid));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
+		} catch (Exception e) {
 			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
-  
+	
+	// TODO permission
 	@GetMapping("/findByName")
 	public ResponseEntity<?> findPackagesByName(Boolean withoutDetail, String name) {
 		try {
 			return ResponseEntity.ok(this.service.getByName(withoutDetail, name));
-		}catch(IllegalArgumentException e) {
-			DmExtPackageController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
+		} catch (Exception e) {
 			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
   
 	@GetMapping("/findPublicationsByAgentUid")
-	public ResponseEntity<?> findPublicationsByAgentUid(String agentUid) {
+	public ResponseEntity<?> findPublicationsByAgentUid(HttpServletRequest request, String agentUid) {
 		try {
-			return ResponseEntity.ok(this.service.getPublicationsByAgentUid(agentUid));
-		}catch(IllegalArgumentException e) {
-			DmExtPackageController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "extrule", "view")) {
+				return ResponseEntity.ok(this.service.getPublicationsByAgentUid(agentUid));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
+		} catch (Exception e) {
 			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/add")
-	public ResponseEntity<?> addPackage(@RequestBody Dmextpackage p) {
+	public ResponseEntity<?> addPackage(HttpServletRequest request, @RequestBody Dmextpackage p) {
 		try {
-			return ResponseEntity.ok(this.service.addPackage(p));
-		}catch(IllegalArgumentException e) {
-			DmExtPackageController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "extrule", "edit")) {
+				return ResponseEntity.ok(this.service.addPackage(p));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
+			}
+		} catch (Exception e) {
 			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/edit")
-	public ResponseEntity<?> editPackage(@RequestBody Dmextpackage new_p) {
+	public ResponseEntity<?> editPackage(HttpServletRequest request, @RequestBody Dmextpackage new_p) {
 		try {
-			return ResponseEntity.ok(this.service.editPackage(new_p));
-		}catch(IllegalArgumentException e) {
-			DmExtPackageController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(NoSuchAlgorithmException e) {
-			DmExtPackageController.LOGGER.error("NoSuchAlgorithmException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IOException e) {
-			DmExtPackageController.LOGGER.error("IOException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "extrule", "edit")) {
+				return ResponseEntity.ok(this.service.editPackage(new_p));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
+			}
+		} catch (Exception e) {
 			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/import")
-	public ResponseEntity<?> importPackage(MultipartFile file) {
+	public ResponseEntity<?> importPackage(HttpServletRequest request, MultipartFile file) {
 		try {
-			return ResponseEntity.ok(this.service.importPackage(file));
-		}catch(IllegalArgumentException e) {
-			DmExtPackageController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(FileNotFoundException e) {
-			DmExtPackageController.LOGGER.error("FileNotFoundException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(NoSuchAlgorithmException e) {
-			DmExtPackageController.LOGGER.error("NoSuchAlgorithmException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IOException e) {
-			DmExtPackageController.LOGGER.error("IOException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "extrule", "edit")) {
+				return ResponseEntity.ok(this.service.importPackage(file));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
+			}
+		} catch (Exception e) {
 			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@PostMapping("/publish")
-	public ResponseEntity<?> publishPackage(@RequestBody List<Publication> publishedRules) {
+	public ResponseEntity<?> publishPackage(HttpServletRequest request, @RequestBody List<Publication> publishedRules) {
 		try {
-			return ResponseEntity.ok(this.service.publishPackage(publishedRules));
-		}catch(IllegalArgumentException e) {
-			DmExtPackageController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(NoSuchAlgorithmException e) {
-			DmExtPackageController.LOGGER.error("NoSuchAlgorithmException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IOException e) {
-			DmExtPackageController.LOGGER.error("IOException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "extrule", "edit")) {
+				return ResponseEntity.ok(this.service.publishPackage(publishedRules));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
+			}
+		} catch (Exception e) {
 			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@GetMapping("/delete")
-	public ResponseEntity<?> deletePackageByUid(String uid) {
+	public ResponseEntity<?> deletePackageByUid(HttpServletRequest request, String uid) {
 		try {
-			this.service.deleteByUid(uid);
-		}catch(IllegalArgumentException e) {
-			DmExtPackageController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IOException e) {
-			DmExtPackageController.LOGGER.error("IOException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "extrule", "edit")) {
+				this.service.deleteByUid(uid);
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
+			}
+		} catch (Exception e) {
 			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
@@ -182,20 +182,30 @@ public class DmExtPackageController {
 	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isPackageExistByUid(String uid) {
+	public ResponseEntity<?> isPackageExistByUid(HttpServletRequest request, String uid) {
 		try {
-			return ResponseEntity.ok(this.service.existByUid(uid));
-		}catch(Exception e) {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "extrule", "view")) {
+				return ResponseEntity.ok(this.service.existByUid(uid));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
+		} catch (Exception e) {
 			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
 	@GetMapping("/isExistByName")
-	public ResponseEntity<?> isPackageExistByName(String packageName) {
+	public ResponseEntity<?> isPackageExistByName(HttpServletRequest request, String packageName) {
 		try {
-			return ResponseEntity.ok(this.service.existByName(packageName));
-		}catch(Exception e) {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.permissionClient.checkFuncPermission(peopleId, "extrule", "view")) {
+				return ResponseEntity.ok(this.service.existByName(packageName));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
+		} catch (Exception e) {
 			DmExtPackageController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
