@@ -111,24 +111,6 @@ public class ObjectAliasService {
 			throw new IllegalArgumentException("Add Object Alias Fail!");
 	}
 	
-	public List<ObjectAlias> add(String parentUid, List<ObjectAlias> lists) throws IllegalArgumentException, Exception{
-		List<ObjectAlias> new_lists = new ArrayList<ObjectAlias>();
-		
-		if(null == lists)
-			return new_lists;
-		
-		for(ObjectAlias list: lists) {
-			try {
-				list.setParentuid(parentUid);
-				this.add(list);
-				new_lists.add(list);
-			}catch(Exception e) {
-				ObjectAliasService.LOGGER.warn("Warning; reason was:", e);
-			}
-		}
-		return new_lists;
-	}
-	
 	public ObjectAlias update(ObjectAlias list) throws IllegalArgumentException, Exception{
 		String parentuid = list.getParentuid();
 		if(null == parentuid || parentuid.trim().isEmpty())

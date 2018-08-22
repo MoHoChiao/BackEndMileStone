@@ -2,6 +2,8 @@ package com.netpro.trinity.service.objectalias.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.service.objectalias.entity.ObjectAlias;
 import com.netpro.trinity.service.objectalias.service.ObjectAliasService;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
+import com.netpro.trinity.service.util.ACUtil;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/objectalias")
@@ -24,10 +28,18 @@ public class ObjectAliasController {
 	@Autowired
 	private ObjectAliasService service;
 	
+	@Autowired
+	private PermissionClient permissionClient;
+	
 	@GetMapping("/findExtraByParentUid")
-	public ResponseEntity<?> findAliasExtraInfoByParentUid(String parentUid) {
+	public ResponseEntity<?> findAliasExtraInfoByParentUid(HttpServletRequest request, String parentUid) {
 		try {
-			return ResponseEntity.ok(this.service.getExByParentUid(parentUid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "view")) {
+				return ResponseEntity.ok(this.service.getExByParentUid(parentUid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -38,48 +50,14 @@ public class ObjectAliasController {
 	}
 	
 	@GetMapping("/findByParentUid")
-	public ResponseEntity<?> findAliasByParentUid(String parentUid) {
+	public ResponseEntity<?> findAliasByParentUid(HttpServletRequest request, String parentUid) {
 		try {
-			return ResponseEntity.ok(this.service.getByParentUid(parentUid));
-		}catch(IllegalArgumentException e) {
-			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			ObjectAliasController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
-	@PostMapping("/addOne")
-	public ResponseEntity<?> addOneObjectAlias(@RequestBody ObjectAlias list) {
-		try {
-			return ResponseEntity.ok(this.service.add(list));
-		}catch(IllegalArgumentException e) {
-			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			ObjectAliasController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
-	@PostMapping("/addMany")
-	public ResponseEntity<?> addManyObjectAlias(String parentUid, @RequestBody List<ObjectAlias> lists) {
-		try {
-			return ResponseEntity.ok(this.service.add(parentUid, lists));
-		}catch(IllegalArgumentException e) {
-			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			ObjectAliasController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-	
-	@PostMapping("/updateOne")
-	public ResponseEntity<?> updateOneObjectAlias(@RequestBody ObjectAlias list) {
-		try {
-			return ResponseEntity.ok(this.service.update(list));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "view")) {
+				return ResponseEntity.ok(this.service.getByParentUid(parentUid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -90,9 +68,14 @@ public class ObjectAliasController {
 	}
 	
 	@PostMapping("/modify")
-	public ResponseEntity<?> modifyObjectAlias(String parentUid, @RequestBody List<ObjectAlias> lists) {
+	public ResponseEntity<?> modifyObjectAlias(HttpServletRequest request, String parentUid, @RequestBody List<ObjectAlias> lists) {
 		try {
-			return ResponseEntity.ok(this.service.modify(parentUid, lists));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "modify")) {
+				return ResponseEntity.ok(this.service.modify(parentUid, lists));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -103,9 +86,14 @@ public class ObjectAliasController {
 	}
 	
 	@GetMapping("/deleteByParentUid")
-	public ResponseEntity<?> deleteAliasByParentUid(String parentUid) {
+	public ResponseEntity<?> deleteAliasByParentUid(HttpServletRequest request, String parentUid) {
 		try {
-			this.service.deleteByParentUid(parentUid);
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "delete")) {
+				this.service.deleteByParentUid(parentUid);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Delete' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -117,9 +105,14 @@ public class ObjectAliasController {
 	}
 	
 	@GetMapping("/deleteByObjectUid")
-	public ResponseEntity<?> deleteAliasByObjectUid(String objectUid) {
+	public ResponseEntity<?> deleteAliasByObjectUid(HttpServletRequest request, String objectUid) {
 		try {
-			this.service.deleteByObjectUid(objectUid);
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "delete")) {
+				this.service.deleteByObjectUid(objectUid);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Delete' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -131,9 +124,14 @@ public class ObjectAliasController {
 	}
 	
 	@GetMapping("/deleteByPKs")
-	public ResponseEntity<?> deleteAliasByPKs(String parentUid, String aliasName) {
+	public ResponseEntity<?> deleteAliasByPKs(HttpServletRequest request, String parentUid, String aliasName) {
 		try {
-			this.service.deleteByPKs(parentUid, aliasName);
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "delete")) {
+				this.service.deleteByPKs(parentUid, aliasName);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Delete' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -145,9 +143,14 @@ public class ObjectAliasController {
 	}
 	
 	@GetMapping("/isExistByObjectuid")
-	public ResponseEntity<?> isAliasExistByObjectUid(String objectUid) {
+	public ResponseEntity<?> isAliasExistByObjectUid(HttpServletRequest request, String objectUid) {
 		try {
-			return ResponseEntity.ok(this.service.existByObjectuid(objectUid));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "view")) {
+				return ResponseEntity.ok(this.service.existByObjectuid(objectUid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -158,9 +161,14 @@ public class ObjectAliasController {
 	}
 	
 	@GetMapping("/isExistByPKs")
-	public ResponseEntity<?> isAliasExistByPKs(String parentUid, String aliasName) {
+	public ResponseEntity<?> isAliasExistByPKs(HttpServletRequest request, String parentUid, String aliasName) {
 		try {
-			return ResponseEntity.ok(this.service.existByPKs(parentUid, aliasName));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "view")) {
+				return ResponseEntity.ok(this.service.existByPKs(parentUid, aliasName));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -171,9 +179,14 @@ public class ObjectAliasController {
 	}
 	
 	@GetMapping("/isObjectExistByObjectUidAndType")
-	public ResponseEntity<?> isObjectExistByObjectUidAndType(String objectUid, String aliasType) {
+	public ResponseEntity<?> isObjectExistByObjectUidAndType(HttpServletRequest request, String objectUid, String aliasType) {
 		try {
-			return ResponseEntity.ok(this.service.existByObjectUidAndType(objectUid, aliasType));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "view")) {
+				return ResponseEntity.ok(this.service.existByObjectUidAndType(objectUid, aliasType));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -184,9 +197,14 @@ public class ObjectAliasController {
 	}
 	
 	@GetMapping("/findObjectNameByObjectUidAndType")
-	public ResponseEntity<?> findObjectNameByObjectUidAndType(String objectUid, String aliasType) {
+	public ResponseEntity<?> findObjectNameByObjectUidAndType(HttpServletRequest request, String objectUid, String aliasType) {
 		try {
-			return ResponseEntity.ok(this.service.getObjectNameByObjectUidAndType(objectUid, aliasType));
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "view")) {
+				return ResponseEntity.ok(this.service.getObjectNameByObjectUidAndType(objectUid, aliasType));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
