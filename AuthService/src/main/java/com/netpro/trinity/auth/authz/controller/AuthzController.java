@@ -32,7 +32,9 @@ public class AuthzController {
 	public ResponseEntity<?> findUserExByObjectUid(HttpServletRequest request, String objectUid) {
 		try {
 			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.service.checkObjPermission(peopleId, objectUid, "view")) {
+			if(this.service.checkObjPermission(peopleId, objectUid, "view") || //當此Object是具有view權限時
+					(null != objectUid && objectUid.indexOf("$") > -1 && this.service.checkFuncPermission(peopleId, "alias", "view"))) //當此object是alias obejct時 
+			{
 				return ResponseEntity.ok(this.service.getUserExByObjectUid(objectUid));
 			}else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
@@ -50,7 +52,9 @@ public class AuthzController {
 	public ResponseEntity<?> findRoleExByObjectUid(HttpServletRequest request, String objectUid) {
 		try {
 			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.service.checkObjPermission(peopleId, objectUid, "view")) {
+			if(this.service.checkObjPermission(peopleId, objectUid, "view") || //當此Object是具有view權限時
+					(null != objectUid && objectUid.indexOf("$") > -1 && this.service.checkFuncPermission(peopleId, "alias", "view"))) //當此object是alias obejct時 
+			{
 				return ResponseEntity.ok(this.service.getRoleExByObjectUid(objectUid));
 			}else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
@@ -108,9 +112,10 @@ public class AuthzController {
 	public ResponseEntity<?> modifyAccessRightByObjectUid(HttpServletRequest request, String objectUid, @RequestBody List<AccessRight> lists) {
 		try {
 			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(!this.service.existByObjectUid(objectUid) || 
-					(this.service.checkObjPermission(peopleId, objectUid, "modify") && 
-							this.service.checkObjPermission(peopleId, objectUid, "grant"))) {
+			if(!this.service.existByObjectUid(objectUid) || //當此Object不存在權限記錄時(這是專門為了某些物件在建立時, 就會預設塞一條權限記錄, 另如JCSAgent...等等)
+					(this.service.checkObjPermission(peopleId, objectUid, "modify") && this.service.checkObjPermission(peopleId, objectUid, "grant")) || //當此Object是具有Edit及Grant權限時
+					(null != objectUid && objectUid.indexOf("$") > -1 && this.service.checkFuncPermission(peopleId, "alias", "modify"))) //當此object是alias obejct時 
+			{
 				return ResponseEntity.ok(this.service.modifyByObjectUid(objectUid, lists));
 			}else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit or Grant' Permission!");
@@ -154,7 +159,9 @@ public class AuthzController {
 	public ResponseEntity<?> deleteAccessRightByObjectUid(HttpServletRequest request, String objectUid) {
 		try {
 			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.service.checkObjPermission(peopleId, objectUid, "delete")) {
+			if(this.service.checkObjPermission(peopleId, objectUid, "delete") || 
+					(null != objectUid && objectUid.indexOf("$") > -1 && this.service.checkFuncPermission(peopleId, "alias", "delete"))) //當此object是alias obejct時 
+			{
 				this.service.deleteByObjectUid(objectUid);
 			}else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Delete' Permission!");
@@ -167,6 +174,26 @@ public class AuthzController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 		return ResponseEntity.ok(objectUid);
+	}
+	
+	@GetMapping("/deleteByAliasParentUid")
+	public ResponseEntity<?> deleteAccessRightByAliasParentUid(HttpServletRequest request, String parentUid) {
+		try {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.service.checkFuncPermission(peopleId, "alias", "delete")) //this method, only for alias permission delete
+			{
+				this.service.deleteByAliasParentUid(parentUid);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Delete' Permission!");
+			}
+		}catch(IllegalArgumentException e) {
+			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AuthzController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+		return ResponseEntity.ok(parentUid);
 	}
 	
 	@GetMapping("/loadPermissionTable")

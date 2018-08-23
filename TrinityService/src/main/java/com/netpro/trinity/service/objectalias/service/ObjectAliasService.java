@@ -25,6 +25,7 @@ import com.netpro.trinity.service.frequency.service.FrequencyService;
 import com.netpro.trinity.service.job.service.BusentityService;
 import com.netpro.trinity.service.objectalias.dao.ObjectAliasJDBCDao;
 import com.netpro.trinity.service.objectalias.entity.ObjectAlias;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
 
 @Service
 public class ObjectAliasService {
@@ -47,6 +48,9 @@ public class ObjectAliasService {
 	private JCSAgentService agentService;
 	@Autowired
 	private VRAgentService vragentService;
+	
+	@Autowired
+	private PermissionClient permissionClient;
 	
 	public List<ObjectAlias> getExByParentUid(String parentUid) throws IllegalArgumentException, Exception{
 		if(parentUid == null || parentUid.isEmpty())
@@ -203,14 +207,8 @@ public class ObjectAliasService {
 		if(null == parentUid || parentUid.trim().length() <= 0)
 			throw new IllegalArgumentException("Parent/Entity UID can not be empty!");
 		
+		this.permissionClient.deleteByAliasParentUid(parentUid);
 		this.dao.deleteByParentUid(parentUid);
-	}
-	
-	public void deleteByObjectUid(String objectUid) throws IllegalArgumentException, Exception{
-		if(null == objectUid || objectUid.trim().length() <= 0)
-			throw new IllegalArgumentException("Object UID can not be empty!");
-		
-		this.dao.deleteByObjectUid(objectUid);
 	}
 	
 	public void deleteByPKs(String parentUid, String aliasName) throws IllegalArgumentException, Exception{
@@ -220,6 +218,7 @@ public class ObjectAliasService {
 		if(null == aliasName || aliasName.trim().length() <= 0)
 			throw new IllegalArgumentException("Alias Name can not be empty!");
 		
+		this.permissionClient.deleteByObjectUid(parentUid+"$"+aliasName);
 		this.dao.deleteByPKs(parentUid, aliasName);
 	}
 	

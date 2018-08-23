@@ -35,6 +35,9 @@ public interface PermissionClient {
 	@RequestMapping(value = "/authorization/deleteByObjectUid", method = RequestMethod.GET)
 	public void deleteByObjectUid(@RequestParam("objectUid") String objectUid) throws Exception;
 	
+	@RequestMapping(value = "/authorization/deleteByAliasParentUid", method = RequestMethod.GET)
+	public void deleteByAliasParentUid(@RequestParam("parentUid") String parentUid) throws Exception;
+	
 	@RequestMapping(value = "/authorization/checkFuncPermission", method = RequestMethod.GET)
 	public Boolean checkFuncPermission(@RequestParam("userId") String userId, @RequestParam("functionName") String functionName, 
 			@RequestParam("permissionFlag") String permissionFlag) throws Exception;
@@ -116,6 +119,12 @@ class PermissionClientFallback implements FallbackFactory<PermissionClient> {
 			@Override
 			public Boolean isAdmin() throws Exception {
 				PermissionClientFallback.LOGGER.error("PermissionClient#isAdmin fallback; reason was:", cause);
+				throw new Exception(cause.getMessage());
+			}
+
+			@Override
+			public void deleteByAliasParentUid(String parentUid) throws Exception {
+				PermissionClientFallback.LOGGER.error("PermissionClient#deleteByAliasParentUid fallback; reason was:", cause);
 				throw new Exception(cause.getMessage());
 			}
 	    };

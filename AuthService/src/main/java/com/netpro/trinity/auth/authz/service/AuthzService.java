@@ -197,6 +197,13 @@ public class AuthzService {
 		this.dao.deleteByObjectUid(objectUid);
 	}
 	
+	public void deleteByAliasParentUid(String parentUid) throws IllegalArgumentException, Exception{
+		if(null == parentUid || parentUid.trim().isEmpty())
+			throw new IllegalArgumentException("Alias Parent Uid can not be empty!");
+		
+		this.dao.deleteByAliasParentUid(parentUid);
+	}
+	
 	public Boolean existByObjectUid(String objectUid) throws IllegalArgumentException, Exception{
 		if(null == objectUid || objectUid.trim().isEmpty())
 			throw new IllegalArgumentException("Object Uid can not be empty!");

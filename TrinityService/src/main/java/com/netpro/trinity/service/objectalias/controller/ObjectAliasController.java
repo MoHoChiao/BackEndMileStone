@@ -104,25 +104,6 @@ public class ObjectAliasController {
 		return ResponseEntity.ok(parentUid);
 	}
 	
-	@GetMapping("/deleteByObjectUid")
-	public ResponseEntity<?> deleteAliasByObjectUid(HttpServletRequest request, String objectUid) {
-		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "alias", "delete")) {
-				this.service.deleteByObjectUid(objectUid);
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Delete' Permission!");
-			}
-		}catch(IllegalArgumentException e) {
-			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			ObjectAliasController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-		return ResponseEntity.ok(objectUid);
-	}
-	
 	@GetMapping("/deleteByPKs")
 	public ResponseEntity<?> deleteAliasByPKs(HttpServletRequest request, String parentUid, String aliasName) {
 		try {

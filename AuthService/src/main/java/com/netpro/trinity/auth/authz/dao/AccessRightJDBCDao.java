@@ -158,6 +158,12 @@ public class AccessRightJDBCDao {
 		return jtm.update(sql, param);
 	}
 	
+	public int deleteByAliasParentUid(String parentUid) throws DataAccessException{
+		String sql = "DELETE FROM accessright WHERE objectuid like ?";
+		Object[] param = new Object[] {parentUid + "$%"};
+		return jtm.update(sql, param);
+	}
+	
 	public int deleteByPKs(String peopleUid, String objectUid) throws DataAccessException{
 		String sql = "DELETE FROM accessright WHERE peopleuid = ? AND objectuid = ?";
 		Object[] param = new Object[] {peopleUid, objectUid};

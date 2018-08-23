@@ -80,12 +80,6 @@ public class ObjectAliasJDBCDao {
 		return jtm.update(sql, param);
 	}
 	
-	public int deleteByObjectUid(String uid) throws DataAccessException{
-		String sql = "DELETE FROM objectalias WHERE objectuid = ?";
-		Object[] param = new Object[] {uid};
-		return jtm.update(sql, param);
-	}
-	
 	public int deleteByPKs(String parentUid, String aliasName) throws DataAccessException{
 		String sql = "DELETE FROM objectalias WHERE parentuid = ? AND aliasname = ?";
 		Object[] param = new Object[] {parentUid, aliasName.trim().toUpperCase()};
