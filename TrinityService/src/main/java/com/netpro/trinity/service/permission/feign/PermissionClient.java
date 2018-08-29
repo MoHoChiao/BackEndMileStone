@@ -55,6 +55,9 @@ public interface PermissionClient {
 	
 	@RequestMapping(value = "/authorization/isAdmin", method = RequestMethod.GET)
 	public Boolean isAdmin() throws Exception;
+	
+	@RequestMapping(value = "/authorization/isRootOrAdmin", method = RequestMethod.GET)
+	public Boolean isRootOrAdmin() throws Exception;
 }
 
 @Component
@@ -125,6 +128,12 @@ class PermissionClientFallback implements FallbackFactory<PermissionClient> {
 			@Override
 			public void deleteByAliasParentUid(String parentUid) throws Exception {
 				PermissionClientFallback.LOGGER.error("PermissionClient#deleteByAliasParentUid fallback; reason was:", cause);
+				throw new Exception(cause.getMessage());
+			}
+
+			@Override
+			public Boolean isRootOrAdmin() throws Exception {
+				PermissionClientFallback.LOGGER.error("PermissionClient#isRootOrAdmin fallback; reason was:", cause);
 				throw new Exception(cause.getMessage());
 			}
 	    };

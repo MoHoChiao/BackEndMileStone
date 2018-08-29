@@ -300,6 +300,21 @@ public class AuthzController {
 		}
 	}
 	
+	@GetMapping("/isRootOrAdmin")
+	public ResponseEntity<?> checkRootOrAdminPermission(HttpServletRequest request) {
+		try {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			PermissionTable permissionTable = this.service.getPermissionTable(peopleId);
+			return ResponseEntity.ok(permissionTable.isRoot() || permissionTable.isAdmin());
+		}catch(IllegalArgumentException e) {
+			AuthzController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}catch(Exception e) {
+			AuthzController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	private void reloadPermission(HttpServletRequest request) {
 		String userId = ACUtil.getUserIdFromAC(request);
 		if(null != userId && !userId.trim().isEmpty()) {

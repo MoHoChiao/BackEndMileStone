@@ -1,6 +1,6 @@
 package com.netpro.trinity.service.member.controller;
 
-import java.lang.reflect.InvocationTargetException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.member.entity.Usergroup;
 import com.netpro.trinity.service.member.service.UsergroupService;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/user-group")
@@ -25,10 +26,17 @@ public class UsergroupController {
 	@Autowired
 	private UsergroupService service;
 	
+	@Autowired
+	private PermissionClient permissionClient;
+	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllGroups() {
+	public ResponseEntity<?> findAllGroups(HttpServletRequest request) {
 		try {
-			return ResponseEntity.ok(this.service.getAll());
+			if(this.permissionClient.isRootOrAdmin()) {
+				return ResponseEntity.ok(this.service.getAll());
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
+			}
 		}catch(Exception e) {
 			UsergroupController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -38,7 +46,11 @@ public class UsergroupController {
 	@GetMapping("/isExistByUid")
 	public ResponseEntity<?> isGroupExistByUid(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.existByUid(uid));
+			if(this.permissionClient.isRootOrAdmin()) {
+				return ResponseEntity.ok(this.service.existByUid(uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
+			}
 		}catch(Exception e) {
 			UsergroupController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -48,20 +60,11 @@ public class UsergroupController {
 	@GetMapping("/findByUid")
 	public ResponseEntity<?> findGroupByUid(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByUid(uid));
-		}catch(IllegalArgumentException e) {
-			UsergroupController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			UsergroupController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-  
-	@GetMapping("/findByName")
-	public ResponseEntity<?> findGroupsByName(String name) {
-		try {
-			return ResponseEntity.ok(this.service.getByName(name));
+			if(this.permissionClient.isRootOrAdmin()) {
+				return ResponseEntity.ok(this.service.getByUid(uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			UsergroupController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -74,22 +77,11 @@ public class UsergroupController {
 	@PostMapping("/findByFilter")
 	public ResponseEntity<?> findGroupsByFilter(@RequestBody FilterInfo filter) {
 		try {
-			return this.service.getByFilter(filter);
-		}catch(SecurityException e) {
-			UsergroupController.LOGGER.error("SecurityException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(NoSuchMethodException e) {
-			UsergroupController.LOGGER.error("NoSuchMethodException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalAccessException e) {
-			UsergroupController.LOGGER.error("IllegalAccessException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(InvocationTargetException e) {
-			UsergroupController.LOGGER.error("InvocationTargetException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalArgumentException e) {
-			UsergroupController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+			if(this.permissionClient.isRootOrAdmin()) {
+				return this.service.getByFilter(filter);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
+			}
 		}catch(Exception e) {
 			UsergroupController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -99,7 +91,11 @@ public class UsergroupController {
 	@PostMapping("/add")
 	public ResponseEntity<?> addGroup(@RequestBody Usergroup group) {
 		try {
-			return ResponseEntity.ok(this.service.add(group));
+			if(this.permissionClient.isRootOrAdmin()) {
+				return ResponseEntity.ok(this.service.add(group));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			UsergroupController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -112,7 +108,11 @@ public class UsergroupController {
 	@PostMapping("/edit")
 	public ResponseEntity<?> editGroup(@RequestBody Usergroup group) {
 		try {
-			return ResponseEntity.ok(this.service.edit(group));
+			if(this.permissionClient.isRootOrAdmin()) {
+				return ResponseEntity.ok(this.service.edit(group));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			UsergroupController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -125,7 +125,11 @@ public class UsergroupController {
 	@GetMapping("/delete")
 	public ResponseEntity<?> deleteGroupByUid(String uid) {
 		try {
-			this.service.deleteByUid(uid);
+			if(this.permissionClient.isRootOrAdmin()) {
+				this.service.deleteByUid(uid);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			UsergroupController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
