@@ -1,6 +1,6 @@
 package com.netpro.trinity.service.frequency.controller;
 
-import java.lang.reflect.InvocationTargetException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.frequency.entity.FrequencyCategory;
 import com.netpro.trinity.service.frequency.service.FrequencyCategoryService;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
+import com.netpro.trinity.service.util.ACUtil;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/frequency-category")
@@ -24,6 +26,9 @@ public class FrequencyCategoryController {
 		
 	@Autowired
 	private FrequencyCategoryService service;
+	
+	@Autowired
+	private PermissionClient permissionClient;
 	
 	@GetMapping("/findAll")
 	public ResponseEntity<?> findAllCategories() {
@@ -62,24 +67,14 @@ public class FrequencyCategoryController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findCategoriesByFilter(@RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findCategoriesByFilter(HttpServletRequest request, @RequestBody FilterInfo filter) {
 		try {
-			return this.service.getByFilter(filter);
-		}catch(SecurityException e) {
-			FrequencyCategoryController.LOGGER.error("SecurityException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(NoSuchMethodException e) {
-			FrequencyCategoryController.LOGGER.error("NoSuchMethodException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalAccessException e) {
-			FrequencyCategoryController.LOGGER.error("IllegalAccessException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(InvocationTargetException e) {
-			FrequencyCategoryController.LOGGER.error("InvocationTargetException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalArgumentException e) {
-			FrequencyCategoryController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if(this.permissionClient.checkFuncPermission(peopleId, "connection", "view")) {
+				return this.service.getByFilter(filter);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
 		}catch(Exception e) {
 			FrequencyCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

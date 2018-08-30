@@ -38,6 +38,10 @@ public class Frequency {
   	
   	@Transient
   	private List<FrequencyList> freqlist;
+  	@Transient
+  	private String categoryname;
+  	@Transient
+  	private String categoryuid;
   	
 	public String getFrequencyuid() {
 		return frequencyuid;
@@ -105,5 +109,17 @@ public class Frequency {
 	}
 	public void setFreqlist(List<FrequencyList> freqlist) {
 		this.freqlist = freqlist;
+	}
+	public String getCategoryname() {
+		return categoryname;
+	}
+	public void setCategoryname(String categoryname) {
+		this.categoryname = categoryname;
+	}
+	public String getCategoryuid() {
+		return categoryuid;
+	}
+	public void setCategoryuid(String categoryuid) {
+		this.categoryuid = categoryuid;
 	}
 }

@@ -1,11 +1,13 @@
 package com.netpro.trinity.service.frequency.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.service.frequency.dao.FrequencyRelationJDBCDao;
+import com.netpro.trinity.service.frequency.entity.FrequencyCategory;
 import com.netpro.trinity.service.frequency.entity.FrequencyRelation;
 
 @Service
@@ -28,6 +30,14 @@ public class FrequencyRelationService {
 			throw new IllegalArgumentException("Frequency Category UID can not be empty!");
 				
 		return this.dao.findFrequencyUidsByCategoryUid(uid);
+	}
+	
+	public FrequencyCategory getCategoryByFrequencyUid(String uid) throws IllegalArgumentException, Exception{
+		return this.dao.findCategoryByFrequencyUid(uid);
+	}
+	
+	public Map<String, String> getFrequencyUidAndCategoryNameMap() throws IllegalArgumentException, Exception{
+		return this.dao.findFrequencyUidAndCategoryNameMap();
 	}
 	
 	public FrequencyRelation add(FrequencyRelation rel) throws IllegalArgumentException, Exception{
