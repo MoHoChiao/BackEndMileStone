@@ -1,7 +1,5 @@
 package com.netpro.trinity.service.member.controller;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.member.entity.Role;
 import com.netpro.trinity.service.member.service.RoleService;
+import com.netpro.trinity.service.permission.feign.PermissionClient;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/role")
@@ -24,6 +23,9 @@ public class RoleController {
 		
 	@Autowired
 	private RoleService service;
+	
+	@Autowired
+	private PermissionClient permissionClient;
 	
 	@GetMapping("/findAll")
 	public ResponseEntity<?> findAllRoles() {
@@ -48,20 +50,11 @@ public class RoleController {
 	@GetMapping("/findByUid")
 	public ResponseEntity<?> findRoleByUid(String uid) {
 		try {
-			return ResponseEntity.ok(this.service.getByUid(uid));
-		}catch(IllegalArgumentException e) {
-			RoleController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
-			RoleController.LOGGER.error("Exception; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-  
-	@GetMapping("/findByName")
-	public ResponseEntity<?> findRolesByName(String name) {
-		try {
-			return ResponseEntity.ok(this.service.getByName(name));
+			if(this.permissionClient.isRootOrAdmin()) {
+				return ResponseEntity.ok(this.service.getByUid(uid));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			RoleController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -75,21 +68,6 @@ public class RoleController {
 	public ResponseEntity<?> findRolesByFilter(@RequestBody FilterInfo filter) {
 		try {
 			return this.service.getByFilter(filter);
-		}catch(SecurityException e) {
-			RoleController.LOGGER.error("SecurityException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(NoSuchMethodException e) {
-			RoleController.LOGGER.error("NoSuchMethodException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalAccessException e) {
-			RoleController.LOGGER.error("IllegalAccessException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(InvocationTargetException e) {
-			RoleController.LOGGER.error("InvocationTargetException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(IllegalArgumentException e) {
-			RoleController.LOGGER.error("IllegalArgumentException; reason was:", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
 			RoleController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -99,7 +77,11 @@ public class RoleController {
 	@PostMapping("/add")
 	public ResponseEntity<?> addRole(@RequestBody Role role) {
 		try {
-			return ResponseEntity.ok(this.service.add(role));
+			if(this.permissionClient.isRootOrAdmin()) {
+				return ResponseEntity.ok(this.service.add(role));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			RoleController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -112,7 +94,11 @@ public class RoleController {
 	@PostMapping("/edit")
 	public ResponseEntity<?> editRole(@RequestBody Role role) {
 		try {
-			return ResponseEntity.ok(this.service.edit(role));
+			if(this.permissionClient.isRootOrAdmin()) {
+				return ResponseEntity.ok(this.service.edit(role));
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			RoleController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -125,7 +111,11 @@ public class RoleController {
 	@GetMapping("/delete")
 	public ResponseEntity<?> deleteRoleByUid(String uid) {
 		try {
-			this.service.deleteByUid(uid);
+			if(this.permissionClient.isRootOrAdmin()) {
+				this.service.deleteByUid(uid);
+			}else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
+			}
 		}catch(IllegalArgumentException e) {
 			RoleController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

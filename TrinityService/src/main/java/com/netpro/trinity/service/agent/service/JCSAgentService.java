@@ -62,7 +62,7 @@ public class JCSAgentService {
 	@Autowired
 	private PermissionClient permissionClient;
 	
-	public List<JCSAgent> getAll(HttpServletRequest request) throws Exception{
+	public List<JCSAgent> getAll() throws Exception{
 		List<JCSAgent> agents = this.dao.findAll();
 		setProfileDataOnly(agents);
 		return agents;

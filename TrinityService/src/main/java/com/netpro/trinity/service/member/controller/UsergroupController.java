@@ -1,7 +1,5 @@
 package com.netpro.trinity.service.member.controller;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +28,9 @@ public class UsergroupController {
 	private PermissionClient permissionClient;
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllGroups(HttpServletRequest request) {
+	public ResponseEntity<?> findAllGroups() {
 		try {
-			if(this.permissionClient.isRootOrAdmin()) {
-				return ResponseEntity.ok(this.service.getAll());
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
-			}
+			return ResponseEntity.ok(this.service.getAll());
 		}catch(Exception e) {
 			UsergroupController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -46,11 +40,7 @@ public class UsergroupController {
 	@GetMapping("/isExistByUid")
 	public ResponseEntity<?> isGroupExistByUid(String uid) {
 		try {
-			if(this.permissionClient.isRootOrAdmin()) {
-				return ResponseEntity.ok(this.service.existByUid(uid));
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
-			}
+			return ResponseEntity.ok(this.service.existByUid(uid));
 		}catch(Exception e) {
 			UsergroupController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -77,11 +67,7 @@ public class UsergroupController {
 	@PostMapping("/findByFilter")
 	public ResponseEntity<?> findGroupsByFilter(@RequestBody FilterInfo filter) {
 		try {
-			if(this.permissionClient.isRootOrAdmin()) {
-				return this.service.getByFilter(filter);
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Root Or Admin' Permission!");
-			}
+			return this.service.getByFilter(filter);
 		}catch(Exception e) {
 			UsergroupController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

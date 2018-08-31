@@ -31,14 +31,9 @@ public class ConnectionCategoryController {
 	private PermissionClient permissionClient;
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllCategories(HttpServletRequest request) {
+	public ResponseEntity<?> findAllCategories() {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "connection", "view")) {
-				return ResponseEntity.ok(this.service.getAll());
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return ResponseEntity.ok(this.service.getAll());
 		}catch(Exception e) {
 			ConnectionCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -64,14 +59,9 @@ public class ConnectionCategoryController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findCategoriesByFilter(HttpServletRequest request, @RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findCategoriesByFilter(@RequestBody FilterInfo filter) {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "connection", "view")) {
-				return this.service.getByFilter(filter);
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return this.service.getByFilter(filter);
 		}catch(Exception e) {
 			ConnectionCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -134,14 +124,9 @@ public class ConnectionCategoryController {
 	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isCategoryExistByUid(HttpServletRequest request, String uid) {
+	public ResponseEntity<?> isCategoryExistByUid(String uid) {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "connection", "view")) {
-				return ResponseEntity.ok(this.service.existByUid(uid));
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return ResponseEntity.ok(this.service.existByUid(uid));
 		}catch(Exception e) {
 			ConnectionCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

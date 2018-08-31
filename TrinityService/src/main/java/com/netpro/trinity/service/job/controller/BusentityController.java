@@ -38,7 +38,7 @@ public class BusentityController {
 	@GetMapping("/findAll")
 	public ResponseEntity<?> findAllEntities(HttpServletRequest request, Boolean withAlias) {
 		try {
-			if(withAlias) {
+			if(null != withAlias && withAlias) {
 				String peopleId = ACUtil.getUserIdFromAC(request);
 				if(!this.permissionClient.checkFuncPermission(peopleId, "alias", "view")) {
 					withAlias = false;
@@ -64,7 +64,7 @@ public class BusentityController {
 	@GetMapping("/findByUid")
 	public ResponseEntity<?> findEntityByUid(HttpServletRequest request, Boolean withAlias, String uid) {
 		try {
-			if(withAlias) {
+			if(null != withAlias && withAlias) {
 				String peopleId = ACUtil.getUserIdFromAC(request);
 				if(!this.permissionClient.checkFuncPermission(peopleId, "alias", "view")) {
 					withAlias = false;
@@ -83,7 +83,7 @@ public class BusentityController {
 	@PostMapping("/findByFilter")
 	public ResponseEntity<?> findEntitiesByFilter(HttpServletRequest request, Boolean withAlias, @RequestBody FilterInfo filter) {
 		try {
-			if(withAlias) {
+			if(null != withAlias && withAlias) {
 				String peopleId = ACUtil.getUserIdFromAC(request);
 				if(!this.permissionClient.checkFuncPermission(peopleId, "alias", "view")) {
 					withAlias = false;

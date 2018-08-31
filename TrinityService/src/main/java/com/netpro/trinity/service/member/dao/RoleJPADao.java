@@ -17,31 +17,7 @@ public interface RoleJPADao extends JpaRepository<Role, String> {  //自動繼�
 	@Query("select count(r)>0 from role r where r.rolename=:rolename AND 1=1")
 	Boolean existByName(@Param("rolename") String rolename);
 	
-	//rolename field
-	List<Role> findByrolename(String name);
-	List<Role> findByrolename(String name, Sort sort);
-	Page<Role> findByrolename(String name, Pageable pageable);
-	List<Role> findByrolenameIgnoreCase(String name);
-	List<Role> findByrolenameIgnoreCase(String name, Sort sort);
-	Page<Role> findByrolenameIgnoreCase(String name, Pageable pageable);
-	List<Role> findByrolenameLike(String name);
-	List<Role> findByrolenameLike(String name, Sort sort);
-	Page<Role> findByrolenameLike(String name, Pageable pageable);
-	List<Role> findByrolenameLikeIgnoreCase(String name);
-	List<Role> findByrolenameLikeIgnoreCase(String name, Sort sort);
-	Page<Role> findByrolenameLikeIgnoreCase(String name, Pageable pageable);
-	
-	//description field
-	List<Role> findBydescription(String description);
-	List<Role> findBydescription(String description, Sort sort);
-	Page<Role> findBydescription(String description, Pageable pageable);
-	List<Role> findBydescriptionIgnoreCase(String description);
-	List<Role> findBydescriptionIgnoreCase(String description, Sort sort);
-	Page<Role> findBydescriptionIgnoreCase(String description, Pageable pageable);
-	List<Role> findBydescriptionLike(String description);
-	List<Role> findBydescriptionLike(String description, Sort sort);
-	Page<Role> findBydescriptionLike(String description, Pageable pageable);
-	List<Role> findBydescriptionLikeIgnoreCase(String description);
-	List<Role> findBydescriptionLikeIgnoreCase(String description, Sort sort);
-	Page<Role> findBydescriptionLikeIgnoreCase(String description, Pageable pageable);
+	List<Role> findByRolenameLikeIgnoreCase(String name);
+	List<Role> findByRolenameLikeIgnoreCase(String name, Sort sort);
+	Page<Role> findByRolenameLikeIgnoreCase(String name, Pageable pageable);
 }

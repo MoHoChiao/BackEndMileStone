@@ -31,14 +31,9 @@ public class FileSourceCategoryController {
 	private PermissionClient permissionClient;
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllCategories(HttpServletRequest request) {
+	public ResponseEntity<?> findAllCategories() {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "filesource", "view")) {
-				return ResponseEntity.ok(this.service.getAll());
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return ResponseEntity.ok(this.service.getAll());
 		}catch(Exception e) {
 			FileSourceCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -46,14 +41,9 @@ public class FileSourceCategoryController {
 	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isCategoryExistByUid(HttpServletRequest request, String uid) {
+	public ResponseEntity<?> isCategoryExistByUid(String uid) {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "filesource", "view")) {
-				return ResponseEntity.ok(this.service.existByUid(uid));
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return ResponseEntity.ok(this.service.existByUid(uid));
 		}catch(Exception e) {
 			FileSourceCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -79,14 +69,9 @@ public class FileSourceCategoryController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findCategoriesByFilter(HttpServletRequest request, @RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findCategoriesByFilter(@RequestBody FilterInfo filter) {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "filesource", "view")) {
-				return this.service.getByFilter(filter);
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return this.service.getByFilter(filter);
 		}catch(Exception e) {
 			FileSourceCategoryController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

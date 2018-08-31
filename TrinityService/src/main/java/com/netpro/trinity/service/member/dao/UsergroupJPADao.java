@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.netpro.trinity.service.agent.entity.VRAgent;
 import com.netpro.trinity.service.member.entity.Usergroup;
 
 @Repository  //宣告這是一個DAO類別

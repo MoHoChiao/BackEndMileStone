@@ -235,14 +235,14 @@ public class AuthzService {
 		permissionTable.setAccountManager(false);
 		for(String roleUid : roleUids) {
 			//判斷是否為admin role帳號
-			if("Role1".equals(roleUid))
+			if("Role1".equals(roleUid.trim()))
 				permissionTable.setAdmin(true);
 			//判斷是否為account manager帳號
-			if("Role5".equals(roleUid))
+			if("Role5".equals(roleUid.trim()))
 				permissionTable.setAccountManager(true);
 			
 			//把此useruid所屬的每一個role的access right存入accessRightListForRoles
-			List<AccessRight> accessRightForRoles = this.dao.findByPeopleUid(roleUid);
+			List<AccessRight> accessRightForRoles = this.dao.findByPeopleUid(roleUid.trim());
 			accessRightListForRoles.add(accessRightForRoles);
 		}
 		

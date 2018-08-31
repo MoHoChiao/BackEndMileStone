@@ -32,14 +32,9 @@ public class JCSAgentController {
 	private PermissionClient permissionClient;
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllAgents(HttpServletRequest request) {
+	public ResponseEntity<?> findAllAgents() {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "view")) {
-				return ResponseEntity.ok(this.service.getAll(request));
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return ResponseEntity.ok(this.service.getAll());
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -47,14 +42,9 @@ public class JCSAgentController {
 	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isAgentExistByUid(HttpServletRequest request, String uid) {
+	public ResponseEntity<?> isAgentExistByUid(String uid) {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "view")) {
-				return ResponseEntity.ok(this.service.existByUid(uid));
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return ResponseEntity.ok(this.service.existByUid(uid));
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -80,14 +70,9 @@ public class JCSAgentController {
 	}
 	
 	@GetMapping("/findAllAgentNames")
-	public ResponseEntity<?> findAllAgentNames(HttpServletRequest request) {
+	public ResponseEntity<?> findAllAgentNames() {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "view")) {
-				return ResponseEntity.ok(this.service.getAllAgentNames());
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return ResponseEntity.ok(this.service.getAllAgentNames());
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -100,12 +85,7 @@ public class JCSAgentController {
 	@GetMapping("/findAllAgentUids")
 	public ResponseEntity<?> findAllAgentUids(HttpServletRequest request) {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "view")) {
-				return ResponseEntity.ok(this.service.getAllAgentUids());
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return ResponseEntity.ok(this.service.getAllAgentUids());
 		}catch(IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -116,14 +96,9 @@ public class JCSAgentController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findAgentByFilter(HttpServletRequest request, @RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findAgentByFilter(@RequestBody FilterInfo filter) {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "view")) {
-				return this.service.getByFilter(filter);
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return this.service.getByFilter(filter);
 		}catch(Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

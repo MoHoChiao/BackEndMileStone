@@ -31,14 +31,9 @@ public class VRAgentController {
 	private PermissionClient permissionClient;
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<?> findAllVRAgents(HttpServletRequest request, Boolean withoutDetail) {
+	public ResponseEntity<?> findAllVRAgents(Boolean withoutDetail) {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "view")) {
-				return ResponseEntity.ok(this.service.getAll(withoutDetail));
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return ResponseEntity.ok(this.service.getAll(withoutDetail));
 		}catch(Exception e) {
 			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -64,14 +59,9 @@ public class VRAgentController {
 	}
 	
 	@PostMapping("/findByFilter")
-	public ResponseEntity<?> findVRAgentsByFilter(HttpServletRequest request, Boolean withoutDetail, @RequestBody FilterInfo filter) {
+	public ResponseEntity<?> findVRAgentsByFilter(Boolean withoutDetail, @RequestBody FilterInfo filter) {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "view")) {
-				return this.service.getByFilter(withoutDetail, filter);
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return this.service.getByFilter(withoutDetail, filter);
 		}catch(Exception e) {
 			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -134,14 +124,9 @@ public class VRAgentController {
 	}
 	
 	@GetMapping("/isExistByUid")
-	public ResponseEntity<?> isVRAgentExistByUid(HttpServletRequest request, String uid) {
+	public ResponseEntity<?> isVRAgentExistByUid(String uid) {
 		try {
-			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.permissionClient.checkFuncPermission(peopleId, "agent", "view")) {
-				return ResponseEntity.ok(this.service.existByUid(uid));
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
-			}
+			return ResponseEntity.ok(this.service.existByUid(uid));
 		}catch(Exception e) {
 			VRAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
