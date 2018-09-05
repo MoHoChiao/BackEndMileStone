@@ -1,17 +1,12 @@
 package com.netpro.trinity.service.member.service;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +36,6 @@ import com.netpro.trinity.service.configuration.service.TrinityconfigService;
 import com.netpro.trinity.service.dto.FilterInfo;
 import com.netpro.trinity.service.dto.Ordering;
 import com.netpro.trinity.service.dto.Paging;
-import com.netpro.trinity.service.dto.Querying;
 import com.netpro.trinity.service.member.dao.TrinityuserJPADao;
 import com.netpro.trinity.service.member.entity.Trinityuser;
 import com.netpro.trinity.service.notification.service.NotificationListService;
@@ -54,10 +47,7 @@ import com.netpro.trinity.service.util.XMLDataUtility;
 @Service
 public class TrinityuserService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TrinityuserService.class);
-	
-	public static final String[] USER_FIELD_VALUES = new String[] { "username", "activate", "usertype", "description"};
-	public static final Set<String> USER_FIELD_SET = new HashSet<>(Arrays.asList(USER_FIELD_VALUES));
-	
+		
 	@Autowired
 	private TrinityuserJPADao dao;
 	
@@ -93,8 +83,29 @@ public class TrinityuserService {
 	public List<Trinityuser> getAll() throws Exception{
 		List<Trinityuser> users = this.dao.findAll();
 		setMailsAndAC(users);
-		
+		setProfileDataOnly(users);
 		return users;
+	}
+	
+	public ResponseEntity<?> getByFilter(FilterInfo filter) throws Exception{
+		Paging paging = filter.getPaging();
+		Ordering ordering = filter.getOrdering();
+		String param = filter.getParam();
+		
+		if(null == paging) 
+			paging = new Paging(0, 20);
+		
+		if(null == ordering) 
+			ordering = new Ordering("ASC", "username");
+		
+		if(null == param || param.trim().isEmpty())
+			param = "%%";
+		param = param.trim();
+		
+		Page<Trinityuser> page_users = this.dao.findByUsernameLikeIgnoreCaseOrUseridLikeIgnoreCase(param, param, getPagingAndOrdering(paging, ordering));
+		setMailsAndAC(page_users.getContent());
+		setProfileDataOnly(page_users.getContent());
+		return ResponseEntity.ok(page_users);
 	}
 	
 	public Trinityuser getByUid(String uid) throws IllegalArgumentException, Exception{
@@ -123,119 +134,9 @@ public class TrinityuserService {
 			throw new IllegalArgumentException("Trinity User ID does not exist!(" + id + ")");
 		
 		setMailsAndAC(user);
+		setProfileDataOnly(user);
 		
 		return user;
-	}
-	
-	public List<Trinityuser> getByName(String name) throws IllegalArgumentException, Exception{
-		if(name == null || name.trim().isEmpty())
-			throw new IllegalArgumentException("Trinity User Name can not be empty!");
-		
-		List<Trinityuser> users = this.dao.findByusername(name);
-		setMailsAndAC(users);
-		
-		return users;
-	}
-	
-	public List<Trinityuser> getByUserType(String userType) throws IllegalArgumentException, Exception{
-		if(userType == null || userType.trim().isEmpty())
-			throw new IllegalArgumentException("Trinity User Type can not be empty!");
-		
-		List<Trinityuser> users = this.dao.findByusertype(userType.toUpperCase());
-		setMailsAndAC(users);
-		
-		return users;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFilter(FilterInfo filter) throws SecurityException, NoSuchMethodException, 
-								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
-		if(null == filter) {
-			List<Trinityuser> users = this.dao.findAll();
-			setMailsAndAC(users);
-			return ResponseEntity.ok(users);
-		}
-			
-		Paging paging = filter.getPaging();
-		Ordering ordering = filter.getOrdering();
-		Querying querying = filter.getQuerying();
-		
-		if(null == paging && null == ordering && null == querying) {
-			List<Trinityuser> users = this.dao.findAll();
-			setMailsAndAC(users);
-			return ResponseEntity.ok(users);
-		}
-			
-		PageRequest pageRequest = null;
-		Sort sort = null;
-		
-		if(paging != null) {
-			pageRequest = getPagingAndOrdering(paging, ordering);
-		}else {
-			if(ordering != null) {
-				sort = getOrdering(ordering);
-			}
-		}
-		
-		if(null == querying) {
-			if(pageRequest != null) {
-				Page<Trinityuser> page_user = this.dao.findAll(pageRequest);
-				setMailsAndAC(page_user.getContent());
-				return ResponseEntity.ok(page_user);
-			}else if(sort != null) {
-				List<Trinityuser> users = this.dao.findAll(sort);
-				setMailsAndAC(users);
-				return ResponseEntity.ok(users);
-			}else {
-				/*
-				 * The paging and ordering both objects are null.
-				 * it means pageRequest and sort must be null too.
-				 * then return default
-				 */
-				List<Trinityuser> users = this.dao.findAll(sort);
-				setMailsAndAC(users);
-				return ResponseEntity.ok(users);
-			}
-		}else {
-			if(null == querying.getQueryType() || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
-			if(null == querying.getQueryField() || !USER_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query field! "+ USER_FIELD_SET.toString());
-			if(null == querying.getIgnoreCase())
-				querying.setIgnoreCase(false);
-			
-			String queryType = querying.getQueryType().toLowerCase();
-			String queryField = querying.getQueryField().toLowerCase(); //Must be lower case for jpa method
-			String queryString = querying.getQueryString();
-			
-			StringBuffer methodName = new StringBuffer("findBy");
-			methodName.append(queryField);
-			if(queryType.equals("like")) {
-				methodName.append("Like");
-				queryString = "%" + queryString + "%";
-			}
-			if(querying.getIgnoreCase()) {
-				methodName.append("IgnoreCase");
-			}	
-
-			Method method = null;
-			if(pageRequest != null){
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
-				Page<Trinityuser> page_user = (Page<Trinityuser>) method.invoke(this.dao, queryString, pageRequest);
-				setMailsAndAC(page_user.getContent());
-				return ResponseEntity.ok(page_user);
-			}else if(sort != null) {
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
-				List<Trinityuser> users = (List<Trinityuser>) method.invoke(this.dao, queryString, sort);
-				setMailsAndAC(users);
-				return ResponseEntity.ok(users);
-			}else {
-				method = this.dao.getClass().getMethod(methodName.toString(), String.class);
-				List<Trinityuser> users = (List<Trinityuser>) method.invoke(this.dao, queryString);
-				setMailsAndAC(users);
-				return ResponseEntity.ok(users);
-			}
-		}
 	}
 	
 	public Trinityuser add(HttpServletRequest request, Trinityuser user) throws ACException, SQLException, IllegalArgumentException, Exception{
@@ -422,7 +323,7 @@ public class TrinityuserService {
 		old_user.setHomedir(user.getHomedir());
 		old_user.setXmldata(user.getXmldata());
 		old_user.setLastupdatetime(new Date());
-		
+		System.out.println(old_user.getPassword()+"/////////////////");
 		Trinityuser new_user = this.dao.save(old_user);
 		new_user.setXmldata(null);//不需要回傳
 
@@ -541,17 +442,17 @@ public class TrinityuserService {
 	}
 	
 	private Sort getOrdering(Ordering ordering) throws Exception{
-		Direction direct = Direction.fromString("DESC");
+		Direction direct = Direction.fromString("ASC");
 		if(ordering.getOrderType() != null && Constant.ORDER_TYPE_SET.contains(ordering.getOrderType().toUpperCase()))
 			direct = Direction.fromString(ordering.getOrderType());
 		
-		if(ordering.getOrderField() != null && USER_FIELD_SET.contains(ordering.getOrderField().toLowerCase()))
+		if(ordering.getOrderField() != null && !ordering.getOrderField().isEmpty())
 			return Sort.by(direct, ordering.getOrderField());
 		else
-			return Sort.by(direct, "lastupdatetime");
+			return Sort.by(direct, "username");
 	}
 	
-	private Trinityuser getUserFormRequest(HttpServletRequest request) throws ACException, SQLException, IllegalArgumentException, Exception{
+	public Trinityuser getUserFormRequest(HttpServletRequest request) throws ACException, SQLException, IllegalArgumentException, Exception{
 		Trinityuser user = new Trinityuser();
 		
 		String accessToken = CookieUtils.getCookieValue(request, TrinityWebV2Utils.CNAME_ACCESS_TOKEN);
@@ -576,6 +477,7 @@ public class TrinityuserService {
 		this.credentialsService.changeCredentials("FlexWebUI", ip, token, userid, secret, System.currentTimeMillis(), encryptKey);
 	}
 	
+	@SuppressWarnings("unused")
 	private void setMailsAndAC(List<Trinityuser> users) throws Exception{
 		for(Trinityuser user : users) {
 			setMailsAndAC(user);
@@ -591,12 +493,29 @@ public class TrinityuserService {
 			mail += mails;
 		}
 		user.setEmail(mail);
-		
-		user.setPassword(null);//順便的, 不需要回傳password
-		
+				
 		//For AC
 		AccessDetailsDto accessDetail = this.credentialsService.getAccessDetails(user.getUserid());
 		user.setLock(String.valueOf(accessDetail.getLocked()));
 		user.setResetCred(String.valueOf(accessDetail.getResetcred()));
+	}
+	
+	private void setProfileDataOnly(List<Trinityuser> users) {
+		for(Trinityuser user : users) {
+			setProfileDataOnly(user);
+		}
+	}
+	
+	private void setProfileDataOnly(Trinityuser user) {
+		user.setDefaultlang(null);
+		user.setEmail(null);
+		user.setHomedir(null);
+		user.setLocalaccount(null);
+		user.setMobile(null);
+		user.setOnlyforexecution(null);
+		user.setPassword(null);
+		user.setPwdchangetime(null);
+		user.setSsoid(null);
+		user.setXmldata(null);
 	}
 }

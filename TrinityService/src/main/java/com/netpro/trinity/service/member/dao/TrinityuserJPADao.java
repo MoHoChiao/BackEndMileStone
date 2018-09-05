@@ -22,59 +22,7 @@ public interface TrinityuserJPADao extends JpaRepository<Trinityuser, String> { 
 	//userid field
 	Trinityuser findByuserid(String id);
 	
-	//username field
-	List<Trinityuser> findByusername(String name);
-	List<Trinityuser> findByusername(String name, Sort sort);
-	Page<Trinityuser> findByusername(String name, Pageable pageable);
-	List<Trinityuser> findByusernameIgnoreCase(String name);
-	List<Trinityuser> findByusernameIgnoreCase(String name, Sort sort);
-	Page<Trinityuser> findByusernameIgnoreCase(String name, Pageable pageable);
-	List<Trinityuser> findByusernameLike(String name);
-	List<Trinityuser> findByusernameLike(String name, Sort sort);
-	Page<Trinityuser> findByusernameLike(String name, Pageable pageable);
-	List<Trinityuser> findByusernameLikeIgnoreCase(String name);
-	List<Trinityuser> findByusernameLikeIgnoreCase(String name, Sort sort);
-	Page<Trinityuser> findByusernameLikeIgnoreCase(String name, Pageable pageable);
-	
-	//activate field
-	List<Trinityuser> findByactivate(String activate);
-	List<Trinityuser> findByactivate(String activate, Sort sort);
-	Page<Trinityuser> findByactivate(String activate, Pageable pageable);
-	List<Trinityuser> findByactivateIgnoreCase(String activate);
-	List<Trinityuser> findByactivateIgnoreCase(String activate, Sort sort);
-	Page<Trinityuser> findByactivateIgnoreCase(String activate, Pageable pageable);
-	List<Trinityuser> findByactivateLike(String activate);
-	List<Trinityuser> findByactivateLike(String activate, Sort sort);
-	Page<Trinityuser> findByactivateLike(String activate, Pageable pageable);
-	List<Trinityuser> findByactivateLikeIgnoreCase(String activate);
-	List<Trinityuser> findByactivateLikeIgnoreCase(String activate, Sort sort);
-	Page<Trinityuser> findByactivateLikeIgnoreCase(String activate, Pageable pageable);
-	
-	//usertype field
-	List<Trinityuser> findByusertype(String usertype);
-	List<Trinityuser> findByusertype(String usertype, Sort sort);
-	Page<Trinityuser> findByusertype(String usertype, Pageable pageable);
-	List<Trinityuser> findByusertypeIgnoreCase(String usertype);
-	List<Trinityuser> findByusertypeIgnoreCase(String usertype, Sort sort);
-	Page<Trinityuser> findByusertypeIgnoreCase(String usertype, Pageable pageable);
-	List<Trinityuser> findByusertypeLike(String usertype);
-	List<Trinityuser> findByusertypeLike(String usertype, Sort sort);
-	Page<Trinityuser> findByusertypeLike(String usertype, Pageable pageable);
-	List<Trinityuser> findByusertypeLikeIgnoreCase(String usertype);
-	List<Trinityuser> findByusertypeLikeIgnoreCase(String usertype, Sort sort);
-	Page<Trinityuser> findByusertypeLikeIgnoreCase(String usertype, Pageable pageable);
-	
-	//description field
-	List<Trinityuser> findBydescription(String description);
-	List<Trinityuser> findBydescription(String description, Sort sort);
-	Page<Trinityuser> findBydescription(String description, Pageable pageable);
-	List<Trinityuser> findBydescriptionIgnoreCase(String description);
-	List<Trinityuser> findBydescriptionIgnoreCase(String description, Sort sort);
-	Page<Trinityuser> findBydescriptionIgnoreCase(String description, Pageable pageable);
-	List<Trinityuser> findBydescriptionLike(String description);
-	List<Trinityuser> findBydescriptionLike(String description, Sort sort);
-	Page<Trinityuser> findBydescriptionLike(String description, Pageable pageable);
-	List<Trinityuser> findBydescriptionLikeIgnoreCase(String description);
-	List<Trinityuser> findBydescriptionLikeIgnoreCase(String description, Sort sort);
-	Page<Trinityuser> findBydescriptionLikeIgnoreCase(String description, Pageable pageable);
+	List<Trinityuser> findByUsernameLikeIgnoreCaseOrUseridLikeIgnoreCase(String name, String userid);
+	List<Trinityuser> findByUsernameLikeIgnoreCaseOrUseridLikeIgnoreCase(String name, String userid, Sort sort);
+	Page<Trinityuser> findByUsernameLikeIgnoreCaseOrUseridLikeIgnoreCase(String name, String userid, Pageable pageable);
 }

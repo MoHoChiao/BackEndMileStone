@@ -58,6 +58,15 @@ public interface PermissionClient {
 	
 	@RequestMapping(value = "/authorization/isRootOrAdmin", method = RequestMethod.GET)
 	public Boolean isRootOrAdmin() throws Exception;
+	
+	@RequestMapping(value = "/authorization/isRootOrAccountManager", method = RequestMethod.GET)
+	public Boolean isRootOrAccountManager() throws Exception;
+	
+	@RequestMapping(value = "/authorization/isRootOrAdminOrAccountManager", method = RequestMethod.GET)
+	public Boolean isRootOrAdminOrAccountManager() throws Exception;
+	
+	@RequestMapping(value = "/authorization/isAdminEditMode", method = RequestMethod.GET)
+	public Boolean isAdminEditMode() throws Exception;
 }
 
 @Component
@@ -134,6 +143,24 @@ class PermissionClientFallback implements FallbackFactory<PermissionClient> {
 			@Override
 			public Boolean isRootOrAdmin() throws Exception {
 				PermissionClientFallback.LOGGER.error("PermissionClient#isRootOrAdmin fallback; reason was:", cause);
+				throw new Exception(cause.getMessage());
+			}
+
+			@Override
+			public Boolean isRootOrAccountManager() throws Exception {
+				PermissionClientFallback.LOGGER.error("PermissionClient#isRootOrAccountManager fallback; reason was:", cause);
+				throw new Exception(cause.getMessage());
+			}
+			
+			@Override
+			public Boolean isRootOrAdminOrAccountManager() throws Exception {
+				PermissionClientFallback.LOGGER.error("PermissionClient#isRootOrAdminOrAccountManager fallback; reason was:", cause);
+				throw new Exception(cause.getMessage());
+			}
+
+			@Override
+			public Boolean isAdminEditMode() throws Exception {
+				PermissionClientFallback.LOGGER.error("PermissionClient#isAdminEditMode fallback; reason was:", cause);
 				throw new Exception(cause.getMessage());
 			}
 	    };

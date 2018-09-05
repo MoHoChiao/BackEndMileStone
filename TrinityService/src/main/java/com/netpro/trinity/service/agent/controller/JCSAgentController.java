@@ -83,7 +83,7 @@ public class JCSAgentController {
 	}
 	
 	@GetMapping("/findAllAgentUids")
-	public ResponseEntity<?> findAllAgentUids(HttpServletRequest request) {
+	public ResponseEntity<?> findAllAgentUids() {
 		try {
 			return ResponseEntity.ok(this.service.getAllAgentUids());
 		}catch(IllegalArgumentException e) {
