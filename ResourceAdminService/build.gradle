@@ -1,0 +1,40 @@
+buildscript {
+	ext {
+		springBootVersion = '2.0.5.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath files('lib/postgresql-9.2-1003-jdbc4.jar','lib/authc-all.jar','lib/jose4j-0.5.5.jar','lib/dm.jar','lib/license.jar')
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'war'
+
+group = 'com.netpro.trinity'
+version = ''
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	providedRuntime
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+	compile group: 'org.apache.tomcat', name: 'tomcat-jdbc', version: '9.0.8'
+	compile files('lib/postgresql-9.2-1003-jdbc4.jar','lib/authc-all.jar','lib/jose4j-0.5.5.jar','lib/dm.jar','lib/license.jar')
+	providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}

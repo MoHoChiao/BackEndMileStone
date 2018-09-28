@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: resource-admin-service
+  servlet:
+    multipart:
+      enabled: true   # 啟用http上傳
+      max-file-size: 300MB # 設置單文件的最大長度
+      max-request-size: 300MB # 设置最大的请求文件的大小
+      file-size-threshold: 30MB  # 設置最大的請求文件之大小
+  jpa:
+    generate-ddl: false
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false           #Hibernate\u5617\u8A66\u9A57\u8B49PostgreSQL\u7684CLOB\u7279\u6027\uFF0C\u4F46\u662FPostgreSQL\u7684JDBC\u9A45\u52D5\u4E26\u6C92\u6709\u5BE6\u73FE\u9019\u500B\u7279\u6027 
+  datasource:
+    platform: org.eclipse.persistence.platform.database.PostgreSQLPlatform
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://127.0.0.1:5432/trinity
+    username: trinity
+    password: trinity
+    tomcat:
+      max-active: 20
+      initial-size: 5
+      max-wait: 20
+  jackson: 
+    default-property-inclusion: NON_NULL
+    serialization:
+      fail-on-empty-beans: false
+logging: 
+  level: 
+    org: 
+      springframework: 
+        jdbc: 
+          core: 
+            JdbcTemplate: debug
+encrypt:
+  key: trinity
