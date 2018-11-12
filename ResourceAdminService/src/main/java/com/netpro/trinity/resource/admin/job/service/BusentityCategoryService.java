@@ -1,6 +1,7 @@
 package com.netpro.trinity.resource.admin.job.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,10 @@ public class BusentityCategoryService {
 			throw new IllegalArgumentException("Job Category UID can not be empty!");
 				
 		return this.dao.findViewEntityCategoryByCategoryUid(uid);
+	}
+	
+	public Map<String, JobFullPath> getAllViewEntityCategory() throws IllegalArgumentException, Exception {
+		return this.dao.findAllViewEntityCategory();
 	}
 	
 	public Boolean existByEntityUid(String uid) throws IllegalArgumentException, Exception{

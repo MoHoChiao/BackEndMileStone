@@ -4,16 +4,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +19,8 @@ import org.springframework.stereotype.Service;
 import com.netpro.trinity.resource.admin.dto.FilterInfo;
 import com.netpro.trinity.resource.admin.dto.Ordering;
 import com.netpro.trinity.resource.admin.dto.Paging;
-import com.netpro.trinity.resource.admin.dto.Querying;
 import com.netpro.trinity.resource.admin.filesource.entity.FileSource;
+import com.netpro.trinity.resource.admin.job.dao.BusentityCategoryJDBCDao;
 import com.netpro.trinity.resource.admin.job.dao.JobJPADao;
 import com.netpro.trinity.resource.admin.job.entity.Job;
 import com.netpro.trinity.resource.admin.job.entity.JobFullPath;
@@ -121,142 +118,36 @@ public class JobService {
 		return path;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public ResponseEntity<?> getByFilter(String categoryUid, FilterInfo filter) throws SecurityException, NoSuchMethodException, 
-								IllegalArgumentException, IllegalAccessException, InvocationTargetException, Exception{
-		
-		if(filter == null) {
-			List<Job> jobs;
-			if(categoryUid == null || categoryUid.isEmpty()) {
-				jobs = this.dao.findAll();
-			}else {
-				jobs = this.dao.findByCategoryuid(categoryUid);
-			}
-			setExtraXmlProp(jobs);
-			return ResponseEntity.ok(jobs);
-		}
-		
+	public ResponseEntity<?> getByFilter(String categoryUid, FilterInfo filter) throws Exception {
 		Paging paging = filter.getPaging();
 		Ordering ordering = filter.getOrdering();
-		Querying querying = filter.getQuerying();
+		String param = filter.getParam();
 		
-		if(paging == null && ordering == null && querying == null) {
-			List<Job> jobs;
-			if(categoryUid == null || categoryUid.isEmpty()) {
-				jobs = this.dao.findAll();
-			}else {
-				jobs = this.dao.findByCategoryuid(categoryUid);
+		if(null == paging) 
+			paging = new Paging(0, 20);
+		
+		if(null == ordering) 
+			ordering = new Ordering("ASC", "jobname");
+		
+		if(null == param || param.trim().isEmpty())
+			param = "%%";
+		param = param.trim();
+		
+		Page<Job> page_jobs;
+		if (categoryUid == null) {
+			page_jobs = this.dao.findByjobnameLikeIgnoreCase(param, getPagingAndOrdering(paging, ordering));
+			Map<String, JobFullPath> map = entityCategoryService.getAllViewEntityCategory();
+			
+			for (Job job : page_jobs.getContent()) {
+				JobFullPath jfp = map.get(job.getCategoryuid());
+				job.setCategoryname(jfp.getCategoryname());
+				job.setEntityname(jfp.getBusentityname());
 			}
-			setExtraXmlProp(jobs);
-			return ResponseEntity.ok(jobs);
+		} else {
+			page_jobs = this.dao.findByCategoryuid(categoryUid, getPagingAndOrdering(paging, ordering));
 		}
 		
-		PageRequest pageRequest = null;
-		Sort sort = null;
-		
-		if(paging != null) {
-			pageRequest = getPagingAndOrdering(paging, ordering);
-		}else {
-			if(ordering != null) {
-				sort = getOrdering(ordering);
-			}
-		}
-		
-		if(querying == null) {
-			if(pageRequest != null) {
-				Page<Job> page_job;
-				if(categoryUid == null || categoryUid.isEmpty()) {
-					page_job = this.dao.findAll(pageRequest);
-				}else {
-					page_job = this.dao.findByCategoryuid(categoryUid, pageRequest);
-				}
-				setExtraXmlProp(page_job.getContent());
-				return ResponseEntity.ok(page_job);
-			}else if(sort != null) {
-				List<Job> jobs;
-				if(categoryUid == null || categoryUid.isEmpty()) {
-					jobs = this.dao.findAll(sort);
-				}else {
-					jobs = this.dao.findByCategoryuid(categoryUid, sort);
-				}
-				setExtraXmlProp(jobs);
-				return ResponseEntity.ok(jobs);
-			}else {
-				/*
-				 * The paging and ordering both objects are null.
-				 * it means pageRequest and sort must be null too.
-				 * then return default
-				 */
-				List<Job> jobs;
-				if(categoryUid == null || categoryUid.isEmpty()) {
-					jobs = this.dao.findAll();
-				}else {
-					jobs = this.dao.findByCategoryuid(categoryUid);
-				}
-				setExtraXmlProp(jobs);
-				return ResponseEntity.ok(jobs);
-			}
-		}else {
-			if(querying.getQueryType() == null || !Constant.QUERY_TYPE_SET.contains(querying.getQueryType().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query type! "+Constant.QUERY_TYPE_SET.toString());
-			if(querying.getQueryField() == null || !JOB_FIELD_SET.contains(querying.getQueryField().toLowerCase()))
-				throw new IllegalArgumentException("Illegal query field! "+ JOB_FIELD_SET.toString());
-			if(querying.getIgnoreCase() == null)
-				querying.setIgnoreCase(false);
-			
-			String queryType = querying.getQueryType().toLowerCase();
-			String queryField = querying.getQueryField().toLowerCase(); //Must be lower case for jpa method
-			String queryString = querying.getQueryString();
-			
-			StringBuffer methodName = new StringBuffer("findBy");
-			methodName.append(queryField);
-			if(queryType.equals("like")) {
-				methodName.append("Like");
-				queryString = "%" + queryString + "%";
-			}
-			if(querying.getIgnoreCase()) {
-				methodName.append("IgnoreCase");
-			}	
-			if(categoryUid != null && !categoryUid.isEmpty()) {
-				methodName.append("AndCategoryuid");
-			}
-			
-			Method method = null;
-			if(pageRequest != null){
-				Page<Job> page_job;
-				if(categoryUid == null || categoryUid.isEmpty()) {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class);
-					page_job = (Page<Job>) method.invoke(this.dao, queryString, pageRequest);
-				}else {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Pageable.class, String.class);
-					page_job = (Page<Job>) method.invoke(this.dao, queryString, pageRequest, categoryUid);
-				}
-				setExtraXmlProp(page_job.getContent());
-				return ResponseEntity.ok(page_job);
-			}else if(sort != null) {
-				List<Job> jobs;
-				if(categoryUid == null || categoryUid.isEmpty()) {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class);
-					jobs = (List<Job>) method.invoke(this.dao, queryString, sort);
-				}else {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, Sort.class, String.class);
-					jobs = (List<Job>) method.invoke(this.dao, queryString, sort, categoryUid);
-				}
-				setExtraXmlProp(jobs);
-				return ResponseEntity.ok(jobs);
-			}else {
-				List<Job> jobs;
-				if(categoryUid == null || categoryUid.isEmpty()) {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class);
-					jobs = (List<Job>) method.invoke(this.dao, queryString);
-				}else {
-					method = this.dao.getClass().getMethod(methodName.toString(), String.class, String.class);
-					jobs = (List<Job>) method.invoke(this.dao, queryString, categoryUid);
-				}
-				setExtraXmlProp(jobs);
-				return ResponseEntity.ok(jobs);
-			}
-		}
+		return ResponseEntity.ok(page_jobs);
 	}
 	
 	public FileSource add(FileSource filesource) throws IllegalArgumentException, Exception{

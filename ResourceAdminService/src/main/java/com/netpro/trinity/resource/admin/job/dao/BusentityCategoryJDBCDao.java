@@ -1,6 +1,8 @@
 package com.netpro.trinity.resource.admin.job.dao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -62,6 +64,21 @@ public class BusentityCategoryJDBCDao {
         List<JobFullPath> lists = (List<JobFullPath>) jtm.query(sql, param,
                 new BeanPropertyRowMapper<JobFullPath>(JobFullPath.class));
         return lists;
+    }
+	
+	public Map<String, JobFullPath> findAllViewEntityCategory() throws DataAccessException {
+        String sql = "SELECT v_bec.busentityuid, v_bec.busentityname, v_bec.categoryuid, v_bec.categoryname "
+        		+ "FROM View_BusEntityCategory v_bec";
+
+		List<JobFullPath> lists = (List<JobFullPath>) jtm.query(sql,
+				new BeanPropertyRowMapper<JobFullPath>(JobFullPath.class));
+		
+		Map<String, JobFullPath> map = new HashMap<String, JobFullPath>();
+		for (JobFullPath jfp : lists) {
+			map.put(jfp.getCategoryuid(), jfp);
+		}
+		
+        return map;
     }
 	
 	public Boolean existByEntityUid(String uid) throws DataAccessException{

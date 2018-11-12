@@ -85,6 +85,11 @@ public class Job {
   	@Transient
   	private Boolean skipmissingtask;
   	
+  	@Transient
+  	private String categoryname;
+  	@Transient
+  	private String entityname;
+  	
   	public String getJobuid() {
 		return jobuid;
 	}
@@ -293,4 +298,17 @@ public class Job {
 	public void setSkipmissingtask(Boolean skipmissingtask) {
 		this.skipmissingtask = skipmissingtask;
 	}
+	public String getCategoryname() {
+		return categoryname;
+	}
+	public void setCategoryname(String categoryname) {
+		this.categoryname = categoryname;
+	}
+	public String getEntityname() {
+		return entityname;
+	}
+	public void setEntityname(String entityname) {
+		this.entityname = entityname;
+	}
+	
 }
