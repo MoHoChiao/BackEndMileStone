@@ -84,6 +84,22 @@ public class ConnectionController {
 		}
 	}
 	
+	@GetMapping("/findByType")
+	public ResponseEntity<?> findConnByType(HttpServletRequest request, String type) {
+		try {
+			String peopleId = ACUtil.getUserIdFromAC(request);
+			if (this.authzService.checkFuncPermission(peopleId, "connection", "view")) {
+				return ResponseEntity.ok(this.service.getByConnType(type));
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
+			}
+			
+		}catch(Exception e) {
+			ConnectionController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 	@PostMapping("/findByFilter")
 	public ResponseEntity<?> findConnectionsByFilter(String categoryUid, @RequestBody FilterInfo filter) {
 		try {
@@ -153,10 +169,10 @@ public class ConnectionController {
 	public ResponseEntity<?> testJDBCConnection(HttpServletRequest request, String schema, @RequestBody JDBCConnection jdbcConn) {
 		try {
 			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.authzService.checkPermission(peopleId, "connection", jdbcConn.getConnectionuid(),  "modify")) {
+			if (this.authzService.checkFuncPermission(peopleId, "connection", "view")) {
 				return ResponseEntity.ok(this.service.testJDBCConnection(schema, jdbcConn));
-			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No 'View' Permission!");
 			}
 		}catch(IllegalArgumentException e) {
 			ConnectionController.LOGGER.error("IllegalArgumentException; reason was:", e);

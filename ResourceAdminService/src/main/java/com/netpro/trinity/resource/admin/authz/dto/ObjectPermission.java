@@ -86,7 +86,7 @@ public class ObjectPermission {
 	
 	@Override
 	public String toString() {
-		return "AgentFunc{" + "objuid='" + objuid + '\'' + ", "
+		return "{" + "objuid='" + objuid + '\'' + ", "
 				+ "view='" + add + '\'' + ", "
 				+ "add='" + add + '\'' + ", "
 				+ "modify='" + modify + '\'' + ", "

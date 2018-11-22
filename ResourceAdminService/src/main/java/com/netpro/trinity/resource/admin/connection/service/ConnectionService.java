@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import com.netpro.trinity.resource.admin.authz.entity.AccessRight;
 import com.netpro.trinity.resource.admin.authz.service.AuthzService;
+import com.netpro.trinity.resource.admin.connection.dao.ConnectionJDBCDao;
 import com.netpro.trinity.resource.admin.connection.dao.ConnectionJPADao;
 import com.netpro.trinity.resource.admin.connection.entity.Connection;
 import com.netpro.trinity.resource.admin.connection.entity.ConnectionCategory;
@@ -76,6 +77,8 @@ public class ConnectionService {
 	
 	@Autowired
 	private ConnectionJPADao dao;
+	@Autowired
+	private ConnectionJDBCDao jdbcDao;
 	
 	@Autowired
 	private TrinityuserService userService;
@@ -149,6 +152,14 @@ public class ConnectionService {
 		ConnectionCategory category = this.relService.getCategoryByConnectionUid(uid);
 		
 		return getExtraXmlPropAndCategoryInfo(conn, category);
+	}
+	
+	public List<Connection> getByConnType(String type) throws IllegalArgumentException, Exception {
+		if (type == null || type.trim().isEmpty())
+			throw new IllegalArgumentException("Connection Type can not be empty!");
+		
+		List<Connection> conns = this.jdbcDao.findByConnType(type);
+		return conns;
 	}
 	
 	public ResponseEntity<?> getByFilter(String categoryUid, FilterInfo filter) throws Exception{
