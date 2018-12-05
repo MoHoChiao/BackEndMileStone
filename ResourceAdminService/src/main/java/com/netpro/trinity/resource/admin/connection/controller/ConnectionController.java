@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.resource.admin.authz.service.AuthzService;
+import com.netpro.trinity.resource.admin.connection.entity.Connection;
 import com.netpro.trinity.resource.admin.connection.entity.JDBCConnection;
 import com.netpro.trinity.resource.admin.connection.service.ConnectionService;
 import com.netpro.trinity.resource.admin.dto.FilterInfo;
@@ -104,6 +105,16 @@ public class ConnectionController {
 	public ResponseEntity<?> findConnectionsByFilter(String categoryUid, @RequestBody FilterInfo filter) {
 		try {
 			return this.service.getByFilter(categoryUid, filter);
+		}catch(Exception e) {
+			ConnectionController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/findPimPwd")
+	public ResponseEntity<?> findPimPwd(@RequestBody Connection conn) {
+		try {
+			return ResponseEntity.ok(this.service.getPIMPwd(conn));
 		}catch(Exception e) {
 			ConnectionController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

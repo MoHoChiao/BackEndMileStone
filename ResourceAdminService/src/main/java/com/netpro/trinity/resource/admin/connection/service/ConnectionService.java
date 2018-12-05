@@ -28,6 +28,8 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.ca.ppm.clients.sdk.PUPMSDK;
+import com.ca.ppm.clients.sdk.PUPMSDKInterface;
 import com.netpro.trinity.resource.admin.authz.entity.AccessRight;
 import com.netpro.trinity.resource.admin.authz.service.AuthzService;
 import com.netpro.trinity.resource.admin.connection.dao.ConnectionJDBCDao;
@@ -920,4 +922,23 @@ public class ConnectionService {
 			ConnectionService.LOGGER.error("Exception; reason was:", e);
 		}
 	}
+	
+	public String getPIMPwd(Connection conn) {
+		PUPMSDKInterface sdk = new PUPMSDK();
+		String pwd = "";
+		
+		try {
+			pwd = sdk.checkout(conn.getPimendpointtype(), conn.getPimendpointname(), conn.getPimaccountname(),
+					conn.getPimaccountcontainer());
+
+			if (pwd == null || pwd.isEmpty()) {
+				pwd = "";
+			}
+		} catch (Exception e) {
+			ConnectionService.LOGGER.error("Exception: ", e);
+		}
+		
+		return pwd;
+	}
+	
 }
