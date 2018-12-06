@@ -80,4 +80,14 @@ public class WorkingCalendarListJDBCDao {
 		Object[] param = new Object[] {uid};
 		return jtm.update(sql, param);
 	}
+	
+	public Boolean refByJobExecution(String uid) throws DataAccessException {
+		String sql = "SELECT COUNT(je) > 0 FROM jobexecution je"
+				+ " WHERE je.wcalendaruid=? OR je.holidayuid=? AND 1=1";
+		Object[] param = new Object[] { uid, uid };
+
+		Boolean ret = (Boolean) jtm.queryForObject(sql, Boolean.class, param);
+		return ret;
+	}
+	
 }

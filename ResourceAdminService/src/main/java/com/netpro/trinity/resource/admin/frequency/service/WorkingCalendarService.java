@@ -28,6 +28,7 @@ import com.netpro.trinity.resource.admin.dto.Ordering;
 import com.netpro.trinity.resource.admin.dto.Paging;
 import com.netpro.trinity.resource.admin.dto.Querying;
 import com.netpro.trinity.resource.admin.frequency.dao.WorkingCalendarJPADao;
+import com.netpro.trinity.resource.admin.frequency.dao.WorkingCalendarListJDBCDao;
 import com.netpro.trinity.resource.admin.frequency.entity.WorkingCalendar;
 import com.netpro.trinity.resource.admin.frequency.entity.WorkingCalendarList;
 import com.netpro.trinity.resource.admin.frequency.entity.WorkingCalendarPattern;
@@ -52,6 +53,8 @@ public class WorkingCalendarService {
 	
 	@Autowired
 	private WorkingCalendarJPADao dao;
+	@Autowired
+	private WorkingCalendarListJDBCDao listDao;
 	
 	@Autowired
 	private WorkingCalendarListService listService;
@@ -229,44 +232,47 @@ public class WorkingCalendarService {
 		return wc;
 	}
 	
-	public WorkingCalendar edit(WorkingCalendar wc) throws IllegalArgumentException, Exception{		
+	public WorkingCalendar edit(WorkingCalendar wc) throws IllegalArgumentException, Exception {
 		String wc_uid = wc.getWcalendaruid();
-		if(null == wc_uid || wc_uid.trim().length() <= 0)
+		if (null == wc_uid || wc_uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Working Calendar Uid can not be empty!");
 		
-		if(wc_uid.trim().equalsIgnoreCase("SYSTEMDAY"))
+		if (wc_uid.trim().equalsIgnoreCase("SYSTEMDAY"))
 			throw new IllegalArgumentException("System day can not be edited!");
 		
 		WorkingCalendar old_wc = null;
 		try {
 			old_wc = this.dao.findById(wc_uid).get();
-		}catch(NoSuchElementException e) {}
-		 
-		if(null == old_wc)
+		} catch (NoSuchElementException e) {
+			;
+		}
+		
+		if (null == old_wc)
 			throw new IllegalArgumentException("Working Calendar Uid does not exist!(" + wc_uid + ")");
 		
 		String wc_name = wc.getWcalendarname();
-		if(null == wc_name || wc_name.trim().length() <= 0)
+		if (null == wc_name || wc_name.trim().length() <= 0)
 			throw new IllegalArgumentException("Working Calendar Name can not be empty!");
 		wc.setWcalendarname(wc_name.toUpperCase());
 		
-		if(this.dao.existByName(wc.getWcalendarname()) && !old_wc.getWcalendarname().equalsIgnoreCase(wc.getWcalendarname()))
+		if (this.dao.existByName(wc.getWcalendarname())
+				&& !old_wc.getWcalendarname().equalsIgnoreCase(wc.getWcalendarname()))
 			throw new IllegalArgumentException("Duplicate Working Calendar Name!");
 		
 		String activate = wc.getActivate();
-		if(null == activate || (!activate.equals("1") && !activate.equals("0")))
+		if (null == activate || (!activate.equals("1") && !activate.equals("0")))
 			throw new IllegalArgumentException("Working Calendar activate value can only be 1 or 0!");
 		
-		if(null == wc.getDescription())
+		if (null == wc.getDescription())
 			wc.setDescription("");
 		
 		this.dao.save(wc);
 		List<WorkingCalendarList> wcList = wc.getWcalendarlist();
-		if(null != wcList && wcList.size() > 0) {
+		if (null != wcList && wcList.size() > 0) {
 			this.listService.deleteByWCUid(wc.getWcalendaruid());
 			int[] returnValue = this.listService.addBatch(wc.getWcalendaruid(), wcList);
-			for(int i=0; i<returnValue.length; i++) {//重設working calendar list, 只有插入成功的會留下來傳回前端
-				if(returnValue[i] == 0) {
+			for (int i = 0; i < returnValue.length; i++) {// 重設working calendar list, 只有插入成功的會留下來傳回前端
+				if (returnValue[i] == 0) {
 					wcList.remove(i);
 				}
 			}
@@ -276,18 +282,18 @@ public class WorkingCalendarService {
 		return wc;
 	}
 	
-	public void deleteByUid(String uid) throws IllegalArgumentException, Exception{
-		if(null == uid || uid.trim().length() <= 0)
+	public void deleteByUid(String uid) throws IllegalArgumentException, Exception {
+		if (null == uid || uid.trim().length() <= 0)
 			throw new IllegalArgumentException("Working Calendar Uid can not be empty!");
-				
-		if(uid.trim().equalsIgnoreCase("SYSTEMDAY"))
+		
+		if (uid.trim().equalsIgnoreCase("SYSTEMDAY"))
 			throw new IllegalArgumentException("System day can not be removed!");
 		
-		if(!freqService.existByWCalendaruid(uid)) {
+		if (!freqService.existByWCalendaruid(uid) && !listDao.refByJobExecution(uid)) {
 			this.listService.deleteByWCUid(uid);
 			this.dao.deleteById(uid);
-		}else {
-			throw new IllegalArgumentException("Referenceing by frequency");
+		} else {
+			throw new IllegalArgumentException("Referenceing by frequency or jobexecution");
 		}
 	}
 	
