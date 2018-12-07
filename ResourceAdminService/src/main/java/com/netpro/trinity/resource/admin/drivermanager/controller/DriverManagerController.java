@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -153,7 +154,7 @@ public class DriverManagerController {
 			String peopleId = ACUtil.getUserIdFromAC(request);
 			PermissionTable permissionTable = this.authzService.getPermissionTable(peopleId);
 			if (permissionTable.isRoot()) {
-				return ResponseEntity.ok(this.service.modifyDriverYAML(info));
+				return ResponseEntity.ok(this.service.modifyDriver(info));
 			} else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have Permission!");
 			}
@@ -313,12 +314,12 @@ public class DriverManagerController {
 	}
 
 	@PostMapping("/publishDriver")
-	public ResponseEntity<?> publishDriver(HttpServletRequest request, @RequestBody List<String> driverNames) {
+	public ResponseEntity<?> publishDriver(HttpServletRequest request, @RequestBody Map<String, List<String>> params) {
 		try {
 			String peopleId = ACUtil.getUserIdFromAC(request);
 			PermissionTable permissionTable = this.authzService.getPermissionTable(peopleId);
 			if (permissionTable.isRoot()) {
-				return ResponseEntity.ok(this.service.publishDriver(driverNames));
+				return ResponseEntity.ok(this.service.publishDriver(params));
 			} else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have Permission!");
 			}

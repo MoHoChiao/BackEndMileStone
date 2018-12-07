@@ -13,6 +13,7 @@ public interface Constant {
 	public static final Set<String> QUERY_TYPE_SET = new HashSet<>(Arrays.asList(QUERY_TYPE_VALUES));
 	
 	//about driver manager
+	public static final String DRIVER_FILE_NAME	= "drivers.properties";
 	public static final String JDBC_JAR			= ".jdbc.jar";
 	public static final String JDBC_DRIVER		= ".jdbc.driver";
 	public static final String JDBC_URL			= ".jdbc.url";
