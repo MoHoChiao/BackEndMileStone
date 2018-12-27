@@ -14,7 +14,7 @@ import com.netpro.trinity.resource.admin.domain.entity.Domain;
 
 @Repository  //宣告這是一個DAO類別
 public interface DomainJPADao extends JpaRepository<Domain, String> {
-	@Query("select count(d)>0 from domain d where d.name=:name AND 1=1")
+	@Query("select case when count(d)>0 then true else false end from domain d where d.name=:name AND 1=1")
 	Boolean existByName(@Param("name") String name);
 	
 	List<Domain> findByNameLikeIgnoreCase(String name);

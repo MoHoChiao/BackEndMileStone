@@ -14,7 +14,7 @@ import com.netpro.trinity.resource.admin.notification.entity.Notification;
 
 @Repository  //宣告這是一個DAO類別
 public interface NotificationJPADao extends JpaRepository<Notification, String> {
-	@Query("select count(n)>0 from Notification n where n.notificationname=:notificationname AND n.targetuid=:targetuid AND 1=1")
+	@Query("select case when count(n)>0 then true else false end from Notification n where n.notificationname=:notificationname AND n.targetuid=:targetuid AND 1=1")
 	Boolean existByNameAndTargetUid(@Param("notificationname") String notificationname, @Param("targetuid") String targetuid);
 	
 	//notificationname field

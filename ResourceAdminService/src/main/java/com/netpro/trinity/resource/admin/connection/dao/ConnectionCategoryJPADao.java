@@ -14,7 +14,7 @@ import com.netpro.trinity.resource.admin.connection.entity.ConnectionCategory;
 
 @Repository  //宣告這是一個DAO類別
 public interface ConnectionCategoryJPADao extends JpaRepository<ConnectionCategory, String> {
-	@Query("select count(category)>0 from Connectioncategory category where category.conncategoryname=:conncategoryname AND 1=1")
+	@Query("select case when count(category)>0 then true else false end from Connectioncategory category where category.conncategoryname=:conncategoryname AND 1=1")
 	Boolean existByName(@Param("conncategoryname") String conncategoryname);
 	
 	List<ConnectionCategory> findByConncategorynameLikeIgnoreCase(String name);

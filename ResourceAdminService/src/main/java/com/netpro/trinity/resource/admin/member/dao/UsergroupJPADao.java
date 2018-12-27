@@ -14,7 +14,7 @@ import com.netpro.trinity.resource.admin.member.entity.Usergroup;
 
 @Repository  //宣告這是一個DAO類別
 public interface UsergroupJPADao extends JpaRepository<Usergroup, String> {  //自動繼承JapRepository下的所有方法
-	@Query("select count(g)>0 from usergroup g where g.groupname=:groupname AND 1=1")
+	@Query("select case when count(g)>0 then true else false end from usergroup g where g.groupname=:groupname AND 1=1")
 	Boolean existByName(@Param("groupname") String groupname);
 	
 	List<Usergroup> findByGroupnameLikeIgnoreCase(String name);

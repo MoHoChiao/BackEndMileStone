@@ -14,7 +14,7 @@ import com.netpro.trinity.resource.admin.member.entity.Role;
 
 @Repository  //宣告這是一個DAO類別
 public interface RoleJPADao extends JpaRepository<Role, String> {  //自動繼承JapRepository下的所有方法
-	@Query("select count(r)>0 from role r where r.rolename=:rolename AND 1=1")
+	@Query("select case when count(r)>0 then true else false end from role r where r.rolename=:rolename AND 1=1")
 	Boolean existByName(@Param("rolename") String rolename);
 	
 	List<Role> findByRolenameLikeIgnoreCase(String name);

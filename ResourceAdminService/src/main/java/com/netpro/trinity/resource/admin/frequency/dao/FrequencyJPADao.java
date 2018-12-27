@@ -14,10 +14,10 @@ import com.netpro.trinity.resource.admin.frequency.entity.Frequency;
 
 @Repository  //宣告這是一個DAO類別
 public interface FrequencyJPADao extends JpaRepository<Frequency, String> {
-	@Query("select count(freq)>0 from Frequency freq where freq.frequencyname=:frequencyname AND 1=1")
+	@Query("select case when count(freq)>0 then true else false end from Frequency freq where freq.frequencyname=:frequencyname AND 1=1")
 	Boolean existByName(@Param("frequencyname") String frequencyname);
 	
-	@Query("select count(freq)>0 from Frequency freq where freq.wcalendaruid=:wcalendaruid AND 1=1")
+	@Query("select case when count(freq)>0 then true else false end from Frequency freq where freq.wcalendaruid=:wcalendaruid AND 1=1")
 	Boolean existByWCalendaruid(@Param("wcalendaruid") String wcalendaruid);
 	
 	//Frequency uid field with In

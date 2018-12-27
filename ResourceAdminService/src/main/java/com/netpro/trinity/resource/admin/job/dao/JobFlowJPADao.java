@@ -14,10 +14,10 @@ import com.netpro.trinity.resource.admin.job.entity.JobFlow;
 
 @Repository  //宣告這是一個DAO類別
 public interface JobFlowJPADao extends JpaRepository<JobFlow, String> {
-	@Query("select count(flow)>0 from jobflow flow where flow.flowname=:flowname AND 1=1")
+	@Query("select case when count(flow)>0 then true else false end from jobflow flow where flow.flowname=:flowname AND 1=1")
 	Boolean existByName(@Param("flowname") String flowname);
 	
-	@Query("select count(flow)>0 from jobflow flow where flow.frequencyuid=:frequencyuid AND 1=1")
+	@Query("select case when count(flow)>0 then true else false end from jobflow flow where flow.frequencyuid=:frequencyuid AND 1=1")
 	Boolean existByFrequencyuid(@Param("frequencyuid") String frequencyuid);
 	
 	//category uid field

@@ -14,16 +14,16 @@ import com.netpro.trinity.resource.admin.job.entity.Job;
 
 @Repository  //宣告這是一個DAO類別
 public interface JobJPADao extends JpaRepository<Job, String> {
-	@Query("select count(job)>0 from Job job where job.jobname=:jobname AND 1=1")
+	@Query("select case when count(job)>0 then true else false end from Job job where job.jobname=:jobname AND 1=1")
 	Boolean existByName(@Param("jobname") String jobname);
 	
-	@Query("select count(job)>0 from Job job where job.filesourceuid=:filesourceuid AND 1=1")
+	@Query("select case when count(job)>0 then true else false end from Job job where job.filesourceuid=:filesourceuid AND 1=1")
 	Boolean existByFilesourceuid(@Param("filesourceuid") String filesourceuid);
 	
-	@Query("select count(job)>0 from Job job where job.frequencyuid=:frequencyuid AND 1=1")
+	@Query("select case when count(job)>0 then true else false end from Job job where job.frequencyuid=:frequencyuid AND 1=1")
 	Boolean existByFrequencyuid(@Param("frequencyuid") String frequencyuid);
 	
-	@Query("select count(job)>0 from Job job where job.domainuid=:domainuid AND 1=1")
+	@Query("select case when count(job)>0 then true else false end from Job job where job.domainuid=:domainuid AND 1=1")
 	Boolean existByDomainuid(@Param("domainuid") String domainuid);
 	
 	//category uid field

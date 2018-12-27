@@ -14,7 +14,7 @@ import com.netpro.trinity.resource.admin.frequency.entity.ExclFrequency;
 
 @Repository  //宣告這是一個DAO類別
 public interface ExclFrequencyJPADao extends JpaRepository<ExclFrequency, String> {
-	@Query("select count(excl)>0 from excludefrequency excl where excl.excludefrequencyname=:excludefrequencyname AND 1=1")
+	@Query("select case when count(excl)>0 then true else false end from excludefrequency excl where excl.excludefrequencyname=:excludefrequencyname AND 1=1")
 	Boolean existByName(@Param("excludefrequencyname") String excludefrequencyname);
 	
 	List<ExclFrequency> findByExcludefrequencynameLikeIgnoreCase(String name);

@@ -14,7 +14,7 @@ import com.netpro.trinity.resource.admin.filesource.entity.FileSource;
 
 @Repository  //宣告這是一個DAO類別
 public interface FileSourceJPADao extends JpaRepository<FileSource, String> {
-	@Query("select count(filesource)>0 from Filesource filesource where filesource.filesourcename=:filesourcename AND 1=1")
+	@Query("select case when count(f)>0 then true else false end from Filesource f where f.filesourcename=:filesourcename AND 1=1")
 	Boolean existByName(@Param("filesourcename") String filesourcename);
 	
 	//file source uid field with In

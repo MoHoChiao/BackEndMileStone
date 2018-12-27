@@ -14,13 +14,13 @@ import com.netpro.trinity.resource.admin.agent.entity.JCSAgent;
 
 @Repository  //宣告這是一個DAO類別
 public interface JCSAgentJPADao extends JpaRepository<JCSAgent, String> {
-	@Query("select count(agent)>0 from JCSAgent agent where agent.agentname=:agentname AND 1=1")
+	@Query("select case when count(a)>0 then true else false end from JCSAgent a where a.agentname=:agentname AND 1=1")
 	Boolean existByName(@Param("agentname") String agentname);
 	
-	@Query("select agentname from JCSAgent")
+	@Query("select a.agentname from JCSAgent a")
 	List<String> findAllAgentNames();
 	
-	@Query("select agentuid from JCSAgent")
+	@Query("select a.agentuid from JCSAgent a")
 	List<String> findAllAgentUids();
 	
 //	@Query("select agent.agentuid, agent.agentname, agent.description, agent.host, agent.lastupdatetime from JCSAgent agent "

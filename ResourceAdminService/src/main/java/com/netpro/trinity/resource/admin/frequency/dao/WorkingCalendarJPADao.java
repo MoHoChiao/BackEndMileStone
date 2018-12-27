@@ -14,7 +14,7 @@ import com.netpro.trinity.resource.admin.frequency.entity.WorkingCalendar;
 
 @Repository  //宣告這是一個DAO類別
 public interface WorkingCalendarJPADao extends JpaRepository<WorkingCalendar, String> {
-	@Query("select count(wc)>0 from workingcalendar wc where wc.wcalendarname=:wcalendarname AND 1=1")
+	@Query("select case when count(wc)>0 then true else false end from workingcalendar wc where wc.wcalendarname=:wcalendarname AND 1=1")
 	Boolean existByName(@Param("wcalendarname") String wcalendarname);
 	
 	//working calendar name field

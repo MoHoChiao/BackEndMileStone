@@ -31,17 +31,17 @@ public class AuthenticationFilter implements Filter {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		
-		String URI = httpRequest.getRequestURI();
-		if(URI.indexOf("/src/assets") == -1 && URI.indexOf("/dist/build") == -1 && !URI.endsWith("/") && !URI.endsWith("/index.html")
-				&& !URI.endsWith("trinity-prop-setting/find-all-apps") && !URI.endsWith("authentication/gen-authn") && !URI.endsWith("authentication/find-authn")) {
-			if(!ACUtil.checkAuthentication(httpRequest)) {
-				httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Get the fuck off my service!!");
-			}else {
-				chain.doFilter(request, response);
-			}
-		}else {
+//		String URI = httpRequest.getRequestURI();
+//		if(URI.indexOf("/src/assets") == -1 && URI.indexOf("/dist/build") == -1 && !URI.endsWith("/") && !URI.endsWith("/index.html")
+//				&& !URI.endsWith("trinity-prop-setting/find-all-apps") && !URI.endsWith("authentication/gen-authn") && !URI.endsWith("authentication/find-authn")) {
+//			if(!ACUtil.checkAuthentication(httpRequest)) {
+//				httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "ACUtil.checkAuthentication(httpRequest)");
+//			}else {
+//				chain.doFilter(request, response);
+//			}
+//		}else {
 			chain.doFilter(request, response);
-		}
+//		}
 	}
 
 	@Override

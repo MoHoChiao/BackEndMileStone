@@ -11,7 +11,7 @@ import com.netpro.trinity.resource.admin.externalrule.entity.Transformrule;
 
 @Repository  //宣告這是一個DAO類別
 public interface TransformruleJPADao extends JpaRepository<Transformrule, String> {
-	@Query("select count(rule)>0 from transformrule rule where rule.rule=:rule AND 1=1")
+	@Query("select case when count(rule)>0 then true else false end from transformrule rule where rule.rule=:rule AND 1=1")
 	Boolean existByRule(@Param("rule") String rule);
 	
 	@Transactional

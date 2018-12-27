@@ -14,7 +14,7 @@ import com.netpro.trinity.resource.admin.job.entity.Jobstep;
 
 @Repository  //宣告這是一個DAO類別
 public interface JobstepJPADao extends JpaRepository<Jobstep, String> {
-	@Query("select count(step)>0 from Jobstep step where step.stepname=:stepname AND 1=1")
+	@Query("select case when count(step)>0 then true else false end from Jobstep step where step.stepname=:stepname AND 1=1")
 	Boolean existByName(@Param("stepname") String stepname);
 	
 	//job step type field

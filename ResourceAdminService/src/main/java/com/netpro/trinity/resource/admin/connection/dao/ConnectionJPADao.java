@@ -14,7 +14,7 @@ import com.netpro.trinity.resource.admin.connection.entity.Connection;
 
 @Repository  //宣告這是一個DAO類別
 public interface ConnectionJPADao extends JpaRepository<Connection, String> {
-	@Query("select count(conn)>0 from Connection conn where conn.connectionname=:connectionname AND 1=1")
+	@Query("select case when count(conn)>0 then true else false end from Connection conn where conn.connectionname=:connectionname AND 1=1")
 	Boolean existByName(@Param("connectionname") String connectionname);
 	
 	//connection uid field with In

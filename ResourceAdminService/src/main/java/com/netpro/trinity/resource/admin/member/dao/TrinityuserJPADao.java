@@ -14,9 +14,9 @@ import com.netpro.trinity.resource.admin.member.entity.Trinityuser;
 
 @Repository  //宣告這是一個DAO類別
 public interface TrinityuserJPADao extends JpaRepository<Trinityuser, String> {  //自動繼承JapRepository下的所有方法
-	@Query("select count(user)>0 from trinityuser user where user.username=:username AND 1=1")
+	@Query("select case when count(user)>0 then true else false end from trinityuser user where user.username=:username AND 1=1")
 	Boolean existByName(@Param("username") String username);
-	@Query("select count(user)>0 from trinityuser user where user.userid=:userid AND 1=1")
+	@Query("select case when count(user)>0 then true else false end from trinityuser user where user.userid=:userid AND 1=1")
 	Boolean existByID(@Param("userid") String userid);
 	
 	//userid field

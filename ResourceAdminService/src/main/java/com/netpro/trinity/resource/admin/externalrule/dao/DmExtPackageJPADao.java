@@ -14,7 +14,7 @@ import com.netpro.trinity.resource.admin.externalrule.entity.Dmextpackage;
 
 @Repository  //宣告這是一個DAO類別
 public interface DmExtPackageJPADao extends JpaRepository<Dmextpackage, String> {
-	@Query("select count(p)>0 from dmextpackage p where p.packagename=:packagename AND 1=1")
+	@Query("select case when count(p)>0 then true else false end from dmextpackage p where p.packagename=:packagename AND 1=1")
 	Boolean existByName(@Param("packagename") String name);
 	
 	//package name field

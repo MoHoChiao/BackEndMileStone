@@ -14,7 +14,7 @@ import com.netpro.trinity.resource.admin.frequency.entity.FrequencyCategory;
 
 @Repository  //宣告這是一個DAO類別
 public interface FrequencyCategoryJPADao extends JpaRepository<FrequencyCategory, String> {
-	@Query("select count(category)>0 from Frequencycategory category where category.freqcategoryname=:freqcategoryname AND 1=1")
+	@Query("select case when count(fc)>0 then true else false end from Frequencycategory fc where fc.freqcategoryname=:freqcategoryname AND 1=1")
 	Boolean existByName(@Param("freqcategoryname") String freqcategoryname);
 	
 	List<FrequencyCategory> findByFreqcategorynameLikeIgnoreCase(String name);
