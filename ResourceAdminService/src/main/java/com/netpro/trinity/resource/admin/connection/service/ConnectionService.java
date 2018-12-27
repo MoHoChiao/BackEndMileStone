@@ -107,7 +107,7 @@ public class ConnectionService {
 	@Autowired
 	private XMLDataUtility xmlUtil;
 	
-	@Value("${encrypt.key}")
+	@Value("${trinity.encrypt.key}")
 	private String encryptKey;
 	
 	public List<Connection> getAll() throws Exception{

@@ -17,7 +17,7 @@ public class TrinityconfigService {
 	@Autowired
 	private TrinityconfigJPADao dao;
 	
-	@Value("${encrypt.key}")
+	@Value("${trinity.encrypt.key}")
 	private String encryptKey;
 	
 	public List<Trinityconfig> getAll() throws Exception{

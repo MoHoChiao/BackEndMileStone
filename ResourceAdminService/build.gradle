@@ -7,7 +7,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-		classpath files('lib/postgresql-9.2-1003-jdbc4.jar','lib/authc-all.jar','lib/jose4j-0.5.5.jar','lib/dm.jar','lib/license.jar')
+		classpath files('lib/postgresql-9.2-1003-jdbc4.jar','lib/authc-all.jar','lib/jose4j-0.5.5.jar','lib/dm.jar','lib/license.jar','lib/PupmJavaSDK-1.0.jar')
 	}
 }
 
@@ -27,14 +27,38 @@ repositories {
 
 configurations {
 	providedRuntime
+	compile.exclude module: "spring-boot-starter-tomcat"
+}
+
+compileJava {
+	options.encoding='utf8'
 }
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	compile('org.springframework.boot:spring-boot-configuration-processor')
+
+	// EclipseLink (persistence impl)
+	compile('org.springframework.boot:spring-boot-starter-data-jpa') {
+		exclude group: "org.hibernate", module: "hibernate-entitymanager"
+		exclude group: "org.hibernate", module: "hibernate-core"
+	}
+	compile('org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.3')
+	
 	compile('org.springframework.boot:spring-boot-starter-web')
-	providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
-	compile group: 'org.apache.tomcat', name: 'tomcat-jdbc', version: '9.0.8'
-	compile files('lib/postgresql-9.2-1003-jdbc4.jar','lib/authc-all.jar','lib/jose4j-0.5.5.jar','lib/dm.jar','lib/license.jar')
-	providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+	
+	// Tomcat --> Jetty
+	//providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+	providedCompile('org.springframework.boot:spring-boot-starter-jetty')
+	compile('org.springframework.boot:spring-boot-starter-jdbc') {
+		exclude module: "org.apache.tomcat:tomcat-jdbc"
+	}
+	
+	compile files('lib/postgresql-9.2-1003-jdbc4.jar',
+		'lib/authc-all.jar',
+		'lib/jose4j-0.5.5.jar',
+		'lib/dm.jar',
+		'lib/license.jar',
+		'lib/PupmJavaSDK-1.0.jar'
+	)
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }

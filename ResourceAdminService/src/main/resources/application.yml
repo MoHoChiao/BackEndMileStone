@@ -1,4 +1,19 @@
+server:
+#  port: 8080
+  servlet:
+    context-path: /ResourceAdminService
 spring:
+  data:
+    rest:
+      base-path: /ResourceAdminService
+  http:
+    encoding:
+      # Charset of HTTP requests and responses. Added to the "Content-Type" header if not set explicitly.
+      charset: UTF-8
+      # Whether to enable http encoding support.
+      enabled: true
+      # Whether to force the encoding to the configured charset on HTTP requests and responses.
+      force: true
   application:
     name: resource-admin-service
   servlet:
@@ -6,7 +21,7 @@ spring:
       enabled: true   # 啟用http上傳
       max-file-size: 300MB # 設置單文件的最大長度
       max-request-size: 300MB # 设置最大的请求文件的大小
-      file-size-threshold: 30MB  # 設置最大的請求文件之大小
+      file-size-threshold: 30MB  # 設置最大的請求文件 之大小
   jpa:
     generate-ddl: false
     show-sql: true
@@ -15,21 +30,24 @@ spring:
     properties:
       hibernate:
         temp:
-          use_jdbc_metadata_defaults: false           #Hibernate\u5617\u8A66\u9A57\u8B49PostgreSQL\u7684CLOB\u7279\u6027\uFF0C\u4F46\u662FPostgreSQL\u7684JDBC\u9A45\u52D5\u4E26\u6C92\u6709\u5BE6\u73FE\u9019\u500B\u7279\u6027 
+          #Hibernate\u5617\u8A66\u9A57\u8B49PostgreSQL\u7684CLOB\u7279\u6027\uFF0C\u4F46\u662FPostgreSQL\u7684JDBC\u9A45\u52D5\u4E26\u6C92\u6709\u5BE6\u73FE\u9019\u500B\u7279\u6027
+          use_jdbc_metadata_defaults: false
   datasource:
-    platform: org.eclipse.persistence.platform.database.PostgreSQLPlatform
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://127.0.0.1:5432/trinity
-    username: trinity
-    password: trinity
+#    platform: org.eclipse.persistence.platform.database.PostgreSQLPlatform
+#    driver-class-name: org.postgresql.Driver
+#    url: jdbc:postgresql://127.0.0.1:5432/trinity411113
+#    username: trinity
+#    password: trinity
     tomcat:
       max-active: 20
       initial-size: 5
-      max-wait: 20
+      max-wait: 20000
   jackson: 
     default-property-inclusion: NON_NULL
     serialization:
       fail-on-empty-beans: false
+  profiles:
+    include: sys
 logging: 
   level: 
     org: 
@@ -37,5 +55,3 @@ logging:
         jdbc: 
           core: 
             JdbcTemplate: debug
-encrypt:
-  key: trinity

@@ -9,7 +9,6 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.tomcat.jdbc.pool.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +26,7 @@ import com.netpro.ac.util.CookieUtils;
 import com.netpro.ac.util.TrinityWebV2Utils;
 import com.netpro.trinity.resource.admin.authn.dto.ReturnLoginInfo;
 import com.netpro.trinity.resource.admin.prop.dto.TrinityPropSetting;
+import com.zaxxer.hikari.HikariDataSource;
 
 @Service
 public class AuthnService {
@@ -35,7 +35,7 @@ public class AuthnService {
 	private TrinityPropSetting trinityProp;
 		
 	@Autowired	//自動注入DataSource物件
-	private DataSource dataSource;
+	private HikariDataSource dataSource;
 	
 	public ReturnLoginInfo genAuthn(HttpServletResponse response, String ip, String ac, String psw) throws SQLException, IllegalArgumentException, IllegalAccessException, Exception {
 		ReturnLoginInfo info = new ReturnLoginInfo();

@@ -11,7 +11,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.tomcat.jdbc.pool.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +42,7 @@ import com.netpro.trinity.resource.admin.util.Constant;
 import com.netpro.trinity.resource.admin.util.Crypto;
 import com.netpro.trinity.resource.admin.util.NetworkUtil;
 import com.netpro.trinity.resource.admin.util.XMLDataUtility;
+import com.zaxxer.hikari.HikariDataSource;
 
 @Service
 public class TrinityuserService {
@@ -62,11 +62,11 @@ public class TrinityuserService {
 	@Autowired
 	private TrinityconfigService configService;
 	@Autowired	//自動注入DataSource物件
-	private DataSource dataSource;
+	private HikariDataSource dataSource;
 	@Autowired
 	private XMLDataUtility xmlUtil;
 	
-	@Value("${encrypt.key}")
+	@Value("${trinity.encrypt.key}")
 	private String encryptKey;
 	
 	private DefaultCredentialsService credentialsService;
@@ -484,7 +484,7 @@ public class TrinityuserService {
 		}
 	}
 	
-	private void setMailsAndAC(Trinityuser user) throws Exception{
+	private void setMailsAndAC(Trinityuser user) throws Exception {
 		//For Mail List
 		String mail = user.getEmail();
 		String xmldata = user.getXmldata();

@@ -1,0 +1,10 @@
+trinity-sys-setting: 
+  dir: 
+    home: ${DISSERVER_HOME}
+    config: ${DISSERVER_HOME}/cfg
+    software: ${DISSERVER_HOME}/data/software
+    jdbc: ${DISSERVER_HOME}/data/jdbc
+    log: ${DISSERVER_HOME}/log
+    comparereport: ${DISSERVER_HOME}/data/comparereport
+    extlib: ${DISSERVER_HOME}/data/extlib
+    data: ${DISSERVER_HOME}/data
