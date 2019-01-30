@@ -194,4 +194,18 @@ public class ObjectAliasController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
+	
+	@PostMapping("/checkIsRefBy")
+	public ResponseEntity<?> checkIsRefBy(HttpServletRequest request, @RequestBody ObjectAlias alias) {
+		try {
+			return ResponseEntity.ok(this.service.checkIsRefBy(alias.getParentuid(), alias.getAliastype(), alias.getAliasname()));
+		} catch (IllegalArgumentException e) {
+			ObjectAliasController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		} catch (Exception e) {
+			ObjectAliasController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
 }

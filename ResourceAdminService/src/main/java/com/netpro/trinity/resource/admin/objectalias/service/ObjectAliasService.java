@@ -323,4 +323,9 @@ public class ObjectAliasService {
 			return "";
 		}
 	}
+	
+	public String checkIsRefBy(String parentUid, String aliasType, String aliasName) {
+		return dao.checkIsRefBy(parentUid, aliasType, aliasName);
+	}
+	
 }
