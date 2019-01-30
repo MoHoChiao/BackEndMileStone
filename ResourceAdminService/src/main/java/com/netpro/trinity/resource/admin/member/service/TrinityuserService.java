@@ -81,7 +81,8 @@ public class TrinityuserService {
 	}
 	
 	public List<Trinityuser> getAll() throws Exception{
-		List<Trinityuser> users = this.dao.findAll();
+//		List<Trinityuser> users = this.dao.findAll();
+		List<Trinityuser> users = this.dao.findAll(new Sort(Sort.Direction.ASC, "userid"));
 		setMailsAndAC(users);
 		setProfileDataOnly(users);
 		return users;
@@ -134,7 +135,7 @@ public class TrinityuserService {
 			throw new IllegalArgumentException("Trinity User ID does not exist!(" + id + ")");
 		
 		setMailsAndAC(user);
-		setProfileDataOnly(user);
+//		setProfileDataOnly(user);
 		
 		return user;
 	}
@@ -205,8 +206,8 @@ public class TrinityuserService {
 		Trinityconfig config = configService.getByUid("4.0");
 		char[] secret = password == null ? new char[0] : password.toCharArray();
 		String msg = this.validatePassword(request, false, userid, secret, localAcc, exeAcc);
-		if(!"LDAP".equals(msg) && !"OK".equals(msg) && 
-				(!("Password can not be empty").equals(msg) || !config.getAuthmode().equals("1")) || localAcc)
+		if (!"LDAP".equals(msg) && !"OK".equals(msg)
+				&& (!("Password can not be empty").equals(msg) || !config.getAuthmode().equals("1")))
 			throw new ACException(msg);
 		
 		user.setPassword(Crypto.getEncryptString(password, encryptKey));
@@ -301,9 +302,12 @@ public class TrinityuserService {
 			exeAcc = false;
 		String password = user.getPassword();
 		char[] secret = password == null ? new char[0] : password.toCharArray();
-		String msg = this.validatePassword(request, true, old_user.getUserid(), secret, localAcc, exeAcc);
-		if(!"LDAP".equals(msg) && !"OK".equals(msg) && !("Password can not be empty").equals(msg))
-			throw new ACException(msg);
+		
+		if (password != null && !password.trim().isEmpty()) {
+			String msg = this.validatePassword(request, true, old_user.getUserid(), secret, localAcc, exeAcc);
+			if(!"LDAP".equals(msg) && !"OK".equals(msg) && !("Password can not be empty").equals(msg))
+				throw new ACException(msg);
+		}
 		
 		if(null ==  user.getSsoid())
 			user.setSsoid("");
@@ -323,11 +327,12 @@ public class TrinityuserService {
 		old_user.setHomedir(user.getHomedir());
 		old_user.setXmldata(user.getXmldata());
 		old_user.setLastupdatetime(new Date());
-		System.out.println(old_user.getPassword()+"/////////////////");
 		Trinityuser new_user = this.dao.save(old_user);
 		new_user.setXmldata(null);//不需要回傳
 
-		saveCredentials(request, old_user.getUserid(), secret);
+		if (password != null && !password.trim().isEmpty()) {
+			saveCredentials(request, old_user.getUserid(), secret);
+		}
 		
 		return new_user;
 	}

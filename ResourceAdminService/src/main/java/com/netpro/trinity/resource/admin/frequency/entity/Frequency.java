@@ -22,13 +22,13 @@ public class Frequency {
   	private String description;
   	@Column(nullable=false)
   	private String activate;
-  	@Column(nullable=false)
+  	@Column
   	private String lastcheckdatetime;
-  	@Column(nullable=false)
+  	@Column
   	private String manuallyedit;
-  	@Column(nullable=false)
+  	@Column
   	private String bywcalendar;
-  	@Column(nullable=false)
+  	@Column
   	private String wcalendaruid;
   	@Column
   	private String xmldata;

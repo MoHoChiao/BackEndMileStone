@@ -1,5 +1,5 @@
 server:
-#  port: 8080
+  port: 9090
   servlet:
     context-path: /ResourceAdminService
 spring:
@@ -50,3 +50,11 @@ logging:
         jdbc: 
           core: 
             JdbcTemplate: debug
+database:            
+  driver: org.postgresql.Driver
+  url: jdbc:postgresql://127.0.0.1:5432/trinity411113
+  username: trinity
+  password: trinity
+trinity:
+  encrypt:
+    key: trinity
