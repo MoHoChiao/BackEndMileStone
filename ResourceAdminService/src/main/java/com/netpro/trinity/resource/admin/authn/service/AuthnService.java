@@ -25,6 +25,8 @@ import com.netpro.ac.util.CommonUtils;
 import com.netpro.ac.util.CookieUtils;
 import com.netpro.ac.util.TrinityWebV2Utils;
 import com.netpro.trinity.resource.admin.authn.dto.ReturnLoginInfo;
+import com.netpro.trinity.resource.admin.member.entity.Trinityuser;
+import com.netpro.trinity.resource.admin.member.service.TrinityuserService;
 import com.netpro.trinity.resource.admin.prop.dto.TrinityPropSetting;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -33,6 +35,8 @@ public class AuthnService {
 	
 	@Autowired
 	private TrinityPropSetting trinityProp;
+	@Autowired
+	private TrinityuserService trinityUserService;
 		
 	@Autowired	//自動注入DataSource物件
 	private HikariDataSource dataSource;
@@ -101,7 +105,10 @@ public class AuthnService {
 				TrinityWebV2Utils.issueHttpOnlyCookies(response, trinityPrinc, expireSeconds, true);
 				info.setUserinfo(userInfo);
 				info.setUsertype(trinityPrinc.isPowerUser() ? "R" : "G");
-								
+				
+				Trinityuser trinityUser = trinityUserService.getByID(ac);
+				info.setUserLang(trinityUser.getDefaultlang());
+				
 				return info;
 			}
 		} finally {

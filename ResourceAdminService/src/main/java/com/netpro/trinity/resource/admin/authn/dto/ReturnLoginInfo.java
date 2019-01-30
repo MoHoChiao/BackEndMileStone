@@ -6,6 +6,7 @@ public class ReturnLoginInfo{
 	private String status;
 	private String msg;
 	private String usertype;
+	private String userLang;
 	
 	public String getUserinfo() {
 		return userinfo;
@@ -31,4 +32,11 @@ public class ReturnLoginInfo{
 	public void setUsertype(String usertype) {
 		this.usertype = usertype;
 	}
+	public String getUserLang() {
+		return userLang;
+	}
+	public void setUserLang(String userLang) {
+		this.userLang = userLang;
+	}
+	
 }
