@@ -1,5 +1,9 @@
 package com.netpro.trinity.resource.admin.frequency.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -16,8 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netpro.trinity.resource.admin.authz.service.AuthzService;
 import com.netpro.trinity.resource.admin.dto.FilterInfo;
 import com.netpro.trinity.resource.admin.frequency.entity.Frequency;
+import com.netpro.trinity.resource.admin.frequency.entity.FrequencyCategory;
+import com.netpro.trinity.resource.admin.frequency.service.FrequencyCategoryService;
 import com.netpro.trinity.resource.admin.frequency.service.FrequencyService;
 import com.netpro.trinity.resource.admin.util.ACUtil;
+import com.netpro.trinity.resource.admin.util.JsTreeItem;
 
 @RestController // 宣告一個Restful Web Service的Resource
 @RequestMapping("/frequency")
@@ -26,6 +33,9 @@ public class FrequencyController {
 
 	@Autowired
 	private FrequencyService service;
+	
+	@Autowired
+	private FrequencyCategoryService fcService;
 
 	@Autowired
 	private AuthzService authzService;
@@ -104,6 +114,66 @@ public class FrequencyController {
 			} else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'View' Permission!");
 			}
+		} catch (Exception e) {
+			FrequencyController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@PostMapping("/findForTree")
+	public ResponseEntity<?> findForTree(HttpServletRequest request, @RequestBody Map<String, Object> map) {
+		String cate_icon = (String) map.get("l1_icon");
+		String freq_icon = (String) map.get("l2_icon");
+		List<String> freqList = (List<String>) map.get("frequencyUids");
+		
+		try {
+			List<JsTreeItem> nodeList = new ArrayList<JsTreeItem>();
+			List<FrequencyCategory> cateList = this.fcService.getAll();
+			
+			for (FrequencyCategory fc : cateList) {
+				JsTreeItem node = new JsTreeItem();
+				node.setId(fc.getFreqcategoryuid());
+				node.setName(fc.getFreqcategoryname());
+				node.setIcon(cate_icon);
+				
+				List<JsTreeItem> childList = new ArrayList<JsTreeItem>();
+				List<Frequency> fList = this.service.getByCategoryUid(fc.getFreqcategoryuid());
+				for (Frequency f : fList) {
+					JsTreeItem childNode = new JsTreeItem();
+					childNode.setId(f.getFrequencyuid());
+					childNode.setName(f.getFrequencyname());
+					childNode.setIcon(freq_icon);
+					
+					if (freqList.contains(f.getFrequencyuid())) {
+						childNode.setDisabled(true);
+					}
+					
+					childList.add(childNode);
+				}
+				
+				node.setChildren(childList);
+				nodeList.add(node);
+			}
+			
+			List<Frequency> fList = this.service.getAllWithoutInCategory();
+			for (Frequency f : fList) {
+				JsTreeItem node = new JsTreeItem();
+				node.setId(f.getFrequencyuid());
+				node.setName(f.getFrequencyname());
+				node.setIcon(freq_icon);
+				
+				if (freqList.contains(f.getFrequencyuid())) {
+					node.setDisabled(true);;
+				}
+				
+				nodeList.add(node);
+			}
+			
+			return ResponseEntity.ok(nodeList);
+		} catch (IllegalArgumentException e) {
+			FrequencyController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		} catch (Exception e) {
 			FrequencyController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

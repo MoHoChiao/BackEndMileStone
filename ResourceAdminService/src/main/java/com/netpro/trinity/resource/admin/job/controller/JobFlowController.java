@@ -1,6 +1,11 @@
 package com.netpro.trinity.resource.admin.job.controller;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +19,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netpro.trinity.resource.admin.dto.FilterInfo;
+import com.netpro.trinity.resource.admin.job.entity.Busentity;
+import com.netpro.trinity.resource.admin.job.entity.JobFlow;
+import com.netpro.trinity.resource.admin.job.entity.Jobcategory;
+import com.netpro.trinity.resource.admin.job.service.BusentityService;
 import com.netpro.trinity.resource.admin.job.service.JobFlowService;
+import com.netpro.trinity.resource.admin.job.service.JobcategoryService;
+import com.netpro.trinity.resource.admin.util.JsTreeItem;
 
 @RestController  //宣告一個Restful Web Service的Resource
 @RequestMapping("/jobflow")
@@ -23,6 +34,10 @@ public class JobFlowController {
 		
 	@Autowired
 	private JobFlowService service;
+	@Autowired
+	private BusentityService busService;
+	@Autowired
+	private JobcategoryService cateService;
 	
 	@GetMapping("/findAll")
 	public ResponseEntity<?> findAllJobFlows() {
@@ -93,6 +108,65 @@ public class JobFlowController {
 			JobFlowController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}catch(Exception e) {
+			JobFlowController.LOGGER.error("Exception; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@PostMapping("/findForTree")
+	public ResponseEntity<?> findForTree(HttpServletRequest request, @RequestBody Map<String, Object> map) {
+		String bus_icon = (String) map.get("l1_icon");
+		String cate_icon = (String) map.get("l2_icon");
+		String flow_icon = (String) map.get("l3_icon");
+		List<String> flowUidList = (List<String>) map.get("flowUids");
+		
+		try {
+			List<JsTreeItem> nodeList = new ArrayList<JsTreeItem>();
+			List<Busentity> busList = this.busService.getAll(false);
+			
+			for (Busentity bus : busList) {
+				JsTreeItem busNode = new JsTreeItem();
+				busNode.setId(bus.getBusentityuid());
+				busNode.setName(bus.getBusentityname());
+				busNode.setIcon(bus_icon);
+				
+				List<JsTreeItem> childCateList = new ArrayList<JsTreeItem>();
+				List<Jobcategory> cateList = this.cateService.getByEntityUid(bus.getBusentityuid());
+				for (Jobcategory cate : cateList) {
+					JsTreeItem cateNode = new JsTreeItem();
+					cateNode.setId(cate.getCategoryuid());
+					cateNode.setName(cate.getCategoryname());
+					cateNode.setIcon(cate_icon);
+					
+					List<JsTreeItem> childFlowList = new ArrayList<JsTreeItem>();
+					List<JobFlow> flowList = this.service.getByCategoryUid(cate.getCategoryuid());
+					for (JobFlow flow : flowList) {
+						JsTreeItem flowNode = new JsTreeItem();
+						flowNode.setId(flow.getJobflowuid());
+						flowNode.setName(flow.getFlowname());
+						flowNode.setIcon(flow_icon);
+						
+						if (flowUidList.contains(flow.getJobflowuid())) {
+							flowNode.setDisabled(true);
+						}
+						
+						childFlowList.add(flowNode);
+					}
+					
+					cateNode.setChildren(childFlowList);
+					childCateList.add(cateNode);
+				}
+				
+				busNode.setChildren(childCateList);
+				nodeList.add(busNode);
+			}
+			
+			return ResponseEntity.ok(nodeList);
+		} catch (IllegalArgumentException e) {
+			JobFlowController.LOGGER.error("IllegalArgumentException; reason was:", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		} catch (Exception e) {
 			JobFlowController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
