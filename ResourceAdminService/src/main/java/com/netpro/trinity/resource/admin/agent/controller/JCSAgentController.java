@@ -108,15 +108,19 @@ public class JCSAgentController {
 	public ResponseEntity<?> addAgent(HttpServletRequest request, @RequestBody JCSAgent agent) {
 		try {
 			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.authzService.checkFuncPermission(peopleId, "agent", "add")) {
-				return ResponseEntity.ok(this.service.add(request, agent));
-			}else {
+			if (this.authzService.checkFuncPermission(peopleId, "agent", "add")) {
+				if (this.service.agentCntIsCapped(agent.getHost() + ":" + agent.getPort(), "")) {
+					return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("The agent number of license is capped");
+				} else {
+					return ResponseEntity.ok(this.service.add(request, agent));
+				}
+			} else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Add' Permission!");
 			}
-		}catch(IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
+		} catch (Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
@@ -126,15 +130,19 @@ public class JCSAgentController {
 	public ResponseEntity<?> editAgent(HttpServletRequest request, @RequestBody JCSAgent agent) {
 		try {
 			String peopleId = ACUtil.getUserIdFromAC(request);
-			if(this.authzService.checkPermission(peopleId, "agent", agent.getAgentuid(),  "modify")) {
-				return ResponseEntity.ok(this.service.edit(agent));
-			}else {
+			if (this.authzService.checkPermission(peopleId, "agent", agent.getAgentuid(), "modify")) {
+				if (this.service.agentCntIsCapped(agent.getHost() + ":" + agent.getPort(), agent.getAgentuid())) {
+					return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("The agent number of license is capped");
+				} else {
+					return ResponseEntity.ok(this.service.edit(agent));
+				}
+			} else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You do not have 'Edit' Permission!");
 			}
-		}catch(IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 			JCSAgentController.LOGGER.error("IllegalArgumentException; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}catch(Exception e) {
+		} catch (Exception e) {
 			JCSAgentController.LOGGER.error("Exception; reason was:", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}

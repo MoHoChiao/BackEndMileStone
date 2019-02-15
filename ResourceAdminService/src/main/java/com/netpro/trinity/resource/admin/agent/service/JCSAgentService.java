@@ -1,5 +1,8 @@
 package com.netpro.trinity.resource.admin.agent.service;
 
+import java.io.File;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,7 +12,6 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
-
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +24,14 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.netpro.license.IJCSServerLicense;
+import com.netpro.license.JCSServerLicenseLocate;
 import com.netpro.trinity.resource.admin.agent.dao.JCSAgentJPADao;
 import com.netpro.trinity.resource.admin.agent.entity.JCSAgent;
 import com.netpro.trinity.resource.admin.authz.entity.AccessRight;
 import com.netpro.trinity.resource.admin.authz.service.AuthzService;
+import com.netpro.trinity.resource.admin.configuration.entity.DisconfigPKs;
+import com.netpro.trinity.resource.admin.configuration.service.DisconfigService;
 import com.netpro.trinity.resource.admin.configuration.service.MonitorconfigService;
 import com.netpro.trinity.resource.admin.dto.FilterInfo;
 import com.netpro.trinity.resource.admin.dto.Ordering;
@@ -36,6 +42,7 @@ import com.netpro.trinity.resource.admin.objectalias.service.ObjectAliasService;
 import com.netpro.trinity.resource.admin.util.ACUtil;
 import com.netpro.trinity.resource.admin.util.Constant;
 import com.netpro.trinity.resource.admin.util.XMLDataUtility;
+import com.zaxxer.hikari.HikariDataSource;
 
 @Service
 public class JCSAgentService {
@@ -59,6 +66,11 @@ public class JCSAgentService {
 	private MonitorconfigService monitorService;
 	@Autowired
 	private AuthzService authzService;
+	@Autowired
+	private DisconfigService disconfigService;
+	
+	@Autowired
+	private HikariDataSource dataSource;
 	
 	public List<JCSAgent> getAll() throws Exception{
 		List<JCSAgent> agents = this.dao.findAll();
@@ -423,4 +435,104 @@ public class JCSAgentService {
 			JCSAgentService.LOGGER.error("Exception; reason was:", e);
 		}
 	}
+	
+	/*
+	 *  reference com.netpro.trinity.ui.function.jcsagent.JCSAgentController.agentCounttIsCapped
+	 */
+	public boolean agentCntIsCapped(String agentIPAndPort, String agentUid) {
+		if (!isNewLicenseVersion()) {
+			return false;
+		}
+		
+		List<String> agentKeyList = new ArrayList<String>();
+		List<JCSAgent> agentList = dao.findAll();
+		int agentMaxCnt = getMaxAgentCount();
+		
+		if (agentMaxCnt == -1) {
+			return false;
+		}
+		
+		int activateCnt = 0;
+		
+		for (JCSAgent agent : agentList) {
+			String dbAgentUid = agent.getAgentuid();
+			
+			if (dbAgentUid.equals(agentUid)) {
+				continue;
+			}
+			
+			if (activateCnt >= agentMaxCnt) {
+				break;
+			}
+			
+			String a = agent.getActivate();
+			String ipAndPort = agent.getHost().trim() + ":" + agent.getPort();
+			
+			if ("1".equals(a) && !agentKeyList.contains(ipAndPort)) {
+				activateCnt++;
+				agentKeyList.add(ipAndPort);
+			}
+		}
+		
+		if (activateCnt >= agentMaxCnt) {
+			if (agentKeyList.contains(agentIPAndPort)) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/*
+	 *  reference com.netpro.trinity.ui.function.jcsagent.JCSAgentController.getMaxAgentCount
+	 */
+	private int getMaxAgentCount() {
+		Connection con = null;
+		String homePath = System.getProperty("com.netpro.dis.server.home");
+		String libPath = new File(homePath, "lib").getAbsolutePath();
+		int ret = 0;
+		
+		try {
+			con = dataSource.getConnection();
+			IJCSServerLicense license = JCSServerLicenseLocate.getInstance(con, libPath, homePath, "");
+			ret = license.getLicenseAgentCount(false);
+		} catch (SQLException e) {
+			JCSAgentService.LOGGER.error("SQLException; reason was:", e);
+		} catch (Exception e) {
+			JCSAgentService.LOGGER.error("Exception; reason was:", e);
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException e) {
+				JCSAgentService.LOGGER.error("SQLException; reason was:", e);
+			}
+		}
+		
+		return ret;
+	}
+	
+	/*
+	 *  reference com.netpro.trinity.ui.function.jcsagent.JCSAgentController.isNewLicenseVersion
+	 */
+	private boolean isNewLicenseVersion() {
+		String value;
+		try {
+			value = disconfigService.getByUid(new DisconfigPKs("lc", "np.type")).getValue();
+			
+			if (value != null && "1".equals(value)) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (Exception e) {
+			JCSAgentService.LOGGER.error("Exception; reason was:", e);
+		}
+		
+		return false;
+	}
+	
 }
